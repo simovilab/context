@@ -31,6 +31,11 @@ This document outlines the technology stack used at SIMOVI for research and deve
 **Purpose:** In-memory data structure store  
 **Use at SIMOVI:** Caching frequently accessed data, session storage, and message broker for Celery. Improves performance of real-time transportation information queries.
 
+### ![Apache Jena logo](https://api.iconify.design/simple-icons:apache.svg) Apache Jena Fuseki
+
+**Purpose:** SPARQL server and RDF triple store  
+**Use at SIMOVI:** Storing, querying, and managing semantic web data such as transportation ontologies and linked data. Enables advanced data integration, semantic queries, and interoperability for research in intelligent mobility systems.
+
 ### ![Strapi logo](https://api.iconify.design/simple-icons:strapi.svg) Strapi CMS
 
 **Purpose:** Headless content management system  
