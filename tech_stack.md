@@ -11,7 +11,7 @@ This document outlines the technology stack used at SIMOVI for research and deve
 **Purpose:** Primary programming language for backend development and data analysis  
 **Use at SIMOVI:** Core language for API development, data processing, machine learning models, and research algorithms. Chosen for its extensive ecosystem in data science and web development.
 
-### ![Celery logo](https://api.iconify.design/simple-icons:django.svg) Django
+### ![Django logo](https://api.iconify.design/simple-icons:django.svg) Django
 
 **Purpose:** High-level Python web framework  
 **Use at SIMOVI:** Development of robust web APIs and backend services for transportation information systems. Provides ORM, authentication, and rapid development capabilities for research prototypes and production systems.
@@ -20,6 +20,11 @@ This document outlines the technology stack used at SIMOVI for research and deve
 
 **Purpose:** Distributed task queue system  
 **Use at SIMOVI:** Handling asynchronous tasks such as data processing, GTFS feed updates, real-time transit data ingestion, and scheduled operations. Beat scheduler manages periodic tasks like data synchronization.
+
+### ![Airflow logo](https://api.iconify.design/simple-icons:apacheairflow.svg) Apache Airflow
+
+**Purpose:** Workflow automation and scheduling platform  
+**Use at SIMOVI:** Orchestrating complex data pipelines, automating ETL processes, and managing scheduled tasks for public transportation data ingestion and processing. Enables reproducible, maintainable, and auditable workflows for research and production systems.
 
 ### ![PostgreSQL logo](https://api.iconify.design/simple-icons:postgresql.svg) PostgreSQL / PostGIS
 
@@ -73,7 +78,7 @@ This document outlines the technology stack used at SIMOVI for research and deve
 **Purpose:** Mobile-focused UI component library  
 **Use at SIMOVI:** Creating mobile-optimized interfaces for transportation apps, ensuring consistent user experience across different devices and platforms.
 
-## DevOps & Monitoring
+## DevOps and Monitoring
 
 ### ![Grafana logo](https://api.iconify.design/simple-icons:grafana.svg) Grafana
 
@@ -85,6 +90,11 @@ This document outlines the technology stack used at SIMOVI for research and deve
 **Purpose:** Time-series database and monitoring system  
 **Use at SIMOVI:** Collecting and storing metrics from applications and infrastructure. Monitors API performance, database health, and system resource usage.
 
+### ![Docker logo](https://api.iconify.design/simple-icons:docker.svg) Docker
+
+**Purpose:** Containerization platform  
+**Use at SIMOVI:** Packaging and deploying applications and services in isolated, reproducible environments. Simplifies development, testing, and deployment workflows for backend, frontend, and data processing components. Ensures consistency across local development and production infrastructure.
+
 ### ![Zabbix logo](https://api.iconify.design/ic:round-screen-search-desktop.svg) Zabbix
 
 **Purpose:** Enterprise-grade network and application monitoring  
@@ -95,7 +105,7 @@ This document outlines the technology stack used at SIMOVI for research and deve
 **Purpose:** Security information and event management (SIEM)  
 **Use at SIMOVI:** Security monitoring, threat detection, and compliance management for research infrastructure and transportation data systems.
 
-## Data Analysis & Research
+## Data Analysis and Research
 
 ### ![Pandas logo](https://api.iconify.design/simple-icons:pandas.svg) Pandas
 
