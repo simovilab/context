@@ -26,10 +26,10 @@ This document outlines the technology stack used at SIMOVI for research and deve
 **Purpose:** Workflow automation and scheduling platform  
 **Use at SIMOVI:** Orchestrating complex data pipelines, automating ETL processes, and managing scheduled tasks for public transportation data ingestion and processing. Enables reproducible, maintainable, and auditable workflows for research and production systems.
 
-### ![PostgreSQL logo](https://api.iconify.design/simple-icons:postgresql.svg) PostgreSQL / PostGIS
+### ![PostgreSQL logo](https://api.iconify.design/simple-icons:postgresql.svg) PostgreSQL / PostGIS / DocumentDB
 
-**Purpose:** Relational database with spatial extensions  
-**Use at SIMOVI:** Storage of transportation data, GTFS datasets, and geospatial information. PostGIS enables advanced spatial queries for route planning, stop proximity analysis, and geographic data processing.
+**Purpose:** Relational database with spatial extensions, plus native document-oriented NoSQL capabilities via DocumentDB on PostgreSQL.  
+**Use at SIMOVI:** Store relational and geospatial transportation data (GTFS, routes, stops) with PostGIS for spatial queries (routing support, proximity, buffering), and manage semi-structured and event data (JSON/BSON telemetry, API payloads, logs) with MongoDB-compatible CRUD through DocumentDB.
 
 ### ![Redis logo](https://api.iconify.design/simple-icons:redis.svg) Redis
 
