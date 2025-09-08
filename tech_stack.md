@@ -6,7 +6,7 @@ This document outlines the technology stack used at SIMOVI for research and deve
 
 ## Backend Technologies
 
-### ![Celery logo](https://api.iconify.design/simple-icons:python.svg) Python
+### ![Python logo](https://api.iconify.design/simple-icons:python.svg) Python
 
 **Purpose:** Primary programming language for backend development and data analysis  
 **Use at SIMOVI:** Core language for API development, data processing, machine learning models, and research algorithms. Chosen for its extensive ecosystem in data science and web development.
@@ -16,7 +16,7 @@ This document outlines the technology stack used at SIMOVI for research and deve
 **Purpose:** High-level Python web framework  
 **Use at SIMOVI:** Development of robust web APIs and backend services for transportation information systems. Provides ORM, authentication, and rapid development capabilities for research prototypes and production systems.
 
-### ![Celery logo](https://api.iconify.design/simple-icons:celery.svg) Celery (Worker / Beat)
+### ![Celery logo](https://api.iconify.design/simple-icons:celery.svg) Celery Worker / Beat
 
 **Purpose:** Distributed task queue system  
 **Use at SIMOVI:** Handling asynchronous tasks such as data processing, GTFS feed updates, real-time transit data ingestion, and scheduled operations. Beat scheduler manages periodic tasks like data synchronization.
@@ -26,10 +26,15 @@ This document outlines the technology stack used at SIMOVI for research and deve
 **Purpose:** Workflow automation and scheduling platform  
 **Use at SIMOVI:** Orchestrating complex data pipelines, automating ETL processes, and managing scheduled tasks for public transportation data ingestion and processing. Enables reproducible, maintainable, and auditable workflows for research and production systems.
 
-### ![PostgreSQL logo](https://api.iconify.design/simple-icons:postgresql.svg) PostgreSQL / PostGIS / DocumentDB
+### ![PostgreSQL logo](https://api.iconify.design/simple-icons:postgresql.svg) PostgreSQL / PostGIS
 
-**Purpose:** Relational database with spatial extensions, plus native document-oriented NoSQL capabilities via DocumentDB on PostgreSQL.  
-**Use at SIMOVI:** Store relational and geospatial transportation data (GTFS, routes, stops) with PostGIS for spatial queries (routing support, proximity, buffering), and manage semi-structured and event data (JSON/BSON telemetry, API payloads, logs) with MongoDB-compatible CRUD through DocumentDB.
+**Purpose:** Relational database with spatial extensions  
+**Use at SIMOVI:** Storage of transportation data, GTFS datasets, and geospatial information. PostGIS enables advanced spatial queries for route planning, stop proximity analysis, and geographic data processing.
+
+### ![MongoDB logo](https://api.iconify.design/simple-icons:mongodb.svg) MongoDB / DocumentDB
+
+**Purpose:** Document-oriented NoSQL database with BSON data support  
+**Use at SIMOVI:** Managing semi-structured and event data such as JSON/BSON telemetry from vehicles, API payloads, GTFS Realtime feed messages and time series data. DocumentDB provides MongoDB-compatible CRUD operations on PostgreSQL.
 
 ### ![Redis logo](https://api.iconify.design/simple-icons:redis.svg) Redis
 
@@ -68,17 +73,12 @@ This document outlines the technology stack used at SIMOVI for research and deve
 **Purpose:** Cross-platform native runtime  
 **Use at SIMOVI:** Deploying web-based transportation apps to iOS and Android platforms. Enables access to native device features like GPS, notifications, and offline storage.
 
-### ![PrimeVue logo](https://api.iconify.design/simple-icons:primereact.svg) PrimeVue UI
-
-**Purpose:** Rich set of UI components for Vue.js  
-**Use at SIMOVI:** Rapid development of professional-looking interfaces for transportation dashboards, data tables, and administrative panels with minimal custom styling.
-
 ### ![Ionic logo](https://api.iconify.design/simple-icons:ionic.svg) Ionic UI
 
 **Purpose:** Mobile-focused UI component library  
 **Use at SIMOVI:** Creating mobile-optimized interfaces for transportation apps, ensuring consistent user experience across different devices and platforms.
 
-## DevOps and Monitoring
+## DevOps & Monitoring
 
 ### ![Grafana logo](https://api.iconify.design/simple-icons:grafana.svg) Grafana
 
@@ -95,17 +95,17 @@ This document outlines the technology stack used at SIMOVI for research and deve
 **Purpose:** Containerization platform  
 **Use at SIMOVI:** Packaging and deploying applications and services in isolated, reproducible environments. Simplifies development, testing, and deployment workflows for backend, frontend, and data processing components. Ensures consistency across local development and production infrastructure.
 
-### ![Zabbix logo](https://api.iconify.design/ic:round-screen-search-desktop.svg) Zabbix
+### ![Search icon](https://api.iconify.design/ic:round-screen-search-desktop.svg) Zabbix
 
 **Purpose:** Enterprise-grade network and application monitoring  
 **Use at SIMOVI:** Infrastructure monitoring, alerting, and performance tracking of servers and network components supporting transportation information systems.
 
-### ![Wazuh logo](https://api.iconify.design/ic:baseline-security.svg) Wazuh
+### ![Security icon](https://api.iconify.design/ic:baseline-security.svg) Wazuh
 
 **Purpose:** Security information and event management (SIEM)  
 **Use at SIMOVI:** Security monitoring, threat detection, and compliance management for research infrastructure and transportation data systems.
 
-## Data Analysis and Research
+## Data Analysis & Research
 
 ### ![Pandas logo](https://api.iconify.design/simple-icons:pandas.svg) Pandas
 
@@ -127,7 +127,7 @@ This document outlines the technology stack used at SIMOVI for research and deve
 **Purpose:** Machine learning library  
 **Use at SIMOVI:** Predictive modeling for transportation demand, classification of mobility patterns, clustering analysis of transportation data, and ML model development for intelligent mobility systems.
 
-### ![Matplotlib logo](https://api.iconify.design/ic:baseline-area-chart.svg) Matplotlib
+### ![Chart icon](https://api.iconify.design/ic:baseline-area-chart.svg) Matplotlib
 
 **Purpose:** Data visualization library  
 **Use at SIMOVI:** Creating charts, graphs, and visualizations for research publications, transportation data analysis reports, and exploratory data analysis in mobility research.
