@@ -41,10 +41,25 @@ This document outlines the technology stack used at SIMOVI for research and deve
 **Purpose:** In-memory data structure store  
 **Use at SIMOVI:** Caching frequently accessed data, session storage, and message broker for Celery. Improves performance of real-time transportation information queries.
 
-### ![Apache Jena logo](https://api.iconify.design/simple-icons:apache.svg) Apache Jena Fuseki
+### ![RabbitMQ logo](https://api.iconify.design/simple-icons:rabbitmq.svg) RabbitMQ
+
+**Purpose:** Message broker with MQTT protocol support  
+**Use at SIMOVI:** MQTT broker for collecting real-time location updates from transit vehicles and distributing real-time updates to downstream services. Enables reliable, scalable messaging between IoT devices, backend services, and real-time information systems for public transportation data streams.
+
+### ![GraphQL logo](https://api.iconify.design/simple-icons:graphql.svg) Strawberry
+
+**Purpose:** Modern GraphQL library for Python  
+**Use at SIMOVI:** Delivering augmented transit data to information services like websites, screens, mobile apps, and other client applications. Provides efficient, flexible data fetching with type safety, enabling clients to request exactly the transportation data they need while reducing over-fetching and improving performance of real-time information systems.
+
+### ![Apache logo](https://api.iconify.design/simple-icons:apache.svg) Apache Jena Fuseki
 
 **Purpose:** SPARQL server and RDF triple store  
 **Use at SIMOVI:** Storing, querying, and managing semantic web data such as transportation ontologies and linked data. Enables advanced data integration, semantic queries, and interoperability for research in intelligent mobility systems.
+
+### ![MCP logo](https://api.iconify.design/simple-icons:modelcontextprotocol.svg) FastMCP
+
+**Purpose:** Pythonic implementation of the Model Context Protocol (MCP) for building both servers and clients. Provides a fast, ergonomic way to define tools, resources, prompts, and capabilities for LLM integrations.  
+**Use at SIMOVI:** Implementing MCP servers that expose transportation-domain tools (e.g., next-trip lookup, stop search, alerts, geospatial queries) and resources backed by Infobús and Databús APIs; and running MCP clients to connect LLMs (e.g., Claude Desktop) with real-time, curated transit data for multilingual chat experiences, operator assistants, and research workflows.
 
 ### ![Strapi logo](https://api.iconify.design/simple-icons:strapi.svg) Strapi CMS
 
