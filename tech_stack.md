@@ -16,6 +16,11 @@ This document outlines the technology stack used at SIMOVI for research and deve
 **Purpose:** High-level Python web framework  
 **Use at SIMOVI:** Development of robust web APIs and backend services for transportation information systems. Provides ORM, authentication, and rapid development capabilities for research prototypes and production systems.
 
+### ![Django logo](https://api.iconify.design/simple-icons:django.svg) Django Channels
+
+**Purpose:** ASGI-based real-time communications framework for Django, enabling WebSockets, long-lived connections, pub/sub patterns, and background consumers via channel layers (e.g., Redis).  
+**Use at SIMOVI:** Powering real-time features such as live vehicle tracking, arrival countdowns, alerts/notifications, and operator dashboards. Deployed under ASGI alongside Django with a Redis channel layer to push transit updates to websites, in-vehicle/at-stop screens, and other clients.
+
 ### ![Celery logo](https://api.iconify.design/simple-icons:celery.svg) Celery Worker / Beat
 
 **Purpose:** Distributed task queue system  
@@ -73,7 +78,7 @@ This document outlines the technology stack used at SIMOVI for research and deve
 **Purpose:** Typed superset of JavaScript  
 **Use at SIMOVI:** Development of type-safe frontend applications with better code maintainability and developer experience. Essential for large-scale transportation interface applications.
 
-### ![Vue.js logo](https://api.iconify.design/simple-icons:vuedotjs.svg) Vue.js
+### ![Vue.js logo](https://api.iconify.design/simple-icons:vuedotjs.svg) Vue
 
 **Purpose:** Progressive JavaScript framework  
 **Use at SIMOVI:** Building reactive user interfaces for transportation information systems, administrative dashboards, and research data visualization tools.
@@ -82,6 +87,11 @@ This document outlines the technology stack used at SIMOVI for research and deve
 
 **Purpose:** Vue.js meta-framework  
 **Use at SIMOVI:** Server-side rendering, static site generation, and full-stack development of transportation information websites and applications. Provides SEO optimization and performance benefits.
+
+### ![Nuxt logo](https://api.iconify.design/simple-icons:nuxtdotjs.svg) Nuxt UI
+
+**Purpose:** Open-source UI library of 100+ customizable components built with Tailwind CSS and Reka UI for Nuxt applications.  
+**Use at SIMOVI:** Building consistent, accessible, and responsive interfaces for Nuxt-based websites, admin panels, and passenger information screens; accelerating development with prebuilt components, Tailwind theming, dark mode support, and design-system primitives that integrate seamlessly with the existing Vue/Nuxt stack.
 
 ### ![Capacitor logo](https://api.iconify.design/simple-icons:capacitor.svg) Capacitor
 
@@ -120,6 +130,11 @@ This document outlines the technology stack used at SIMOVI for research and deve
 **Purpose:** Security information and event management (SIEM)  
 **Use at SIMOVI:** Security monitoring, threat detection, and compliance management for research infrastructure and transportation data systems.
 
+### ![OpenTelemetry logo](https://api.iconify.design/simple-icons:opentelemetry.svg) OpenTelemetry
+
+**Purpose:** Vendor-neutral observability framework and open standard for generating, collecting, and exporting telemetry data — traces, metrics, and logs — across distributed systems. Supports OTLP and common backends (Prometheus, Grafana Tempo, Jaeger, Loki) with automatic and manual instrumentation SDKs.  
+**Use at SIMOVI:** Instrumenting Django/ASGI (Channels), Celery tasks, Airflow DAGs, RabbitMQ message flows, PostgreSQL queries, and external HTTP calls (Infobús/Databús). Exports metrics to Prometheus and traces/logs via OTLP to Jaeger/Tempo/Loki; enables end-to-end request tracing, performance analysis, and error correlation across services, including optional browser instrumentation for Nuxt frontends.
+
 ## Data Analysis & Research
 
 ### ![Pandas logo](https://api.iconify.design/simple-icons:pandas.svg) Pandas
@@ -146,6 +161,23 @@ This document outlines the technology stack used at SIMOVI for research and deve
 
 **Purpose:** Data visualization library  
 **Use at SIMOVI:** Creating charts, graphs, and visualizations for research publications, transportation data analysis reports, and exploratory data analysis in mobility research.
+
+## Development tools
+
+### ![uv icon](https://api.iconify.design/simple-icons:uv.svg) uv
+
+**Purpose:** Fast, modern Python package and environment manager that unifies dependency resolution, virtual environments, and reproducible builds via lockfiles (pyproject.toml + uv.lock). Optimized for speed, deterministic installs, and monorepos/CI.  
+**Use at SIMOVI:** Standardizing Python environments across services and research projects; speeding up container builds and CI by caching and lockfiles; ensuring reproducible experiments and deployments for Django, Celery, Airflow, and data science pipelines.
+
+### ![pnpm logo](https://api.iconify.design/simple-icons:pnpm.svg) pnpm
+
+**Purpose:** Performant JavaScript/TypeScript package manager with content-addressable storage, workspace support, and strict, deterministic installs. Saves disk space and accelerates CI and local development.  
+**Use at SIMOVI:** Managing dependencies and workspaces for Vue/Nuxt/Ionic frontends and documentation sites; enabling fast, consistent installs in CI/CD; improving developer ergonomics in multi-app repositories.
+
+### ![Diagram icon](https://api.iconify.design/tabler:hierarchy-2.svg) Diagrams (Python)
+
+**Purpose:** Diagram-as-code library for generating architecture diagrams (cloud/on-prem/Kubernetes/network) from Python code; outputs to PNG/SVG using Graphviz. Keeps system design version-controlled and reviewable.  
+**Use at SIMOVI:** Maintaining up-to-date system and data-flow diagrams for Databús/Infobús, MCP integrations, DevOps topologies, and research prototypes; embedding generated diagrams in documentation and publications for clear, consistent communication.
 
 ## Architecture Overview
 
