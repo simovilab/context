@@ -36,15 +36,25 @@ This document outlines the technology stack used at SIMOVI for research and deve
 **Purpose:** Relational database with spatial extensions  
 **Use at SIMOVI:** Storage of transportation data, GTFS datasets, and geospatial information. PostGIS enables advanced spatial queries for route planning, stop proximity analysis, and geographic data processing.
 
-### ![MongoDB logo](https://api.iconify.design/simple-icons:mongodb.svg) MongoDB / DocumentDB
+### ![TimescaleDB logo](https://api.iconify.design/simple-icons:timescale.svg) PostgreSQL / TimescaleDB
 
-**Purpose:** Document-oriented NoSQL database with BSON data support  
-**Use at SIMOVI:** Managing semi-structured and event data such as JSON/BSON telemetry from vehicles, API payloads, GTFS Realtime feed messages and time series data. DocumentDB provides MongoDB-compatible CRUD operations on PostgreSQL.
+**Purpose:** Time-series database extension for PostgreSQL that provides hypertables, continuous aggregates, compression, and time-based partitioning for scalable time-series storage and analytics.  
+**Use at SIMOVI:** Persisting high-frequency telemetry and vehicle tracking time series; powering downsampling, retention policies, and efficient queries over time windows for dashboards, analytics, and model features.
+
+### ![MongoDB logo](https://api.iconify.design/simple-icons:mongodb.svg) MongoDB / DocumentDB (on PostgreSQL)
+
+**Purpose:** Document-oriented NoSQL with BSON data support; DocumentDB provides MongoDB-compatible collections and CRUD on top of PostgreSQL.  
+**Use at SIMOVI:** Managing semi-structured and event data such as JSON/BSON telemetry, API payloads, GTFS Realtime messages, and logs; enabling flexible schemas and document queries side-by-side with relational and time-series workloads.
 
 ### ![Redis logo](https://api.iconify.design/simple-icons:redis.svg) Redis
 
 **Purpose:** In-memory data structure store  
 **Use at SIMOVI:** Caching frequently accessed data, session storage, and message broker for Celery. Improves performance of real-time transportation information queries.
+
+### ![Redis logo](https://api.iconify.design/simple-icons:redis.svg) Redis Streams
+
+**Purpose:** Log-structured, append-only streaming data type in Redis for ordered event ingestion with persistence, consumer groups, backpressure, and replay support. Suited for high-throughput, low-latency pipelines and fan-out processing.  
+**Use at SIMOVI:** Storing high-frequency vehicle tracking and telemetry readings as events; buffering ingestion from MQTT (RabbitMQ) and feeding multiple consumers (Django Channels push, Celery workers, ETL/Airflow jobs). Enables time-windowed aggregation, reprocessing, and resilient delivery for real-time dashboards and downstream services.
 
 ### ![RabbitMQ logo](https://api.iconify.design/simple-icons:rabbitmq.svg) RabbitMQ
 
@@ -55,6 +65,11 @@ This document outlines the technology stack used at SIMOVI for research and deve
 
 **Purpose:** Modern GraphQL library for Python  
 **Use at SIMOVI:** Delivering augmented transit data to information services like websites, screens, mobile apps, and other client applications. Provides efficient, flexible data fetching with type safety, enabling clients to request exactly the transportation data they need while reducing over-fetching and improving performance of real-time information systems.
+
+### ![Flink icon](https://api.iconify.design/simple-icons:apacheflink.svg) Bytewax
+
+**Purpose:** Python-first framework and Rust-powered distributed engine for stateful event and stream processing. Inspired by Apache Flink, Spark, and Kafka Streams, it integrates natively with the Python ecosystem while providing scalable dataflows, automatic state management and recovery, windowing, and a rich connector model. The Dataflow API composes pipelines with familiar operators (map, filter, join, fold_window, etc.).
+**Use at SIMOVI:** Building real-time, stateful pipelines over transit telemetry and events: ingesting from MQTT (RabbitMQ), WebSockets, or custom sources; maintaining per-vehicle state; computing windowed aggregates (headways, dwell times, delays), geofence detections, and anomaly signals; joining with GTFS/static data in PostgreSQL; and emitting derived streams to Redis Streams, persisting to TimescaleDB hypertables, and priming caches for Django Channels pushes and Strawberry GraphQL queries. Designed to scale from local development to multi-node deployments on Docker/Kubernetes, with OpenTelemetry instrumentation for metrics and traces.
 
 ### ![Apache logo](https://api.iconify.design/simple-icons:apache.svg) Apache Jena Fuseki
 
@@ -173,6 +188,11 @@ This document outlines the technology stack used at SIMOVI for research and deve
 
 **Purpose:** Performant JavaScript/TypeScript package manager with content-addressable storage, workspace support, and strict, deterministic installs. Saves disk space and accelerates CI and local development.  
 **Use at SIMOVI:** Managing dependencies and workspaces for Vue/Nuxt/Ionic frontends and documentation sites; enabling fast, consistent installs in CI/CD; improving developer ergonomics in multi-app repositories.
+
+### ![Diagram icon](https://api.iconify.design/tabler:hierarchy-2.svg) Structurizr DSL
+
+**Purpose:** Text-based domain-specific language for authoring C4 model architecture diagrams (System Context, Container, Component, and Code) as code. Defines people, software systems, containers, components, and relationships; configures views, styles/themes, and documentation sections.
+**Use at SIMOVI:** Maintaining living C4 diagrams of Databús/Infobús services, MCP integrations, real-time streaming (RabbitMQ, Redis Streams, Bytewax), storage layers (PostgreSQL/PostGIS/TimescaleDB, MongoDB/DocumentDB), and delivery (Django/Channels, Strawberry, Nuxt). Diagrams are generated in CI for documentation sites and READMEs, enabling architecture reviews via pull requests. Complements Diagrams (Python): Structurizr DSL captures logical C4 architecture, while Diagrams focuses on infrastructure/topology visuals.
 
 ### ![Diagram icon](https://api.iconify.design/tabler:hierarchy-2.svg) Diagrams (Python)
 
