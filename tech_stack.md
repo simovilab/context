@@ -157,6 +157,11 @@ This document outlines the technology stack used at SIMOVI for research and deve
 **Purpose:** Data manipulation and analysis library  
 **Use at SIMOVI:** Processing transportation datasets, GTFS data analysis, ridership pattern analysis, and data cleaning for research projects. Primary tool for structured data operations.
 
+### ![Parquet logo](https://api.iconify.design/simple-icons:apacheparquet.svg) Apache Parquet
+
+**Purpose:** Columnar storage file format optimized for analytics  
+**Use at SIMOVI:** Efficient storage and retrieval of large transportation datasets, vehicle telemetry archives, and GTFS historical data. Enables fast columnar queries, data compression, and portable data exchange for research projects. Integrates with DataFrames and Airflow ETL pipelines.
+
 ### ![NumPy logo](https://api.iconify.design/simple-icons:numpy.svg) NumPy
 
 **Purpose:** Numerical computing library  
