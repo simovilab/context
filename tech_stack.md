@@ -86,6 +86,11 @@ This document outlines the technology stack used at SIMOVI for research and deve
 **Purpose:** Headless content management system  
 **Use at SIMOVI:** Managing dynamic content, documentation, and configuration data for transportation information systems. Provides non-technical team members with content editing capabilities.
 
+### ![Rust logo](https://api.iconify.design/simple-icons:rust.svg) Rust
+
+**Purpose:** Systems programming language focused on safety, speed, and concurrency  
+**Use at SIMOVI:** Building high-performance components for real-time data processing and stream processing pipelines. Used for performance-critical services requiring memory safety, low latency, and high throughput in transportation data ingestion and processing workflows.
+
 ## Frontend Technologies
 
 ### ![TypeScript logo](https://api.iconify.design/simple-icons:typescript.svg) TypeScript
