@@ -157,10 +157,10 @@ This document outlines the technology stack used at SIMOVI for research and deve
 
 ## Data Analysis & Research
 
-### ![Pandas logo](https://api.iconify.design/simple-icons:pandas.svg) Pandas
+### ![Polars logo](https://api.iconify.design/simple-icons:polars.svg) Polars
 
-**Purpose:** Data manipulation and analysis library  
-**Use at SIMOVI:** Processing transportation datasets, GTFS data analysis, ridership pattern analysis, and data cleaning for research projects. Primary tool for structured data operations.
+**Purpose:** Fast, multi-threaded DataFrame library with lazy evaluation and query optimization  
+**Use at SIMOVI:** High-performance processing of transportation datasets, GTFS data analysis, ridership pattern analysis, and data cleaning for research projects. Optimized for speed and memory efficiency with native Parquet support, parallel execution, and expressive query syntax for large-scale mobility data operations.
 
 ### ![Parquet logo](https://api.iconify.design/simple-icons:apacheparquet.svg) Apache Parquet
 
