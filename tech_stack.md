@@ -26,10 +26,10 @@ This document outlines the technology stack used at SIMOVI for research and deve
 **Purpose:** Distributed task queue system  
 **Use at SIMOVI:** Handling asynchronous tasks such as data processing, GTFS feed updates, real-time transit data ingestion, and scheduled operations. Beat scheduler manages periodic tasks like data synchronization.
 
-### ![Airflow logo](https://api.iconify.design/simple-icons:apacheairflow.svg) Apache Airflow
+### ![Prefect logo](https://api.iconify.design/simple-icons:prefect.svg) Prefect
 
-**Purpose:** Workflow automation and scheduling platform  
-**Use at SIMOVI:** Orchestrating complex data pipelines, automating ETL processes, and managing scheduled tasks for public transportation data ingestion and processing. Enables reproducible, maintainable, and auditable workflows for research and production systems.
+**Purpose:** Python-native workflow orchestration and scheduling platform  
+**Use at SIMOVI:** Orchestrating complex data pipelines, automating ETL processes, and managing scheduled executions for public transportation data ingestion and processing. Supports retries, observability, parameterized deployments, and reproducible, maintainable workflows for both research and production.
 
 ### ![PostgreSQL logo](https://api.iconify.design/simple-icons:postgresql.svg) PostgreSQL / PostGIS
 
@@ -54,7 +54,7 @@ This document outlines the technology stack used at SIMOVI for research and deve
 ### ![Redis logo](https://api.iconify.design/simple-icons:redis.svg) Redis Streams
 
 **Purpose:** Log-structured, append-only streaming data type in Redis for ordered event ingestion with persistence, consumer groups, backpressure, and replay support. Suited for high-throughput, low-latency pipelines and fan-out processing.  
-**Use at SIMOVI:** Storing high-frequency vehicle tracking and telemetry readings as events; buffering ingestion from MQTT (RabbitMQ) and feeding multiple consumers (Django Channels push, Celery workers, ETL/Airflow jobs). Enables time-windowed aggregation, reprocessing, and resilient delivery for real-time dashboards and downstream services.
+**Use at SIMOVI:** Storing high-frequency vehicle tracking and telemetry readings as events; buffering ingestion from MQTT (RabbitMQ) and feeding multiple consumers (Django Channels push, Celery workers, ETL/Prefect flows). Enables time-windowed aggregation, reprocessing, and resilient delivery for real-time dashboards and downstream services.
 
 ### ![RabbitMQ logo](https://api.iconify.design/simple-icons:rabbitmq.svg) RabbitMQ
 
@@ -153,7 +153,7 @@ This document outlines the technology stack used at SIMOVI for research and deve
 ### ![OpenTelemetry logo](https://api.iconify.design/simple-icons:opentelemetry.svg) OpenTelemetry
 
 **Purpose:** Vendor-neutral observability framework and open standard for generating, collecting, and exporting telemetry data — traces, metrics, and logs — across distributed systems. Supports OTLP and common backends (Prometheus, Grafana Tempo, Jaeger, Loki) with automatic and manual instrumentation SDKs.  
-**Use at SIMOVI:** Instrumenting Django/ASGI (Channels), Celery tasks, Airflow DAGs, RabbitMQ message flows, PostgreSQL queries, and external HTTP calls (Infobús/Databús). Exports metrics to Prometheus and traces/logs via OTLP to Jaeger/Tempo/Loki; enables end-to-end request tracing, performance analysis, and error correlation across services, including optional browser instrumentation for Nuxt frontends.
+**Use at SIMOVI:** Instrumenting Django/ASGI (Channels), Celery tasks, Prefect flows/deployments, RabbitMQ message flows, PostgreSQL queries, and external HTTP calls (Infobús/Databús). Exports metrics to Prometheus and traces/logs via OTLP to Jaeger/Tempo/Loki; enables end-to-end request tracing, performance analysis, and error correlation across services, including optional browser instrumentation for Nuxt frontends.
 
 ## Data Analysis & Research
 
@@ -165,7 +165,7 @@ This document outlines the technology stack used at SIMOVI for research and deve
 ### ![Parquet logo](https://api.iconify.design/simple-icons:apacheparquet.svg) Apache Parquet
 
 **Purpose:** Columnar storage file format optimized for analytics  
-**Use at SIMOVI:** Efficient storage and retrieval of large transportation datasets, vehicle telemetry archives, and GTFS historical data. Enables fast columnar queries, data compression, and portable data exchange for research projects. Integrates with DataFrames and Airflow ETL pipelines.
+**Use at SIMOVI:** Efficient storage and retrieval of large transportation datasets, vehicle telemetry archives, and GTFS historical data. Enables fast columnar queries, data compression, and portable data exchange for research projects. Integrates with DataFrames and Prefect ETL flows.
 
 ### ![NumPy logo](https://api.iconify.design/simple-icons:numpy.svg) NumPy
 
@@ -192,7 +192,7 @@ This document outlines the technology stack used at SIMOVI for research and deve
 ### ![uv icon](https://api.iconify.design/simple-icons:uv.svg) uv
 
 **Purpose:** Fast, modern Python package and environment manager that unifies dependency resolution, virtual environments, and reproducible builds via lockfiles (pyproject.toml + uv.lock). Optimized for speed, deterministic installs, and monorepos/CI.  
-**Use at SIMOVI:** Standardizing Python environments across services and research projects; speeding up container builds and CI by caching and lockfiles; ensuring reproducible experiments and deployments for Django, Celery, Airflow, and data science pipelines.
+**Use at SIMOVI:** Standardizing Python environments across services and research projects; speeding up container builds and CI by caching and lockfiles; ensuring reproducible experiments and deployments for Django, Celery, Prefect, and data science pipelines.
 
 ### ![pnpm logo](https://api.iconify.design/simple-icons:pnpm.svg) pnpm
 
