@@ -204,11 +204,6 @@ This document outlines the technology stack used at SIMOVI for research and deve
 **Purpose:** Text-based domain-specific language for authoring C4 model architecture diagrams (System Context, Container, Component, and Code) as code. Defines people, software systems, containers, components, and relationships; configures views, styles/themes, and documentation sections.
 **Use at SIMOVI:** Maintaining living C4 diagrams of Databús/Infobús services, MCP integrations, real-time streaming (RabbitMQ, Redis Streams, Bytewax), storage layers (PostgreSQL/PostGIS/TimescaleDB, MongoDB/DocumentDB), and delivery (Django/Channels, Strawberry, Nuxt). Diagrams are generated in CI for documentation sites and READMEs, enabling architecture reviews via pull requests. Complements Diagrams (Python): Structurizr DSL captures logical C4 architecture, while Diagrams focuses on infrastructure/topology visuals.
 
-### ![Diagram icon](https://api.iconify.design/tabler:hierarchy-2.svg) Diagrams (Python)
-
-**Purpose:** Diagram-as-code library for generating architecture diagrams (cloud/on-prem/Kubernetes/network) from Python code; outputs to PNG/SVG using Graphviz. Keeps system design version-controlled and reviewable.  
-**Use at SIMOVI:** Maintaining up-to-date system and data-flow diagrams for Databús/Infobús, MCP integrations, DevOps topologies, and research prototypes; embedding generated diagrams in documentation and publications for clear, consistent communication.
-
 ## Architecture Overview
 
 This technology stack enables SIMOVI to:
