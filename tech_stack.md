@@ -66,11 +66,6 @@ This document outlines the technology stack used at SIMOVI for research and deve
 **Purpose:** Modern GraphQL library for Python  
 **Use at SIMOVI:** Delivering augmented transit data to information services like websites, screens, mobile apps, and other client applications. Provides efficient, flexible data fetching with type safety, enabling clients to request exactly the transportation data they need while reducing over-fetching and improving performance of real-time information systems.
 
-### ![Flink icon](https://api.iconify.design/simple-icons:apacheflink.svg) Bytewax
-
-**Purpose:** Python-first framework and Rust-powered distributed engine for stateful event and stream processing. Inspired by Apache Flink, Spark, and Kafka Streams, it integrates natively with the Python ecosystem while providing scalable dataflows, automatic state management and recovery, windowing, and a rich connector model. The Dataflow API composes pipelines with familiar operators (map, filter, join, fold_window, etc.).
-**Use at SIMOVI:** Building real-time, stateful pipelines over transit telemetry and events: ingesting from MQTT (RabbitMQ), WebSockets, or custom sources; maintaining per-vehicle state; computing windowed aggregates (headways, dwell times, delays), geofence detections, and anomaly signals; joining with GTFS/static data in PostgreSQL; and emitting derived streams to Redis Streams, persisting to TimescaleDB hypertables, and priming caches for Django Channels pushes and Strawberry GraphQL queries. Designed to scale from local development to multi-node deployments on Docker/Kubernetes, with OpenTelemetry instrumentation for metrics and traces.
-
 ### ![Apache logo](https://api.iconify.design/simple-icons:apache.svg) Apache Jena Fuseki
 
 **Purpose:** SPARQL server and RDF triple store  
@@ -202,7 +197,7 @@ This document outlines the technology stack used at SIMOVI for research and deve
 ### ![Diagram icon](https://api.iconify.design/tabler:hierarchy-2.svg) Structurizr DSL
 
 **Purpose:** Text-based domain-specific language for authoring C4 model architecture diagrams (System Context, Container, Component, and Code) as code. Defines people, software systems, containers, components, and relationships; configures views, styles/themes, and documentation sections.
-**Use at SIMOVI:** Maintaining living C4 diagrams of Databús/Infobús services, MCP integrations, real-time streaming (RabbitMQ, Redis Streams, Bytewax), storage layers (PostgreSQL/PostGIS/TimescaleDB, MongoDB/DocumentDB), and delivery (Django/Channels, Strawberry, Nuxt). Diagrams are generated in CI for documentation sites and READMEs, enabling architecture reviews via pull requests. Complements Diagrams (Python): Structurizr DSL captures logical C4 architecture, while Diagrams focuses on infrastructure/topology visuals.
+**Use at SIMOVI:** Maintaining living C4 diagrams of Databús/Infobús services, MCP integrations, real-time streaming (RabbitMQ, Redis Streams), storage layers (PostgreSQL/PostGIS/TimescaleDB, MongoDB/DocumentDB), and delivery (Django/Channels, Strawberry, Nuxt). Diagrams are generated in CI for documentation sites and READMEs, enabling architecture reviews via pull requests. Complements Diagrams (Python): Structurizr DSL captures logical C4 architecture, while Diagrams focuses on infrastructure/topology visuals.
 
 ## Architecture Overview
 
