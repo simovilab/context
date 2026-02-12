@@ -41,11 +41,6 @@ This document outlines the technology stack used at SIMOVI for research and deve
 **Purpose:** Time-series database extension for PostgreSQL that provides hypertables, continuous aggregates, compression, and time-based partitioning for scalable time-series storage and analytics.  
 **Use at SIMOVI:** Persisting high-frequency telemetry and vehicle tracking time series; powering downsampling, retention policies, and efficient queries over time windows for dashboards, analytics, and model features.
 
-### ![MongoDB logo](https://api.iconify.design/simple-icons:mongodb.svg) MongoDB / DocumentDB (on PostgreSQL)
-
-**Purpose:** Document-oriented NoSQL with BSON data support; DocumentDB provides MongoDB-compatible collections and CRUD on top of PostgreSQL.  
-**Use at SIMOVI:** Managing semi-structured and event data such as JSON/BSON telemetry, API payloads, GTFS Realtime messages, and logs; enabling flexible schemas and document queries side-by-side with relational and time-series workloads.
-
 ### ![Redis logo](https://api.iconify.design/simple-icons:redis.svg) Redis
 
 **Purpose:** In-memory data structure store  
@@ -184,7 +179,7 @@ This document outlines the technology stack used at SIMOVI for research and deve
 
 ## Development tools
 
-### ![uv icon](https://api.iconify.design/simple-icons:uv.svg) uv
+### ![uv logo](https://api.iconify.design/simple-icons:uv.svg) uv
 
 **Purpose:** Fast, modern Python package and environment manager that unifies dependency resolution, virtual environments, and reproducible builds via lockfiles (pyproject.toml + uv.lock). Optimized for speed, deterministic installs, and monorepos/CI.  
 **Use at SIMOVI:** Standardizing Python environments across services and research projects; speeding up container builds and CI by caching and lockfiles; ensuring reproducible experiments and deployments for Django, Celery, Prefect, and data science pipelines.
@@ -193,11 +188,6 @@ This document outlines the technology stack used at SIMOVI for research and deve
 
 **Purpose:** Performant JavaScript/TypeScript package manager with content-addressable storage, workspace support, and strict, deterministic installs. Saves disk space and accelerates CI and local development.  
 **Use at SIMOVI:** Managing dependencies and workspaces for Vue/Nuxt/Ionic frontends and documentation sites; enabling fast, consistent installs in CI/CD; improving developer ergonomics in multi-app repositories.
-
-### ![Diagram icon](https://api.iconify.design/tabler:hierarchy-2.svg) Structurizr DSL
-
-**Purpose:** Text-based domain-specific language for authoring C4 model architecture diagrams (System Context, Container, Component, and Code) as code. Defines people, software systems, containers, components, and relationships; configures views, styles/themes, and documentation sections.
-**Use at SIMOVI:** Maintaining living C4 diagrams of Databús/Infobús services, MCP integrations, real-time streaming (RabbitMQ, Redis Streams), storage layers (PostgreSQL/PostGIS/TimescaleDB, MongoDB/DocumentDB), and delivery (Django/Channels, Strawberry, Nuxt). Diagrams are generated in CI for documentation sites and READMEs, enabling architecture reviews via pull requests. Complements Diagrams (Python): Structurizr DSL captures logical C4 architecture, while Diagrams focuses on infrastructure/topology visuals.
 
 ## Architecture Overview
 
