@@ -16,10 +16,10 @@ This document outlines the technology stack used at SIMOVI for research and deve
 **Purpose:** High-level Python web framework  
 **Use at SIMOVI:** Development of robust web APIs and backend services for transportation information systems. Provides ORM, authentication, and rapid development capabilities for research prototypes and production systems.
 
-### ![Django logo](https://api.iconify.design/simple-icons:django.svg) Django Channels
+### ![Django logo](https://api.iconify.design/simple-icons:django.svg) Channels
 
-**Purpose:** ASGI-based real-time communications framework for Django, enabling WebSockets, long-lived connections, pub/sub patterns, and background consumers via channel layers (e.g., Redis).  
-**Use at SIMOVI:** Powering real-time features such as live vehicle tracking, arrival countdowns, alerts/notifications, and operator dashboards. Deployed under ASGI alongside Django with a Redis channel layer to push transit updates to websites, in-vehicle/at-stop screens, and other clients.
+**Purpose:** ASGI-based real-time communications framework for Django, enabling WebSockets, long-lived connections and pub/sub patterns.  
+**Use at SIMOVI:** Powering real-time features such as live vehicle tracking, arrival countdowns, alerts/notifications, and operator dashboards. Deployed to push transit updates to websites, in-vehicle/at-stop screens, and other clients.
 
 ### ![Celery logo](https://api.iconify.design/simple-icons:celery.svg) Celery Worker / Beat
 
@@ -43,18 +43,18 @@ This document outlines the technology stack used at SIMOVI for research and deve
 
 ### ![Redis logo](https://api.iconify.design/simple-icons:redis.svg) Redis
 
-**Purpose:** In-memory data structure store  
-**Use at SIMOVI:** Caching frequently accessed data, session storage, and message broker for Celery. Improves performance of real-time transportation information queries.
-
-### ![Redis logo](https://api.iconify.design/simple-icons:redis.svg) Redis Streams
-
-**Purpose:** Log-structured, append-only streaming data type in Redis for ordered event ingestion with persistence, consumer groups, backpressure, and replay support. Suited for high-throughput, low-latency pipelines and fan-out processing.  
-**Use at SIMOVI:** Storing high-frequency vehicle tracking and telemetry readings as events; buffering ingestion from MQTT (RabbitMQ) and feeding multiple consumers (Django Channels push, Celery workers, ETL/Prefect flows). Enables time-windowed aggregation, reprocessing, and resilient delivery for real-time dashboards and downstream services.
+**Purpose:** In-memory data structure store suited for high-throughput, low-latency caching and streaming pipelines.  
+**Use at SIMOVI:** Caching frequently accessed data, storing high-frequency vehicle tracking and telemetry events, buffer ingestion from MQTT, and fan out to consumers.
 
 ### ![RabbitMQ logo](https://api.iconify.design/simple-icons:rabbitmq.svg) RabbitMQ
 
-**Purpose:** Message broker with MQTT protocol support  
-**Use at SIMOVI:** MQTT broker for collecting real-time location updates from transit vehicles and distributing real-time updates to downstream services. Enables reliable, scalable messaging between IoT devices, backend services, and real-time information systems for public transportation data streams.
+**Purpose:** Message broker using AMQP for internal service communication  
+**Use at SIMOVI:** Brokering messages between internal services and workers (e.g., Celery tasks, pipeline triggers, and inter-service events). Enables reliable, scalable delivery for backend workflows and real-time processing.
+
+### ![MQTT logo](https://api.iconify.design/simple-icons:mqtt.svg) NanoMQ
+
+**Purpose:** Lightweight MQTT broker optimized for IoT and telemetry data  
+**Use at SIMOVI:** Ingesting high-frequency telemetry data from vehicles and IoT devices. Provides efficient, low-latency data collection for real-time transit information systems.
 
 ### ![GraphQL logo](https://api.iconify.design/simple-icons:graphql.svg) Strawberry
 
