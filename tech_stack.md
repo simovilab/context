@@ -113,6 +113,11 @@ This document outlines the technology stack used at SIMOVI for research and deve
 **Purpose:** Mobile-focused UI component library  
 **Use at SIMOVI:** Creating mobile-optimized interfaces for transportation apps, ensuring consistent user experience across different devices and platforms.
 
+### ![Textual logo](https://api.iconify.design/simple-icons:textual.svg) Textual
+
+**Purpose:** Terminal user interface (TUI) framework  
+**Use at SIMOVI:** Building command-line tools and terminal-based applications for system administration, data processing, and research workflows.
+
 ## DevOps & Monitoring
 
 ### ![Grafana logo](https://api.iconify.design/simple-icons:grafana.svg) Grafana
