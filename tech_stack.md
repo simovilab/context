@@ -194,6 +194,13 @@ This document outlines the technology stack used at SIMOVI for research and deve
 **Purpose:** Performant JavaScript/TypeScript package manager with content-addressable storage, workspace support, and strict, deterministic installs. Saves disk space and accelerates CI and local development.  
 **Use at SIMOVI:** Managing dependencies and workspaces for Vue/Nuxt/Ionic frontends and documentation sites; enabling fast, consistent installs in CI/CD; improving developer ergonomics in multi-app repositories.
 
+## System Modeling
+
+### ![XState logo](https://api.iconify.design/simple-icons:xstate.svg) XState
+
+**Purpose:** State management library based on finite state machines and statecharts  
+**Use at SIMOVI:** Modeling complex stateful systems inside Databús and Infobús, used as canonical behavior specification.
+
 ## Architecture Overview
 
 This technology stack enables SIMOVI to:
