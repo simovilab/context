@@ -1,0 +1,29 @@
+- id: ingest_data
+  states:
+    idle:
+      on:
+        backend.START: # an event emitted by the "backend" service
+          - target: ingesting
+            actions: []
+    ingesting:
+      description: Ingesting data into the databus
+      meta:
+        description: Ingesting data into the databus
+      on:
+        telemetry_broker.SUCCESS: # an event emitted by the "telemetry_broker" service
+          - target: idle
+            guard: pura vida
+            actions: []
+          - target: golazo
+            guard: nada que ver
+            actions: []
+        telemetry_broker.ERROR: # an event emitted by the "telemetry_broker" service
+          - target: golazo
+            actions: []
+    golazo: {}
+- actions: {}
+  actors: {}
+  guards:
+    pura vida: {}
+    nada que ver: {}
+  delays: {}
