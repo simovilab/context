@@ -2,7 +2,7 @@
   states:
     idle:
       on:
-        backend.START: # an event emitted by the "backend" service
+        backend.RUN_REQUESTED: # an event emitted by the "backend" service
           - target: ingesting
             actions: []
     ingesting:
