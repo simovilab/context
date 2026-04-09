@@ -1,0 +1,93 @@
+import { createMachine } from "xstate";
+
+export const machine = createMachine({
+  context: {
+    reason: null,
+    run_id: null,
+    trigger: null,
+    vehicle_id: null,
+  },
+  id: "end_run_with_actions",
+  initial: "waiting",
+  states: {
+    waiting: {
+      on: {
+        "backend.END_RUN_REQUESTED": {
+          target: "submitting",
+        },
+        "realtime_engine.END_RUN_TRIGGERED": {
+          target: "validating",
+        },
+      },
+    },
+    submitting: {
+      entry: [
+        { type: "validatePayload" },
+      ],
+      on: {
+        "backend.END_RUN_SUBMISSION_SUCCEEDED": {
+          target: "validating",
+        },
+        "backend.END_RUN_SUBMISSION_FAILED": {
+          target: "notifying",
+        },
+      },
+    },
+    validating: {
+      entry: [
+        { type: "validateEndRunRequest" },
+      ],
+      on: {
+        "realtime_engine.RUN_VALIDATION_SUCCEEDED": {
+          target: "finalizing",
+        },
+        "realtime_engine.RUN_VALIDATION_FAILED": {
+          target: "notifying",
+        },
+      },
+    },
+    finalizing: {
+      entry: [
+        { type: "removeRunFromActiveSet" },
+        { type: "deleteVehicleKeys" },
+        { type: "deleteRunHash" },
+        { type: "writeTraceData" },
+        { type: "emitFinalizationObservation" },
+      ],
+      on: {
+        "realtime_engine.RUN_FINALIZATION_SUCCEEDED": {
+          target: "waiting",
+          "actions": ["endRun"]
+        },
+        "realtime_engine.RUN_FINALIZATION_FAILED": {
+          target: "notifying",
+        },
+      },
+    },
+    notifying: {
+      "entry": ["sendNotifications", "logErrors"],
+      on: {
+        "backend.END_RUN_NOTIFICATION_SENT": {
+          target: "waiting",
+        },
+      },
+    },
+  },
+}).withConfig({
+  actions: {
+    setTriggerExternal: function (context, event) {},
+    assignContext: function (context, event) {},
+    publishEndRunCommand: function (context, event) {},
+    setTriggerInternal: function (context, event) {},
+    setReason: function (context, event) {},
+    validateEndRunRequest: function (context, event) {},
+    removeRunFromActiveSet: function (context, event) {},
+    deleteVehicleKeys: function (context, event) {},
+    deleteRunHash: function (context, event) {},
+    writeTraceData: function (context, event) {},
+    emitFinalizationObservation: function (context, event) {},
+    updateRunRecord: function (context, event) {},
+    respondToHttpCaller: function (context, event) {},
+    broadcastTermination: function (context, event) {},
+  },
+});
