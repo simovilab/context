@@ -52,7 +52,6 @@ export const machine = createMachine({
         { type: "deleteVehicleKeys" },
         { type: "deleteRunHash" },
         { type: "writeTraceData" },
-        { type: "emitFinalizationObservation" },
       ],
       on: {
         "realtime_engine.RUN_FINALIZATION_SUCCEEDED": {

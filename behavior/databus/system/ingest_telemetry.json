@@ -1,0 +1,131 @@
+import { createMachine } from "xstate";
+
+export const machine = createMachine({
+  context: {
+    vehicle_id: null,
+    run_id: null,
+    trip_id: null,
+    route_id: null,
+    raw_payload: null,
+    discard_reason: null,
+  },
+  id: "ingest_telemetry",
+  initial: "waiting",
+  states: {
+    waiting: {
+      on: {
+        "telemetry_broker.TELEMETRY_RECEIVED": {
+          target: "validating",
+        },
+      },
+    },
+    validating: {
+      on: {
+        "realtime_engine.TELEMETRY_VALIDATION_SUCCEEDED": {
+          target: "processing",
+        },
+        "realtime_engine.TELEMETRY_VALIDATION_FAILED": {
+          target: "notifying",
+        },
+      },
+      entry: [
+        {
+          type: "parseMqttPayload",
+        },
+        {
+          type: "checkActiveRun",
+        },
+        {
+          type: "validateCoordinates",
+        },
+        {
+          type: "validateTimestamp",
+        },
+      ],
+    },
+    processing: {
+      on: {
+        "realtime_engine.TELEMETRY_PROCESSING_SUCCEEDED": {
+          target: "waiting",
+          "actions": ["requestStateUpdate"]
+        },
+        "realtime_engine.TELEMETRY_PROCESSING_FAILED": {
+          target: "notifying",
+        },
+      },
+      entry: [
+        {
+          type: "normalizePayload",
+        },
+        {
+          type: "associateRunContext",
+        },
+        {
+          type: "markReadyForStateUpdate",
+        },
+      ],
+    },
+    notifying: {
+      on: {
+        "realtime_engine.TELEMETRY_NOTIFICATION_SENT": {
+          target: "waiting",
+        },
+      },
+      entry: [
+        {
+          type: "sendNotifications",
+        },
+        {
+          type: "logErrors",
+        },
+      ],
+    },
+  },
+}).withConfig({
+  actions: {
+    parseMqttPayload: function (context, event) {
+      // Add your action code here
+      // ...
+    },
+    checkActiveRun: function (context, event) {
+      // Add your action code here
+      // ...
+    },
+    validateCoordinates: function (context, event) {
+      // Add your action code here
+      // ...
+    },
+    validateTimestamp: function (context, event) {
+      // Add your action code here
+      // ...
+    },
+    assignContext: function (context, event) {
+      // Add your action code here
+      // ...
+    },
+    normalizePayload: function (context, event) {
+      // Add your action code here
+      // ...
+    },
+    associateRunContext: function (context, event) {
+      // Add your action code here
+      // ...
+    },
+    markReadyForStateUpdate: function (context, event) {
+      // Add your action code here
+      // ...
+    },
+    setDiscardReason: function (context, event) {
+      // Add your action code here
+      // ...
+    },
+    logResult: function (context, event) {
+      // Add your action code here
+      // ...
+    },
+    emitTelemetryObservation: function (context, event) {
+      // Add your action code here
+      // ...
+    },
+  },
+});
