@@ -1,0 +1,166 @@
+import { createMachine } from "xstate";
+
+export const machine = createMachine({
+  context: {
+    vehicle_id: null,
+    run_id: null,
+    changes: [],
+    fsm_transition: null,
+    observation_required: false,
+  },
+  id: "update_system_state",
+  initial: "waiting",
+  states: {
+    waiting: {
+      on: {
+        "realtime_engine.STATE_UPDATE_REQUESTED": {
+          target: "fetching",
+        },
+      },
+    },
+    fetching: {
+      on: {
+        "realtime_engine.STATE_FETCH_SUCCEEDED": {
+          target: "evaluating",
+        },
+        "realtime_engine.STATE_FETCH_FAILED": {
+          target: "notifying",
+        },
+      },
+      entry: [
+        {
+          type: "loadCurrentVehicleState",
+        },
+        {
+          type: "loadValidatedDatum",
+        },
+
+      ],
+    },
+    evaluating: {
+      on: {
+        "realtime_engine.STATE_EVALUATED": {
+          target: "updating",
+        },
+        // No failure event here yet. to be added once we define failure conditions for this step 
+      },
+      entry: [
+        {
+          type: "runFsmLogic",
+        },
+        {
+          type: "determineStopProximity",
+        },
+        {
+          type: "calculateDerivedFields",
+        },
+        {
+          type: "recordChanges",
+        },
+                {
+          type: "snapToRouteShape",
+        },
+      ],
+    },
+    notifying: {
+      on: {
+        "realtime_engine.STATE_NOTIFICATION_SENT": {
+          target: "waiting",
+        },
+      },
+      entry: [
+        {
+          type: "sendNotifications",
+        },
+        {
+          type: "logErrors",
+        },
+      ],
+    },
+    updating: {
+      on: {
+        "realtime_engine.STATE_UPDATE_SUCCEEDED": {
+          target: "waiting",
+          "actions": ["publishObservation"]
+        },
+        "realtime_engine.STATE_UPDATE_FAILED": {
+          target: "notifying",
+        },
+      },
+      entry: [
+        {
+          type: "writeVehiclePosition",
+        },
+        {
+          type: "writeVehicleProgression",
+        },
+        {
+          type: "writeVehicleOccupancy",
+        },
+        {
+          type: "updateRunMetadata",
+        },
+        
+      ],
+    },
+  },
+}).withConfig({
+  actions: {
+    loadCurrentVehicleState: function (context, event) {
+      // Add your action code here
+      // ...
+    },
+    loadValidatedDatum: function (context, event) {
+      // Add your action code here
+      // ...
+    },
+    snapToRouteShape: function (context, event) {
+      // Add your action code here
+      // ...
+    },
+    runFsmLogic: function (context, event) {
+      // Add your action code here
+      // ...
+    },
+    determineStopProximity: function (context, event) {
+      // Add your action code here
+      // ...
+    },
+    calculateDerivedFields: function (context, event) {
+      // Add your action code here
+      // ...
+    },
+    recordChanges: function (context, event) {
+      // Add your action code here
+      // ...
+    },
+    sendNotifications: function (context, event) {
+      // Add your action code here
+      // ...
+    },
+    logErrors: function (context, event) {
+      // Add your action code here
+      // ...
+    },
+    writeVehiclePosition: function (context, event) {
+      // Add your action code here
+      // ...
+    },
+    writeVehicleProgression: function (context, event) {
+      // Add your action code here
+      // ...
+    },
+    writeVehicleOccupancy: function (context, event) {
+      // Add your action code here
+      // ...
+    },
+    updateRunMetadata: function (context, event) {
+      // Add your action code here
+      // ...
+    },
+    publishObservation: function (context, event) {
+      // Add your action code here
+      // ...
+    },
+  },
+});

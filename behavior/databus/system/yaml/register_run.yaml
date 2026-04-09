@@ -1,0 +1,126 @@
+# register_run.yaml
+# Process: Register a new run in the system
+# Actors: backend, realtime_engine, state (Redis), store (PostgreSQL)
+
+- id: register_run
+  initial: waiting
+  context:
+    run_id: null
+    vehicle_id: null
+    trip_id: null
+    result: null # "accepted" | "rejected"
+    rejection_reason: null
+  states:
+    waiting:
+      description: Idle, waiting for a run registration request
+      on:
+        backend.RUN_REQUESTED:
+          - target: requesting
+            actions:
+              - validatePayload
+              - createPendingRun
+              - assignContext
+
+    requesting:
+      description: Backend has received the API call and is publishing the command to RabbitMQ
+      on:
+        backend.RUN_VALIDATION_REQUESTED:
+          - target: validating
+            actions:
+              - publishRunCommand
+              - checkVehicleAvailability
+              - checkTripAvailability
+              - validateSchedule
+
+    validating:
+      description: Realtime-engine is validating the run against operational state in Redis and GTFS schedule
+      on:
+        realtime_engine.RUN_ACCEPTED:
+          - target: initializing
+            actions:
+              - setResultAccepted
+        realtime_engine.RUN_REJECTED:
+          - target: notifying
+            actions:
+              - setResultRejected
+              - emitRejectionObservation
+
+    initializing:
+      description: Realtime-engine is writing run and vehicle metadata to Redis
+      on:
+        realtime_engine.RUN_INITIALIZED:
+          - target: notifying
+            actions:
+              - addRunToActiveSet
+              - writeRunMetadata
+              - writeVehicleMetadata
+              - emitInitializationObservation
+
+    notifying:
+      description: Backend is notifying the original API caller of the outcome (acceptance or rejection via context)
+      on:
+        backend.RUN_NOTIFICATION_SENT:
+          - target: waiting
+            actions:
+              - updateRunRecord
+              - respondToHttpCaller
+
+- actions:
+    validatePayload:
+      service: backend
+      description: Validate the HTTP request body — required fields: vehicle_id, trip_id, route_id, start_time
+    createPendingRun:
+      service: backend
+      description: Create a Run record in PostgreSQL with status "pending"
+    assignContext:
+      service: backend
+      description: Assign run_id, vehicle_id, trip_id to the machine context
+    publishRunCommand:
+      service: backend
+      description: Publish the run command message to RabbitMQ
+    checkVehicleAvailability:
+      service: realtime_engine
+      description: Check Redis runs:in_progress — is this vehicle already on an active run?
+    checkTripAvailability:
+      service: realtime_engine
+      description: Check Redis — is this trip already assigned to another active run?
+    validateSchedule:
+      service: realtime_engine
+      description: Validate against GTFS schedule — does the trip exist? Is the service active today per calendar + calendar_dates?
+    setResultAccepted:
+      service: realtime_engine
+      description: Set result to "accepted" in context
+    setResultRejected:
+      service: realtime_engine
+      description: Set result to "rejected" and rejection_reason in context
+    emitRejectionObservation:
+      service: realtime_engine
+      description: Emit observation to RabbitMQ with rejection details
+    addRunToActiveSet:
+      service: realtime_engine
+      description: Add run_id to the runs:in_progress set in Redis
+    writeRunMetadata:
+      service: realtime_engine
+      description: Write run:{id} hash to Redis (vehicle_id, trip_id, route_id, start_time, status)
+    writeVehicleMetadata:
+      service: realtime_engine
+      description: Write vehicle:{id}:data hash to Redis (initial metadata)
+    emitInitializationObservation:
+      service: realtime_engine
+      description: Emit observation to RabbitMQ confirming run initialization
+    updateRunRecord:
+      service: backend
+      description: Update Run record in PostgreSQL (status → active or rejected)
+    respondToHttpCaller:
+      service: backend
+      description: Send HTTP response to the original API caller with the result
+
+  actors:
+    backend:
+      description: Django control plane — owns domain schemas, REST API, issues commands
+    realtime_engine:
+      description: Real-time reasoning — consumes commands, validates against Redis state, updates operational state
+
+  guards: {}
+
+  delays: {}
