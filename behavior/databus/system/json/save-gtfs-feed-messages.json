@@ -48,8 +48,8 @@
     "notifying": {
       "entry": [
         "tasks.send_notifications",
-        "tasks.log_errors",
-        "tasks.flush_data"
+        "tasks.flush_data",
+        "tasks.log_errors"
       ],
       "on": {
         "tasks.SAVE_NOTIFICATION_SENT": {

@@ -17,7 +17,6 @@
     },
     "snapshotting": {
       "entry": [
-        "tasks.record_trigger_timestamp",
         "tasks.read_active_runs",
         "tasks.read_vehicle_states",
         "tasks.read_stop_time_updates"
@@ -49,7 +48,7 @@
     },
     "publishing": {
       "entry": [
-        "tasks.write_feed_files"
+        "tasks.publish_feed_files"
       ],
       "on": {
         "tasks.PUBLISH_SUCCEEDED": {

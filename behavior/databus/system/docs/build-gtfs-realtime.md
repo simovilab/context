@@ -46,34 +46,33 @@ notifying
 
 | Action | Service | Description |
 |---|---|---|
-| `tasks.record_trigger_timestamp` | `tasks` | Store the scheduler trigger time in context as `snapshot_timestamp` |
-| `tasks.read_active_runs` | `tasks` | Read the `runs:in_progress` set from Redis to get all active run IDs; store count in `active_runs` |
+| `tasks.read_active_runs` | `tasks` | Read the `runs:in_progress` set from Redis to get all active run IDs |
 | `tasks.read_vehicle_states` | `tasks` | For each active run, read `vehicle:{id}:position`, `vehicle:{id}:progression`, `vehicle:{id}:occupancy` from Redis |
-| `tasks.read_stop_time_updates` | `tasks` | Read pending stop-time update records from Redis for each active run (used later by TU builder) |
-| `tasks.poll_gtfs_schedule` | `tasks` | Query PostgreSQL for GTFS Schedule data needed by the TU builder: `stop_times`, trip metadata, calendar |
-| `tasks.build_vehicle_positions_feed` | `tasks` | Construct VehiclePositions FeedMessage protobuf — one entity per active vehicle with position, trip, and vehicle status; store `entities_vp` count in context |
-| `tasks.build_trip_updates_feed` | `tasks` | Construct TripUpdates FeedMessage protobuf — one entity per active trip with `stop_time_update` entries (delay, uncertainty); store `entities_tu` count in context |
+| `tasks.read_stop_time_updates` | `tasks` | Read current stop-time updates from Redis for each active run |
+| `tasks.poll_gtfs_schedule` | `tasks` | Query PostgreSQL for GTFS Schedule data needed by the TU builder. **[IF NEEDED]** |
+| `tasks.build_vehicle_positions` | `tasks` | Construct VehiclePositions FeedMessage protobuf |
+| `tasks.build_trip_updates` | `tasks` | Construct TripUpdates FeedMessage protobuf |
 | `tasks.set_feed_headers` | `tasks` | Set FeedHeader fields: `gtfs_realtime_version: "2.0"`, `incrementality: FULL_DATASET`, `timestamp` |
-| `tasks.write_feed_files` | `tasks` | Write `vehicle_positions.pb` and `trip_updates.pb` to `backend/feed/files/` |
-| `tasks.emit_publication_assertion` | `tasks` | Publish assertion to RabbitMQ confirming feed generation (timestamp, entity counts) |
-| `tasks.send_notifications` | `tasks` | Dispatch error notifications (e.g. alert channel, ops dashboard) when the build cycle fails at any step |
-| `tasks.log_errors` | `tasks` | Write structured error details to the application log and/or store for post-mortem |
+| `tasks.publish_feed_files` | `tasks` | Write `vehicle_positions` and `trip_updates` to `backend/feed/files/` (`.pb` & `.json`) |
+| `tasks.emit_publication_assertion` | `tasks` | Publish assertion to RabbitMQ confirming feed generation |
+| `tasks.send_notifications` | `tasks` | Dispatch error notifications when the build cycle fails at any step |
 | `tasks.flush_data` | `tasks` | Clear any partial in-memory state accumulated during the failed cycle before returning to `waiting` |
+| `tasks.log_errors` | `tasks` | Write structured error details to the application log and/or store for post-mortem |
 
 **Responsibilities per state**:
 
 | State | Owner | What happens here |
 |---|---|---|
 | `waiting` | `scheduler` | Machine is idle; waits for the next periodic trigger from Celery Beat |
-| `snapshotting` | `tasks` | Records trigger timestamp; reads active run IDs, vehicle states, and stop-time updates from Redis into memory |
-| `building` | `tasks` | Polls GTFS Schedule from PostgreSQL; constructs VP and TU protobuf feeds; sets feed headers |
-| `publishing` | `tasks` | Writes feed files to disk; on success emits publication assertion to RabbitMQ |
+| `snapshotting` | `tasks` | Reads active run IDs, vehicle states, and stop-time updates from Redis |
+| `building` | `tasks` | Polls GTFS Schedule from PostgreSQL; constructs VP and TU feed messages; sets feed headers |
+| `publishing` | `tasks` | Publishes feed files to public URL; on success emits publication assertion to RabbitMQ |
 | `notifying` | `tasks` | On any failure path: sends notifications, logs errors, flushes partial state, then returns to waiting |
 
 **Notes**:
 - Triggered every 15 seconds by the scheduler
 - VP and TU feeds are built together in a single `building` step
-- `publishing` covers both writing feed files and emitting an assertion to RabbitMQ
+- `publishing` covers both publishing feed files and emitting an assertion to RabbitMQ
 - Snapshot is a point-in-time read — no writes to Redis during `snapshotting`
 - All three failure events (`SNAPSHOT_FAILED`, `BUILD_FAILED`, `PUBLISH_FAILED`) funnel into `notifying`, which always returns to `waiting`
 - The `databus.` namespace prefix is omitted throughout for readability; it can be prepended to all identifiers per the project README naming conventions
@@ -88,6 +87,6 @@ notifying
 7. All action names fully qualified with `tasks.` prefix and converted to snake_case
 8. New action `tasks.read_stop_time_updates` added to `snapshotting` entry
 9. New actions `tasks.send_notifications`, `tasks.log_errors`, `tasks.flush_data` added in `notifying` entry
-10. `recordActiveRunCount` and `recordEntityCounts` removed as standalone actions; count recording is now implicit in `read_active_runs` and `build_vehicle_positions_feed` / `build_trip_updates_feed` respectively
+10. `recordActiveRunCount` and `recordEntityCounts` removed as standalone actions; count recording is now implicit in `read_active_runs` and `build_vehicle_positions` / `build_trip_updates` respectively
 
 ---

@@ -40,16 +40,16 @@ notifying
 
 | Action | Service | Description |
 |---|---|---|
-| `tasks.receive_feed_data` | `tasks` | Receive the built protobuf feed data from `build-gtfs-realtime`; store feed type and snapshot timestamp in context |
-| `tasks.convert_to_parquet` | `tasks` | Extract protobuf entities into columnar Parquet format for efficient batch analytics |
-| `tasks.enrich_metadata` | `tasks` | Attach metadata to the record: snapshot timestamp, entity counts, feed version, generation duration |
-| `tasks.calculate_blob_size` | `tasks` | Compute the size in bytes of the serialized feed; store in `blob_size_bytes` context field |
-| `tasks.persist_parquet_file` | `tasks` | Write the Parquet file (and any associated blob) to storage; record `storage_format` in context |
+| `tasks.receive_feed_data` | `tasks` | Receive the built feed data from `build-gtfs-realtime` |
+| `tasks.convert_to_parquet` | `tasks` | Extract protobuf entities into Parquet |
+| `tasks.enrich_metadata` | `tasks` | Attach metadata to the record: e.g., snapshot timestamp, entity counts, feed version, generation duration |
+| `tasks.calculate_blob_size` | `tasks` | Compute the size in bytes of the serialized feed |
+| `tasks.persist_parquet_file` | `tasks` | Write the Parquet file (and any associated blob) to storage |
 | `tasks.emit_persistence_assertion` | `tasks` | Publish assertion to RabbitMQ confirming the feed record has been persisted (timestamp, feed type, blob size) |
 | `tasks.clear_feed_data` | `tasks` | Release in-memory feed data after successful persistence to free resources |
-| `tasks.send_notifications` | `tasks` | Dispatch error notifications (e.g. alert channel, ops dashboard) when the save cycle fails at any step |
-| `tasks.log_errors` | `tasks` | Write structured error details to the application log and/or store for post-mortem |
+| `tasks.send_notifications` | `tasks` | Dispatch error notifications when the save cycle fails at any step |
 | `tasks.flush_data` | `tasks` | Clear any partial in-memory state accumulated during the failed cycle before returning to `waiting` |
+| `tasks.log_errors` | `tasks` | Write structured error details to the application log and/or store for post-mortem |
 
 **Responsibilities per state**:
 
@@ -62,7 +62,7 @@ notifying
 
 **Notes**:
 - Follows directly after `build-gtfs-realtime` completes (triggered by feed publication event)
-- Records are retained for ~1 year for analytics and auditing
+- Records are retained for some arbitrary time for analytics and auditing
 - Parquet format supports batch processing by the `analytics-engine`
 - Both failure paths (`SERIALIZATION_FAILED`, `PERSIST_FAILED`) funnel into `notifying`, which always returns to `waiting`
 - The `databus.` namespace prefix is omitted throughout for readability; it can be prepended to all identifiers per the project README naming conventions
