@@ -1,12 +1,13 @@
 {
-  "id": "register_run",
+  "id": "register-run",
   "initial": "waiting",
   "context": {
     "run_id": null,
     "vehicle_id": null,
     "trip_id": null,
     "result": null,
-    "rejection_reason": null
+    "rejection_reason": null,
+    "error": null
   },
   "states": {
     "waiting": {
@@ -17,7 +18,7 @@
       }
     },
     "submitting": {
-      "entry": ["validatePayload", "sendRunValidationRequest"],
+      "entry": ["backend.validate_payload", "backend.send_run_validation_request"],
       "on": {
         "backend.RUN_SUBMISSION_SUCCEEDED": {
           "target": "validating"
@@ -28,9 +29,13 @@
       }
     },
     "validating": {
-      "entry": ["checkVehicleAvailability", "checkTripAvailability", "validateSchedule","setResult"],
+      "entry": [
+        "realtime_engine.check_vehicle_availability",
+        "realtime_engine.check_trip_availability",
+        "realtime_engine.validate_schedule"
+      ],
       "on": {
-        "realtime_engine.RUN_VALIDATION_SUCCEDED": {
+        "realtime_engine.RUN_VALIDATION_SUCCEEDED": {
           "target": "initializing"
         },
         "realtime_engine.RUN_VALIDATION_FAILED": {
@@ -39,7 +44,7 @@
       }
     },
     "initializing": {
-      "entry": ["writeRunMetadata", "emitInitializationObservation"],
+      "entry": ["realtime_engine.write_run_metadata", "realtime_engine.emit_initialization_observation"],
       "on": {
         "realtime_engine.RUN_INITIALIZATION_SUCCEEDED": {
           "target": "confirming"
@@ -50,11 +55,11 @@
       }
     },
     "confirming": {
-      "entry": ["requestOperatorConfirmation"],
+      "entry": ["backend.request_operator_confirmation"],
       "on": {
         "realtime_engine.RUN_CONFIRMATION_SUCCEEDED": {
           "target": "waiting",
-          "actions": ["startRun"]
+          "actions": ["realtime_engine.start_run"]
         },
         "realtime_engine.RUN_CONFIRMATION_FAILED": {
           "target": "notifying"
@@ -62,7 +67,7 @@
       }
     },
     "notifying": {
-      "entry": ["sendNotifications","flushData", "logErrors"],
+      "entry": ["backend.send_notifications", "realtime_engine.flush_data", "backend.log_errors"],
       "on": {
         "backend.RUN_NOTIFICATION_SENT": {
           "target": "waiting"

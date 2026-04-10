@@ -1,0 +1,66 @@
+{
+  "id": "ingest-telemetry",
+  "initial": "waiting",
+  "context": {
+    "vehicle_id": null,
+    "run_id": null,
+    "trip_id": null,
+    "route_id": null,
+    "raw_payload": null,
+    "discard_reason": null,
+    "error": null
+  },
+  "states": {
+    "waiting": {
+      "on": {
+        "telemetry_broker.TELEMETRY_RECEIVED": {
+          "target": "validating"
+        }
+      }
+    },
+    "validating": {
+      "entry": [
+        "realtime_engine.parse_mqtt_payload",
+        "realtime_engine.check_active_run",
+        "realtime_engine.validate_coordinates",
+        "realtime_engine.validate_timestamp"
+      ],
+      "on": {
+        "realtime_engine.TELEMETRY_VALIDATION_SUCCEEDED": {
+          "target": "processing"
+        },
+        "realtime_engine.TELEMETRY_VALIDATION_FAILED": {
+          "target": "notifying"
+        }
+      }
+    },
+    "processing": {
+      "entry": [
+        "realtime_engine.normalize_payload",
+        "realtime_engine.associate_run_context",
+        "realtime_engine.mark_ready_for_state_update"
+      ],
+      "on": {
+        "realtime_engine.TELEMETRY_PROCESSING_SUCCEEDED": {
+          "target": "waiting",
+          "actions": ["realtime_engine.request_state_update"]
+        },
+        "realtime_engine.TELEMETRY_PROCESSING_FAILED": {
+          "target": "notifying"
+        }
+      }
+    },
+    "notifying": {
+      "entry": [
+        "realtime_engine.send_notifications",
+        "realtime_engine.flush_data",
+        "realtime_engine.log_errors"
+      ],
+      "on": {
+        "realtime_engine.TELEMETRY_NOTIFICATION_SENT": {
+          "target": "waiting"
+        }
+      }
+    }
+  }
+}

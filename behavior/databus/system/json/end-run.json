@@ -1,0 +1,69 @@
+{
+  "id": "end-run",
+  "initial": "waiting",
+  "context": {
+    "run_id": null,
+    "vehicle_id": null,
+    "trigger": null,
+    "reason": null,
+    "error": null
+  },
+  "states": {
+    "waiting": {
+      "on": {
+        "backend.END_RUN_REQUESTED": {
+          "target": "submitting"
+        },
+        "realtime_engine.END_RUN_TRIGGERED": {
+          "target": "validating"
+        }
+      }
+    },
+    "submitting": {
+      "entry": ["backend.validate_payload"],
+      "on": {
+        "backend.END_RUN_SUBMISSION_SUCCEEDED": {
+          "target": "validating"
+        },
+        "backend.END_RUN_SUBMISSION_FAILED": {
+          "target": "notifying"
+        }
+      }
+    },
+    "validating": {
+      "entry": ["realtime_engine.validate_end_run_request"],
+      "on": {
+        "realtime_engine.RUN_VALIDATION_SUCCEEDED": {
+          "target": "finalizing"
+        },
+        "realtime_engine.RUN_VALIDATION_FAILED": {
+          "target": "notifying"
+        }
+      }
+    },
+    "finalizing": {
+      "entry": [
+        "realtime_engine.remove_run_from_active_set",
+        "realtime_engine.delete_vehicle_keys",
+        "realtime_engine.delete_run_hash"
+      ],
+      "on": {
+        "realtime_engine.RUN_FINALIZATION_SUCCEEDED": {
+          "target": "waiting",
+          "actions": ["backend.end_run"]
+        },
+        "realtime_engine.RUN_FINALIZATION_FAILED": {
+          "target": "notifying"
+        }
+      }
+    },
+    "notifying": {
+      "entry": ["backend.send_notifications", "backend.log_errors"],
+      "on": {
+        "backend.END_RUN_NOTIFICATION_SENT": {
+          "target": "waiting"
+        }
+      }
+    }
+  }
+}
