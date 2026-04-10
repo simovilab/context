@@ -1,0 +1,61 @@
+{
+  "id": "save-gtfs-feed-messages",
+  "initial": "waiting",
+  "context": {
+    "snapshot_timestamp": null,
+    "feed_type": null,
+    "blob_size_bytes": 0,
+    "storage_format": null
+  },
+  "states": {
+    "waiting": {
+      "on": {
+        "tasks.SAVE_TRIGGERED": {
+          "target": "serializing",
+          "actions": ["tasks.receive_feed_data"]
+        }
+      }
+    },
+    "serializing": {
+      "entry": [
+        "tasks.convert_to_parquet",
+        "tasks.enrich_metadata",
+        "tasks.calculate_blob_size"
+      ],
+      "on": {
+        "tasks.SERIALIZATION_SUCCEEDED": {
+          "target": "persisting"
+        },
+        "tasks.SERIALIZATION_FAILED": {
+          "target": "notifying"
+        }
+      }
+    },
+    "persisting": {
+      "entry": [
+        "tasks.persist_parquet_file"
+      ],
+      "on": {
+        "tasks.PERSIST_SUCCEEDED": {
+          "target": "waiting",
+          "actions": ["tasks.emit_persistence_assertion", "tasks.clear_feed_data"]
+        },
+        "tasks.PERSIST_FAILED": {
+          "target": "notifying"
+        }
+      }
+    },
+    "notifying": {
+      "entry": [
+        "tasks.send_notifications",
+        "tasks.log_errors",
+        "tasks.flush_data"
+      ],
+      "on": {
+        "tasks.SAVE_NOTIFICATION_SENT": {
+          "target": "waiting"
+        }
+      }
+    }
+  }
+}

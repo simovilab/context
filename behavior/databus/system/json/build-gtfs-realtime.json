@@ -1,0 +1,77 @@
+{
+  "id": "build-gtfs-realtime",
+  "initial": "waiting",
+  "context": {
+    "snapshot_timestamp": null,
+    "active_runs": 0,
+    "entities_vp": 0,
+    "entities_tu": 0
+  },
+  "states": {
+    "waiting": {
+      "on": {
+        "scheduler.BUILD_TRIGGERED": {
+          "target": "snapshotting"
+        }
+      }
+    },
+    "snapshotting": {
+      "entry": [
+        "tasks.record_trigger_timestamp",
+        "tasks.read_active_runs",
+        "tasks.read_vehicle_states",
+        "tasks.read_stop_time_updates"
+      ],
+      "on": {
+        "tasks.SNAPSHOT_SUCCEEDED": {
+          "target": "building"
+        },
+        "tasks.SNAPSHOT_FAILED": {
+          "target": "notifying"
+        }
+      }
+    },
+    "building": {
+      "entry": [
+        "tasks.poll_gtfs_schedule",
+        "tasks.build_vehicle_positions_feed",
+        "tasks.build_trip_updates_feed",
+        "tasks.set_feed_headers"
+      ],
+      "on": {
+        "tasks.BUILD_SUCCEEDED": {
+          "target": "publishing"
+        },
+        "tasks.BUILD_FAILED": {
+          "target": "notifying"
+        }
+      }
+    },
+    "publishing": {
+      "entry": [
+        "tasks.write_feed_files"
+      ],
+      "on": {
+        "tasks.PUBLISH_SUCCEEDED": {
+          "target": "waiting",
+          "actions": ["tasks.emit_publication_assertion"]
+        },
+        "tasks.PUBLISH_FAILED": {
+          "target": "notifying"
+        }
+      }
+    },
+    "notifying": {
+      "entry": [
+        "tasks.send_notifications",
+        "tasks.log_errors",
+        "tasks.flush_data"
+      ],
+      "on": {
+        "tasks.BUILD_NOTIFICATION_SENT": {
+          "target": "waiting"
+        }
+      }
+    }
+  }
+}
