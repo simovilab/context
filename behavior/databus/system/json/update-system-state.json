@@ -1,76 +1,125 @@
 {
-  "id": "update-system-state",
-  "initial": "waiting",
   "context": {
-    "vehicle_id": null,
     "run_id": null,
     "changes": [],
+    "vehicle_id": null,
     "fsm_transition": null,
-    "observation_required": false,
-    "error": null
+    "observation_required": false
   },
+  "id": "update_system_state",
+  "initial": "waiting",
   "states": {
     "waiting": {
       "on": {
-        "realtime_engine.STATE_UPDATE_REQUESTED": {
-          "target": "fetching"
-        }
+        "realtime_engine.STATE_UPDATE_REQUESTED": [
+          {
+            "target": "fetching",
+            "actions": []
+          }
+        ]
       }
     },
     "fetching": {
       "entry": [
-        "realtime_engine.load_current_vehicle_state",
-        "realtime_engine.load_validated_datum"
+        {
+          "type": "loadCurrentVehicleState"
+        },
+        {
+          "type": "loadValidatedDatum"
+        }
       ],
       "on": {
-        "realtime_engine.STATE_FETCH_SUCCEEDED": {
-          "target": "evaluating"
-        },
-        "realtime_engine.STATE_FETCH_FAILED": {
-          "target": "notifying"
-        }
+        "realtime_engine.STATE_FETCH_SUCCEEDED": [
+          {
+            "target": "evaluating",
+            "actions": []
+          }
+        ],
+        "realtime_engine.STATE_FETCH_FAILED": [
+          {
+            "target": "notifying",
+            "actions": []
+          }
+        ]
       }
     },
     "evaluating": {
       "entry": [
-        "realtime_engine.snap_to_route_shape",
-        "realtime_engine.run_fsm_logic",
-        "realtime_engine.determine_stop_proximity",
-        "realtime_engine.calculate_derived_fields"
+        {
+          "type": "runFsmLogic"
+        },
+        {
+          "type": "determineStopProximity"
+        },
+        {
+          "type": "calculateDerivedFields"
+        },
+        {
+          "type": "recordChanges"
+        },
+        {
+          "type": "snapToRouteShape"
+        }
       ],
       "on": {
-        "realtime_engine.STATE_EVALUATED": {
-          "target": "updating"
-        }
+        "realtime_engine.STATE_EVALUATED": [
+          {
+            "target": "updating",
+            "actions": []
+          }
+        ]
       }
     },
     "notifying": {
       "entry": [
-        "realtime_engine.send_notifications",
-        "realtime_engine.flush_data",
-        "realtime_engine.log_errors"
+        {
+          "type": "sendNotifications"
+        },
+        {
+          "type": "logErrors"
+        }
       ],
       "on": {
-        "realtime_engine.STATE_NOTIFICATION_SENT": {
-          "target": "waiting"
-        }
+        "realtime_engine.STATE_NOTIFICATION_SENT": [
+          {
+            "target": "waiting",
+            "actions": []
+          }
+        ]
       }
     },
     "updating": {
       "entry": [
-        "realtime_engine.write_vehicle_position",
-        "realtime_engine.write_vehicle_progression",
-        "realtime_engine.write_vehicle_occupancy",
-        "realtime_engine.update_run_metadata"
+        {
+          "type": "writeVehiclePosition"
+        },
+        {
+          "type": "writeVehicleProgression"
+        },
+        {
+          "type": "writeVehicleOccupancy"
+        },
+        {
+          "type": "updateRunMetadata"
+        }
       ],
       "on": {
-        "realtime_engine.STATE_UPDATE_SUCCEEDED": {
-          "target": "waiting",
-          "actions": ["realtime_engine.publish_observation"]
-        },
-        "realtime_engine.STATE_UPDATE_FAILED": {
-          "target": "notifying"
-        }
+        "realtime_engine.STATE_UPDATE_SUCCEEDED": [
+          {
+            "target": "waiting",
+            "actions": [
+              {
+                "type": "publishObservation"
+              }
+            ]
+          }
+        ],
+        "realtime_engine.STATE_UPDATE_FAILED": [
+          {
+            "target": "notifying",
+            "actions": []
+          }
+        ]
       }
     }
   }

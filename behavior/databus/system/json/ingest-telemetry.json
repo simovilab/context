@@ -1,65 +1,102 @@
 {
-  "id": "ingest-telemetry",
-  "initial": "waiting",
   "context": {
-    "vehicle_id": null,
     "run_id": null,
     "trip_id": null,
     "route_id": null,
+    "vehicle_id": null,
     "raw_payload": null,
-    "discard_reason": null,
-    "error": null
+    "discard_reason": null
   },
+  "id": "ingest_telemetry",
+  "initial": "waiting",
   "states": {
     "waiting": {
       "on": {
-        "telemetry_broker.TELEMETRY_RECEIVED": {
-          "target": "validating"
-        }
+        "telemetry_broker.TELEMETRY_RECEIVED": [
+          {
+            "target": "validating",
+            "actions": []
+          }
+        ]
       }
     },
     "validating": {
       "entry": [
-        "realtime_engine.parse_mqtt_payload",
-        "realtime_engine.check_active_run",
-        "realtime_engine.validate_coordinates",
-        "realtime_engine.validate_timestamp"
+        {
+          "type": "parseMqttPayload"
+        },
+        {
+          "type": "checkActiveRun"
+        },
+        {
+          "type": "validateCoordinates"
+        },
+        {
+          "type": "validateTimestamp"
+        }
       ],
       "on": {
-        "realtime_engine.TELEMETRY_VALIDATION_SUCCEEDED": {
-          "target": "processing"
-        },
-        "realtime_engine.TELEMETRY_VALIDATION_FAILED": {
-          "target": "notifying"
-        }
+        "realtime_engine.TELEMETRY_VALIDATION_SUCCEEDED": [
+          {
+            "target": "processing",
+            "actions": []
+          }
+        ],
+        "realtime_engine.TELEMETRY_VALIDATION_FAILED": [
+          {
+            "target": "notifying",
+            "actions": []
+          }
+        ]
       }
     },
     "processing": {
       "entry": [
-        "realtime_engine.normalize_payload",
-        "realtime_engine.associate_run_context",
-        "realtime_engine.mark_ready_for_state_update"
+        {
+          "type": "normalizePayload"
+        },
+        {
+          "type": "associateRunContext"
+        },
+        {
+          "type": "markReadyForStateUpdate"
+        }
       ],
       "on": {
-        "realtime_engine.TELEMETRY_PROCESSING_SUCCEEDED": {
-          "target": "waiting",
-          "actions": ["realtime_engine.request_state_update"]
-        },
-        "realtime_engine.TELEMETRY_PROCESSING_FAILED": {
-          "target": "notifying"
-        }
+        "realtime_engine.TELEMETRY_PROCESSING_SUCCEEDED": [
+          {
+            "target": "waiting",
+            "actions": [
+              {
+                "type": "requestStateUpdate"
+              }
+            ]
+          }
+        ],
+        "realtime_engine.TELEMETRY_PROCESSING_FAILED": [
+          {
+            "target": "notifying",
+            "actions": []
+          }
+        ]
       }
     },
     "notifying": {
       "entry": [
-        "realtime_engine.send_notifications",
-        "realtime_engine.flush_data",
-        "realtime_engine.log_errors"
+        {
+          "type": "sendNotifications"
+        },
+        {
+          "type": "logErrors"
+        }
       ],
       "on": {
-        "realtime_engine.TELEMETRY_NOTIFICATION_SENT": {
-          "target": "waiting"
-        }
+        "realtime_engine.TELEMETRY_NOTIFICATION_SENT": [
+          {
+            "target": "waiting",
+            "actions": []
+          }
+        ]
       }
     }
   }

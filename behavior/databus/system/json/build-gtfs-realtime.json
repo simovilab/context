@@ -1,75 +1,122 @@
 {
+  "context": {
+    "active_runs": 0,
+    "entities_tu": 0,
+    "entities_vp": 0,
+    "snapshot_timestamp": null
+  },
   "id": "build-gtfs-realtime",
   "initial": "waiting",
-  "context": {
-    "snapshot_timestamp": null,
-    "active_runs": 0,
-    "entities_vp": 0,
-    "entities_tu": 0
-  },
   "states": {
     "waiting": {
       "on": {
-        "scheduler.BUILD_TRIGGERED": {
-          "target": "snapshotting"
-        }
+        "scheduler.BUILD_TRIGGERED": [
+          {
+            "target": "snapshotting",
+            "actions": []
+          }
+        ]
       }
     },
     "snapshotting": {
       "entry": [
-        "tasks.read_active_runs",
-        "tasks.read_vehicle_states",
-        "tasks.read_stop_time_updates"
+        {
+          "type": "tasks.read_active_runs"
+        },
+        {
+          "type": "tasks.read_vehicle_states"
+        },
+        {
+          "type": "tasks.read_stop_time_updates"
+        }
       ],
       "on": {
-        "tasks.SNAPSHOT_SUCCEEDED": {
-          "target": "building"
-        },
-        "tasks.SNAPSHOT_FAILED": {
-          "target": "notifying"
-        }
+        "tasks.SNAPSHOT_SUCCEEDED": [
+          {
+            "target": "building",
+            "actions": []
+          }
+        ],
+        "tasks.SNAPSHOT_FAILED": [
+          {
+            "target": "notifying",
+            "actions": []
+          }
+        ]
       }
     },
     "building": {
       "entry": [
-        "tasks.poll_gtfs_schedule",
-        "tasks.build_vehicle_positions_feed",
-        "tasks.build_trip_updates_feed",
-        "tasks.set_feed_headers"
+        {
+          "type": "tasks.poll_gtfs_schedule"
+        },
+        {
+          "type": "tasks.build_vehicle_positions_feed"
+        },
+        {
+          "type": "tasks.build_trip_updates_feed"
+        },
+        {
+          "type": "tasks.set_feed_headers"
+        }
       ],
       "on": {
-        "tasks.BUILD_SUCCEEDED": {
-          "target": "publishing"
-        },
-        "tasks.BUILD_FAILED": {
-          "target": "notifying"
-        }
-      }
-    },
-    "publishing": {
-      "entry": [
-        "tasks.publish_feed_files"
-      ],
-      "on": {
-        "tasks.PUBLISH_SUCCEEDED": {
-          "target": "waiting",
-          "actions": ["tasks.emit_publication_assertion"]
-        },
-        "tasks.PUBLISH_FAILED": {
-          "target": "notifying"
-        }
+        "tasks.BUILD_SUCCEEDED": [
+          {
+            "target": "publishing",
+            "actions": []
+          }
+        ],
+        "tasks.BUILD_FAILED": [
+          {
+            "target": "notifying",
+            "actions": []
+          }
+        ]
       }
     },
     "notifying": {
       "entry": [
-        "tasks.send_notifications",
-        "tasks.log_errors",
-        "tasks.flush_data"
+        {
+          "type": "tasks.send_notifications"
+        },
+        {
+          "type": "tasks.log_errors"
+        },
+        {
+          "type": "tasks.flush_data"
+        }
       ],
       "on": {
-        "tasks.BUILD_NOTIFICATION_SENT": {
-          "target": "waiting"
-        }
+        "tasks.BUILD_NOTIFICATION_SENT": [
+          {
+            "target": "waiting",
+            "actions": []
+          }
+        ]
+      }
+    },
+    "publishing": {
+      "entry": {
+        "type": "tasks.publish_feed_files"
+      },
+      "on": {
+        "tasks.PUBLISH_SUCCEEDED": [
+          {
+            "target": "waiting",
+            "actions": [
+              {
+                "type": "tasks.emit_publication_assertion"
+              }
+            ]
+          }
+        ],
+        "tasks.PUBLISH_FAILED": [
+          {
+            "target": "notifying",
+            "actions": []
+          }
+        ]
       }
     }
   }

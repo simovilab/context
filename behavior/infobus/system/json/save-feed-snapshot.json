@@ -1,21 +1,22 @@
 {
   "context": {
-    "feed_type": null,
+    "snapshot_timestamp": null,
+    "entity_count": 0,
     "storage_format": null,
     "blob_size_bytes": 0,
-    "snapshot_timestamp": null
+    "error": null
   },
-  "id": "save-gtfs-feed-messages",
+  "id": "save-feed-snapshot",
   "initial": "waiting",
   "states": {
     "waiting": {
       "on": {
-        "tasks.SAVE_TRIGGERED": [
+        "scheduler.SNAPSHOT_SAVE_TRIGGERED": [
           {
             "target": "serializing",
             "actions": [
               {
-                "type": "tasks.receive_feed_data"
+                "type": "engine.read_feed_snapshot"
               }
             ]
           }
@@ -25,23 +26,23 @@
     "serializing": {
       "entry": [
         {
-          "type": "tasks.convert_to_parquet"
+          "type": "engine.convert_to_parquet"
         },
         {
-          "type": "tasks.enrich_metadata"
+          "type": "engine.enrich_metadata"
         },
         {
-          "type": "tasks.calculate_blob_size"
+          "type": "engine.calculate_blob_size"
         }
       ],
       "on": {
-        "tasks.SERIALIZATION_SUCCEEDED": [
+        "engine.SNAPSHOT_SERIALIZATION_SUCCEEDED": [
           {
             "target": "persisting",
             "actions": []
           }
         ],
-        "tasks.SERIALIZATION_FAILED": [
+        "engine.SNAPSHOT_SERIALIZATION_FAILED": [
           {
             "target": "notifying",
             "actions": []
@@ -50,24 +51,26 @@
       }
     },
     "persisting": {
-      "entry": {
-        "type": "tasks.persist_parquet_file"
-      },
+      "entry": [
+        {
+          "type": "engine.persist_parquet_file"
+        }
+      ],
       "on": {
-        "tasks.PERSIST_SUCCEEDED": [
+        "engine.SNAPSHOT_PERSIST_SUCCEEDED": [
           {
             "target": "waiting",
             "actions": [
               {
-                "type": "tasks.emit_persistence_assertion"
+                "type": "engine.emit_persistence_assertion"
               },
               {
-                "type": "tasks.clear_feed_data"
+                "type": "engine.clear_feed_data"
               }
             ]
           }
         ],
-        "tasks.PERSIST_FAILED": [
+        "engine.SNAPSHOT_PERSIST_FAILED": [
           {
             "target": "notifying",
             "actions": []
@@ -78,17 +81,17 @@
     "notifying": {
       "entry": [
         {
-          "type": "tasks.send_notifications"
+          "type": "engine.send_notifications"
         },
         {
-          "type": "tasks.flush_data"
+          "type": "engine.flush_data"
         },
         {
-          "type": "tasks.log_errors"
+          "type": "engine.log_errors"
         }
       ],
       "on": {
-        "tasks.SAVE_NOTIFICATION_SENT": [
+        "engine.SNAPSHOT_NOTIFICATION_SENT": [
           {
             "target": "waiting",
             "actions": []

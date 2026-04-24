@@ -1,77 +1,142 @@
 {
+  "context": {
+    "error": null,
+    "result": null,
+    "run_id": null,
+    "trip_id": null,
+    "vehicle_id": null,
+    "rejection_reason": null
+  },
   "id": "register-run",
   "initial": "waiting",
-  "context": {
-    "run_id": null,
-    "vehicle_id": null,
-    "trip_id": null,
-    "result": null,
-    "rejection_reason": null,
-    "error": null
-  },
   "states": {
     "waiting": {
       "on": {
-        "backend.RUN_SUBMISSION_REQUESTED": {
-          "target": "submitting"
-        }
+        "backend.RUN_SUBMISSION_REQUESTED": [
+          {
+            "target": "submitting",
+            "actions": []
+          }
+        ]
       }
     },
     "submitting": {
-      "entry": ["backend.validate_payload", "backend.send_run_validation_request"],
-      "on": {
-        "backend.RUN_SUBMISSION_SUCCEEDED": {
-          "target": "validating"
+      "entry": [
+        {
+          "type": "backend.validate_payload"
         },
-        "backend.RUN_SUBMISSION_FAILED": {
-          "target": "notifying"
+        {
+          "type": "backend.send_run_validation_request"
         }
+      ],
+      "on": {
+        "backend.RUN_SUBMISSION_SUCCEEDED": [
+          {
+            "target": "validating",
+            "actions": []
+          }
+        ],
+        "backend.RUN_SUBMISSION_FAILED": [
+          {
+            "target": "notifying",
+            "actions": []
+          }
+        ]
       }
     },
     "validating": {
       "entry": [
-        "realtime_engine.check_vehicle_availability",
-        "realtime_engine.check_trip_availability",
-        "realtime_engine.validate_schedule"
+        {
+          "type": "realtime_engine.check_vehicle_availability"
+        },
+        {
+          "type": "realtime_engine.check_trip_availability"
+        },
+        {
+          "type": "realtime_engine.validate_schedule"
+        }
       ],
       "on": {
-        "realtime_engine.RUN_VALIDATION_SUCCEEDED": {
-          "target": "initializing"
-        },
-        "realtime_engine.RUN_VALIDATION_FAILED": {
-          "target": "notifying"
-        }
-      }
-    },
-    "initializing": {
-      "entry": ["realtime_engine.write_run_metadata", "realtime_engine.emit_initialization_observation"],
-      "on": {
-        "realtime_engine.RUN_INITIALIZATION_SUCCEEDED": {
-          "target": "confirming"
-        },
-        "realtime_engine.RUN_INITIALIZATION_FAILED": {
-          "target": "notifying"
-        }
-      }
-    },
-    "confirming": {
-      "entry": ["backend.request_operator_confirmation"],
-      "on": {
-        "realtime_engine.RUN_CONFIRMATION_SUCCEEDED": {
-          "target": "waiting",
-          "actions": ["realtime_engine.start_run"]
-        },
-        "realtime_engine.RUN_CONFIRMATION_FAILED": {
-          "target": "notifying"
-        }
+        "realtime_engine.RUN_VALIDATION_SUCCEEDED": [
+          {
+            "target": "initializing",
+            "actions": []
+          }
+        ],
+        "realtime_engine.RUN_VALIDATION_FAILED": [
+          {
+            "target": "notifying",
+            "actions": []
+          }
+        ]
       }
     },
     "notifying": {
-      "entry": ["backend.send_notifications", "realtime_engine.flush_data", "backend.log_errors"],
-      "on": {
-        "backend.RUN_NOTIFICATION_SENT": {
-          "target": "waiting"
+      "entry": [
+        {
+          "type": "backend.send_notifications"
+        },
+        {
+          "type": "realtime_engine.flush_data"
+        },
+        {
+          "type": "backend.log_errors"
         }
+      ],
+      "on": {
+        "backend.RUN_NOTIFICATION_SENT": [
+          {
+            "target": "waiting",
+            "actions": []
+          }
+        ]
+      }
+    },
+    "initializing": {
+      "entry": [
+        {
+          "type": "realtime_engine.write_run_metadata"
+        },
+        {
+          "type": "realtime_engine.emit_initialization_observation"
+        }
+      ],
+      "on": {
+        "realtime_engine.RUN_INITIALIZATION_SUCCEEDED": [
+          {
+            "target": "confirming",
+            "actions": []
+          }
+        ],
+        "realtime_engine.RUN_INITIALIZATION_FAILED": [
+          {
+            "target": "notifying",
+            "actions": []
+          }
+        ]
+      }
+    },
+    "confirming": {
+      "entry": {
+        "type": "backend.request_operator_confirmation"
+      },
+      "on": {
+        "realtime_engine.RUN_CONFIRMATION_SUCCEEDED": [
+          {
+            "target": "waiting",
+            "actions": [
+              {
+                "type": "realtime_engine.start_run"
+              }
+            ]
+          }
+        ],
+        "realtime_engine.RUN_CONFIRMATION_FAILED": [
+          {
+            "target": "notifying",
+            "actions": []
+          }
+        ]
       }
     }
   }
