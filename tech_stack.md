@@ -8,198 +8,188 @@ This document outlines the technology stack used at SIMOVI for research and deve
 
 ### ![Python logo](https://api.iconify.design/simple-icons:python.svg) Python
 
-**Purpose:** Primary programming language for backend development and data analysis  
-**Use at SIMOVI:** Core language for API development, data processing, machine learning models, and research algorithms. Chosen for its extensive ecosystem in data science and web development.
+- - **Purpose:** Primary programming language for backend development and data analysis
+- - **Use at SIMOVI:** Core language for API development, data processing, machine learning models, and research algorithms. Chosen for its extensive ecosystem in data science and web development.
 
 ### ![Django logo](https://api.iconify.design/simple-icons:django.svg) Django
 
-**Purpose:** High-level Python web framework  
-**Use at SIMOVI:** Development of robust web APIs and backend services for transportation information systems. Provides ORM, authentication, and rapid development capabilities for research prototypes and production systems.
+- - **Purpose:** High-level Python web framework
+- - **Use at SIMOVI:** Development of robust web APIs and backend services for transportation information systems. Provides ORM, authentication, and rapid development capabilities for research prototypes and production systems.
 
 ### ![Django logo](https://api.iconify.design/simple-icons:django.svg) Channels
 
-**Purpose:** ASGI-based real-time communications framework for Django, enabling WebSockets, long-lived connections and pub/sub patterns.  
-**Use at SIMOVI:** Powering real-time features such as live vehicle tracking, arrival countdowns, alerts/notifications, and operator dashboards. Deployed to push transit updates to websites, in-vehicle/at-stop screens, and other clients.
+- **Purpose:** ASGI-based real-time communications framework for Django, enabling WebSockets, long-lived connections and pub/sub patterns.
+- - **Use at SIMOVI:** Powering real-time features such as live vehicle tracking, arrival countdowns, alerts/notifications, and operator dashboards. Deployed to push transit updates to websites, in-vehicle/at-stop screens, and other clients.
 
 ### ![Celery logo](https://api.iconify.design/simple-icons:celery.svg) Celery Worker / Beat
 
-**Purpose:** Distributed task queue system  
-**Use at SIMOVI:** Handling asynchronous tasks such as data processing, GTFS feed updates, real-time transit data ingestion, and scheduled operations. Beat scheduler manages periodic tasks like data synchronization.
+- **Purpose:** Distributed task queue system
+- **Use at SIMOVI:** Handling asynchronous tasks such as data processing, GTFS feed updates, real-time transit data ingestion, and scheduled operations. Beat scheduler manages periodic tasks like data synchronization.
 
 ### ![Prefect logo](https://api.iconify.design/simple-icons:prefect.svg) Prefect
 
-**Purpose:** Python-native workflow orchestration and scheduling platform  
-**Use at SIMOVI:** Orchestrating complex data pipelines, automating ETL processes, and managing scheduled executions for public transportation data ingestion and processing. Supports retries, observability, parameterized deployments, and reproducible, maintainable workflows for both research and production.
+- **Purpose:** Python-native workflow orchestration and scheduling platform
+- **Use at SIMOVI:** Orchestrating complex data pipelines, automating ETL processes, and managing scheduled executions for public transportation data ingestion and processing. Supports retries, observability, parameterized deployments, and reproducible, maintainable workflows for both research and production.
 
 ### ![PostgreSQL logo](https://api.iconify.design/simple-icons:postgresql.svg) PostgreSQL / PostGIS
 
-**Purpose:** Relational database with spatial extensions  
-**Use at SIMOVI:** Storage of transportation data, GTFS datasets, and geospatial information. PostGIS enables advanced spatial queries for route planning, stop proximity analysis, and geographic data processing.
+- **Purpose:** Relational database with spatial extensions
+- **Use at SIMOVI:** Storage of transportation data, GTFS datasets, and geospatial information. PostGIS enables advanced spatial queries for route planning, stop proximity analysis, and geographic data processing.
+
+### ![DuckDB logo](https://api.iconify.design/simple-icons:duckdb.svg) DuckDB
+
+- **Purpose:** In-process analytical database optimized for OLAP workloads and columnar storage
+- **Use at SIMOVI:** Fast, embedded analytics for transportation datasets, GTFS analysis, and research data processing. Enables efficient querying of large datasets without the overhead of a separate database server, ideal for data science workflows and interactive analysis in Jupyter/marimo notebooks.
 
 ### ![TimescaleDB logo](https://api.iconify.design/simple-icons:timescale.svg) PostgreSQL / TimescaleDB
 
-**Purpose:** Time-series database extension for PostgreSQL that provides hypertables, continuous aggregates, compression, and time-based partitioning for scalable time-series storage and analytics.  
-**Use at SIMOVI:** Persisting high-frequency telemetry and vehicle tracking time series; powering downsampling, retention policies, and efficient queries over time windows for dashboards, analytics, and model features.
+- **Purpose:** Time-series database extension for PostgreSQL that provides hypertables, continuous aggregates, compression, and time-based partitioning for scalable time-series storage and analytics.
+- **Use at SIMOVI:** Persisting high-frequency telemetry and vehicle tracking time series; powering downsampling, retention policies, and efficient queries over time windows for dashboards, analytics, and model features.
 
 ### ![Redis logo](https://api.iconify.design/simple-icons:redis.svg) Redis
 
-**Purpose:** In-memory data structure store suited for high-throughput, low-latency caching and streaming pipelines.  
-**Use at SIMOVI:** Caching frequently accessed data, storing high-frequency vehicle tracking and telemetry events, buffer ingestion from MQTT, and fan out to consumers.
+- **Purpose:** In-memory data structure store suited for high-throughput, low-latency caching and streaming pipelines.
+- **Use at SIMOVI:** Caching frequently accessed data, storing high-frequency vehicle tracking and telemetry events, buffer ingestion from MQTT, and fan out to consumers.
 
 ### ![RabbitMQ logo](https://api.iconify.design/simple-icons:rabbitmq.svg) RabbitMQ
 
-**Purpose:** Message broker using AMQP for internal service communication  
-**Use at SIMOVI:** Brokering messages between internal services and workers (e.g., Celery tasks, pipeline triggers, and inter-service events). Enables reliable, scalable delivery for backend workflows and real-time processing.
+- **Purpose:** Message broker using AMQP for internal service communication
+- **Use at SIMOVI:** Brokering messages between internal services and workers (e.g., Celery tasks, pipeline triggers, and inter-service events). Enables reliable, scalable delivery for backend workflows and real-time processing.
 
 ### ![MQTT logo](https://api.iconify.design/simple-icons:mqtt.svg) NanoMQ
 
-**Purpose:** Lightweight MQTT broker optimized for IoT and telemetry data  
-**Use at SIMOVI:** Ingesting high-frequency telemetry data from vehicles and IoT devices. Provides efficient, low-latency data collection for real-time transit information systems.
+- **Purpose:** Lightweight MQTT broker optimized for IoT and telemetry data
+- **Use at SIMOVI:** Ingesting high-frequency telemetry data from vehicles and IoT devices. Provides efficient, low-latency data collection for real-time transit information systems.
 
 ### ![GraphQL logo](https://api.iconify.design/simple-icons:graphql.svg) Strawberry
 
-**Purpose:** Modern GraphQL library for Python  
-**Use at SIMOVI:** Delivering augmented transit data to information services like websites, screens, mobile apps, and other client applications. Provides efficient, flexible data fetching with type safety, enabling clients to request exactly the transportation data they need while reducing over-fetching and improving performance of real-time information systems.
+- **Purpose:** Modern GraphQL library for Python
+- **Use at SIMOVI:** Delivering augmented transit data to information services like websites, screens, mobile apps, and other client applications. Provides efficient, flexible data fetching with type safety, enabling clients to request exactly the transportation data they need while reducing over-fetching and improving performance of real-time information systems.
 
 ### ![Apache logo](https://api.iconify.design/simple-icons:apache.svg) Apache Jena Fuseki
 
-**Purpose:** SPARQL server and RDF triple store  
-**Use at SIMOVI:** Storing, querying, and managing semantic web data such as transportation ontologies and linked data. Enables advanced data integration, semantic queries, and interoperability for research in intelligent mobility systems.
+- **Purpose:** SPARQL server and RDF triple store
+- **Use at SIMOVI:** Storing, querying, and managing semantic web data such as transportation ontologies and linked data. Enables advanced data integration, semantic queries, and interoperability for research in intelligent mobility systems.
 
 ### ![MCP logo](https://api.iconify.design/simple-icons:modelcontextprotocol.svg) FastMCP
 
-**Purpose:** Pythonic implementation of the Model Context Protocol (MCP) for building both servers and clients. Provides a fast, ergonomic way to define tools, resources, prompts, and capabilities for LLM integrations.  
-**Use at SIMOVI:** Implementing MCP servers that expose transportation-domain tools (e.g., next-trip lookup, stop search, alerts, geospatial queries) and resources backed by Infobús and Databús APIs; and running MCP clients to connect LLMs (e.g., Claude Desktop) with real-time, curated transit data for multilingual chat experiences, operator assistants, and research workflows.
+- **Purpose:** Pythonic implementation of the Model Context Protocol (MCP) for building both servers and clients. Provides a fast, ergonomic way to define tools, resources, prompts, and capabilities for LLM integrations.
+- **Use at SIMOVI:** Implementing MCP servers that expose transportation-domain tools (e.g., next-trip lookup, stop search, alerts, geospatial queries) and resources backed by Infobús and Databús APIs; and running MCP clients to connect LLMs (e.g., Claude Desktop) with real-time, curated transit data for multilingual chat experiences, operator assistants, and research workflows.
 
 ### ![Strapi logo](https://api.iconify.design/simple-icons:strapi.svg) Strapi CMS
 
-**Purpose:** Headless content management system  
-**Use at SIMOVI:** Managing dynamic content, documentation, and configuration data for transportation information systems. Provides non-technical team members with content editing capabilities.
+- **Purpose:** Headless content management system
+- **Use at SIMOVI:** Managing dynamic content, documentation, and configuration data for transportation information systems. Provides non-technical team members with content editing capabilities.
 
 ### ![Rust logo](https://api.iconify.design/simple-icons:rust.svg) Rust
 
-**Purpose:** Systems programming language focused on safety, speed, and concurrency  
-**Use at SIMOVI:** Building high-performance components for real-time data processing and stream processing pipelines. Used for performance-critical services requiring memory safety, low latency, and high throughput in transportation data ingestion and processing workflows.
+- **Purpose:** Systems programming language focused on safety, speed, and concurrency
+- **Use at SIMOVI:** Building high-performance components for real-time data processing and stream processing pipelines. Used for performance-critical services requiring memory safety, low latency, and high throughput in transportation data ingestion and processing workflows.
 
 ## Frontend Technologies
 
 ### ![TypeScript logo](https://api.iconify.design/simple-icons:typescript.svg) TypeScript
 
-**Purpose:** Typed superset of JavaScript  
-**Use at SIMOVI:** Development of type-safe frontend applications with better code maintainability and developer experience. Essential for large-scale transportation interface applications.
+- **Purpose:** Typed superset of JavaScript
+- **Use at SIMOVI:** Development of type-safe frontend applications with better code maintainability and developer experience. Essential for large-scale transportation interface applications.
 
 ### ![Vue.js logo](https://api.iconify.design/simple-icons:vuedotjs.svg) Vue
 
-**Purpose:** Progressive JavaScript framework  
-**Use at SIMOVI:** Building reactive user interfaces for transportation information systems, administrative dashboards, and research data visualization tools.
+- **Purpose:** Progressive JavaScript framework
+- **Use at SIMOVI:** Building reactive user interfaces for transportation information systems, administrative dashboards, and research data visualization tools.
 
 ### ![Nuxt logo](https://api.iconify.design/simple-icons:nuxtdotjs.svg) Nuxt
 
-**Purpose:** Vue.js meta-framework  
-**Use at SIMOVI:** Server-side rendering, static site generation, and full-stack development of transportation information websites and applications. Provides SEO optimization and performance benefits.
+- **Purpose:** Vue.js meta-framework
+- **Use at SIMOVI:** Server-side rendering, static site generation, and full-stack development of transportation information websites and applications. Provides SEO optimization and performance benefits.
 
 ### ![Nuxt logo](https://api.iconify.design/simple-icons:nuxtdotjs.svg) Nuxt UI
 
-**Purpose:** Open-source UI library of 100+ customizable components built with Tailwind CSS and Reka UI for Nuxt applications.  
-**Use at SIMOVI:** Building consistent, accessible, and responsive interfaces for Nuxt-based websites, admin panels, and passenger information screens; accelerating development with prebuilt components, Tailwind theming, dark mode support, and design-system primitives that integrate seamlessly with the existing Vue/Nuxt stack.
+- **Purpose:** Open-source UI library of 100+ customizable components built with Tailwind CSS and Reka UI for Nuxt applications.
+- **Use at SIMOVI:** Building consistent, accessible, and responsive interfaces for Nuxt-based websites, admin panels, and passenger information screens; accelerating development with prebuilt components, Tailwind theming, dark mode support, and design-system primitives that integrate seamlessly with the existing Vue/Nuxt stack.
 
 ### ![Capacitor logo](https://api.iconify.design/simple-icons:capacitor.svg) Capacitor
 
-**Purpose:** Cross-platform native runtime  
-**Use at SIMOVI:** Deploying web-based transportation apps to iOS and Android platforms. Enables access to native device features like GPS, notifications, and offline storage.
+- **Purpose:** Cross-platform native runtime
+- **Use at SIMOVI:** Deploying web-based transportation apps to iOS and Android platforms. Enables access to native device features like GPS, notifications, and offline storage.
 
 ### ![Ionic logo](https://api.iconify.design/simple-icons:ionic.svg) Ionic UI
 
-**Purpose:** Mobile-focused UI component library  
-**Use at SIMOVI:** Creating mobile-optimized interfaces for transportation apps, ensuring consistent user experience across different devices and platforms.
+- **Purpose:** Mobile-focused UI component library
+- **Use at SIMOVI:** Creating mobile-optimized interfaces for transportation apps, ensuring consistent user experience across different devices and platforms.
 
 ### ![Textual logo](https://api.iconify.design/simple-icons:textual.svg) Textual
 
-**Purpose:** Terminal user interface (TUI) framework  
-**Use at SIMOVI:** Building command-line tools and terminal-based applications for system administration, data processing, and research workflows.
+- **Purpose:** Terminal user interface (TUI) framework
+- **Use at SIMOVI:** Building command-line tools and terminal-based applications for system administration, data processing, and research workflows.
 
 ## DevOps & Monitoring
 
 ### ![Grafana logo](https://api.iconify.design/simple-icons:grafana.svg) Grafana
 
-**Purpose:** Data visualization and monitoring platform  
-**Use at SIMOVI:** Creating dashboards for system performance monitoring, transportation data analytics, and research metrics visualization. Integrates with various data sources.
+- **Purpose:** Data visualization and monitoring platform
+- **Use at SIMOVI:** Creating dashboards for system performance monitoring, transportation data analytics, and research metrics visualization. Integrates with various data sources.
 
 ### ![Prometheus logo](https://api.iconify.design/simple-icons:prometheus.svg) Prometheus
 
-**Purpose:** Time-series database and monitoring system  
-**Use at SIMOVI:** Collecting and storing metrics from applications and infrastructure. Monitors API performance, database health, and system resource usage.
+- **Purpose:** Time-series database and monitoring system
+- **Use at SIMOVI:** Collecting and storing metrics from applications and infrastructure. Monitors API performance, database health, and system resource usage.
 
 ### ![Docker logo](https://api.iconify.design/simple-icons:docker.svg) Docker
 
-**Purpose:** Containerization platform  
-**Use at SIMOVI:** Packaging and deploying applications and services in isolated, reproducible environments. Simplifies development, testing, and deployment workflows for backend, frontend, and data processing components. Ensures consistency across local development and production infrastructure.
+- **Purpose:** Containerization platform
+- **Use at SIMOVI:** Packaging and deploying applications and services in isolated, reproducible environments. Simplifies development, testing, and deployment workflows for backend, frontend, and data processing components. Ensures consistency across local development and production infrastructure.
 
 ### ![Search icon](https://api.iconify.design/ic:round-screen-search-desktop.svg) Zabbix
 
-**Purpose:** Enterprise-grade network and application monitoring  
-**Use at SIMOVI:** Infrastructure monitoring, alerting, and performance tracking of servers and network components supporting transportation information systems.
+- **Purpose:** Enterprise-grade network and application monitoring
+- **Use at SIMOVI:** Infrastructure monitoring, alerting, and performance tracking of servers and network components supporting transportation information systems.
 
 ### ![Security icon](https://api.iconify.design/ic:baseline-security.svg) Wazuh
 
-**Purpose:** Security information and event management (SIEM)  
-**Use at SIMOVI:** Security monitoring, threat detection, and compliance management for research infrastructure and transportation data systems.
+- **Purpose:** Security information and event management (SIEM)
+- **Use at SIMOVI:** Security monitoring, threat detection, and compliance management for research infrastructure and transportation data systems.
 
 ### ![OpenTelemetry logo](https://api.iconify.design/simple-icons:opentelemetry.svg) OpenTelemetry
 
-**Purpose:** Vendor-neutral observability framework and open standard for generating, collecting, and exporting telemetry data — traces, metrics, and logs — across distributed systems. Supports OTLP and common backends (Prometheus, Grafana Tempo, Jaeger, Loki) with automatic and manual instrumentation SDKs.  
-**Use at SIMOVI:** Instrumenting Django/ASGI (Channels), Celery tasks, Prefect flows/deployments, RabbitMQ message flows, PostgreSQL queries, and external HTTP calls (Infobús/Databús). Exports metrics to Prometheus and traces/logs via OTLP to Jaeger/Tempo/Loki; enables end-to-end request tracing, performance analysis, and error correlation across services, including optional browser instrumentation for Nuxt frontends.
+- **Purpose:** Vendor-neutral observability framework and open standard for generating, collecting, and exporting telemetry data — traces, metrics, and logs — across distributed systems. Supports OTLP and common backends (Prometheus, Grafana Tempo, Jaeger, Loki) with automatic and manual instrumentation SDKs.
+- **Use at SIMOVI:** Instrumenting Django/ASGI (Channels), Celery tasks, Prefect flows/deployments, RabbitMQ message flows, PostgreSQL queries, and external HTTP calls (Infobús/Databús). Exports metrics to Prometheus and traces/logs via OTLP to Jaeger/Tempo/Loki; enables end-to-end request tracing, performance analysis, and error correlation across services, including optional browser instrumentation for Nuxt frontends.
 
 ## Data Analysis & Research
 
+### ![Jupyter logo](https://api.iconify.design/simple-icons:jupyter.svg) marimo
+
+- **Purpose:** Interactive Python notebooks for data analysis and visualization
+- **Use at SIMOVI:** Exploratory data analysis, research workflows, and interactive documentation for transportation datasets. Provides a rich environment for data scientists and researchers to analyze mobility patterns, visualize transit data, and share insights.
+
 ### ![Polars logo](https://api.iconify.design/simple-icons:polars.svg) Polars
 
-**Purpose:** Fast, multi-threaded DataFrame library with lazy evaluation and query optimization  
-**Use at SIMOVI:** High-performance processing of transportation datasets, GTFS data analysis, ridership pattern analysis, and data cleaning for research projects. Optimized for speed and memory efficiency with native Parquet support, parallel execution, and expressive query syntax for large-scale mobility data operations.
+- **Purpose:** Fast, multi-threaded DataFrame library with lazy evaluation and query optimization
+- **Use at SIMOVI:** High-performance processing of transportation datasets, GTFS data analysis, ridership pattern analysis, and data cleaning for research projects. Optimized for speed and memory efficiency with native Parquet support, parallel execution, and expressive query syntax for large-scale mobility data operations.
 
 ### ![Parquet logo](https://api.iconify.design/simple-icons:apacheparquet.svg) Apache Parquet
 
-**Purpose:** Columnar storage file format optimized for analytics  
-**Use at SIMOVI:** Efficient storage and retrieval of large transportation datasets, vehicle telemetry archives, and GTFS historical data. Enables fast columnar queries, data compression, and portable data exchange for research projects. Integrates with DataFrames and Prefect ETL flows.
-
-### ![NumPy logo](https://api.iconify.design/simple-icons:numpy.svg) NumPy
-
-**Purpose:** Numerical computing library  
-**Use at SIMOVI:** Mathematical operations on transportation data, statistical calculations, and foundation for other data science libraries used in mobility research.
-
-### ![SciPy logo](https://api.iconify.design/simple-icons:scipy.svg) SciPy
-
-**Purpose:** Scientific computing ecosystem  
-**Use at SIMOVI:** Advanced statistical analysis, optimization algorithms for route planning, signal processing for transportation data, and scientific computing for research projects.
-
-### ![scikit-learn logo](https://api.iconify.design/simple-icons:scikitlearn.svg) scikit-learn
-
-**Purpose:** Machine learning library  
-**Use at SIMOVI:** Predictive modeling for transportation demand, classification of mobility patterns, clustering analysis of transportation data, and ML model development for intelligent mobility systems.
-
-### ![Chart icon](https://api.iconify.design/ic:baseline-area-chart.svg) Matplotlib
-
-**Purpose:** Data visualization library  
-**Use at SIMOVI:** Creating charts, graphs, and visualizations for research publications, transportation data analysis reports, and exploratory data analysis in mobility research.
+- **Purpose:** Columnar storage file format optimized for analytics
+- **Use at SIMOVI:** Efficient storage and retrieval of large transportation datasets, vehicle telemetry archives, and GTFS historical data. Enables fast columnar queries, data compression, and portable data exchange for research projects. Integrates with DataFrames and Prefect ETL flows.
 
 ## Development tools
 
 ### ![uv logo](https://api.iconify.design/simple-icons:uv.svg) uv
 
-**Purpose:** Fast, modern Python package and environment manager that unifies dependency resolution, virtual environments, and reproducible builds via lockfiles (pyproject.toml + uv.lock). Optimized for speed, deterministic installs, and monorepos/CI.  
-**Use at SIMOVI:** Standardizing Python environments across services and research projects; speeding up container builds and CI by caching and lockfiles; ensuring reproducible experiments and deployments for Django, Celery, Prefect, and data science pipelines.
+- **Purpose:** Fast, modern Python package and environment manager that unifies dependency resolution, virtual environments, and reproducible builds via lockfiles (pyproject.toml + uv.lock). Optimized for speed, deterministic installs, and monorepos/CI.
+- **Use at SIMOVI:** Standardizing Python environments across services and research projects; speeding up container builds and CI by caching and lockfiles; ensuring reproducible experiments and deployments for Django, Celery, Prefect, and data science pipelines.
 
 ### ![pnpm logo](https://api.iconify.design/simple-icons:pnpm.svg) pnpm
 
-**Purpose:** Performant JavaScript/TypeScript package manager with content-addressable storage, workspace support, and strict, deterministic installs. Saves disk space and accelerates CI and local development.  
-**Use at SIMOVI:** Managing dependencies and workspaces for Vue/Nuxt/Ionic frontends and documentation sites; enabling fast, consistent installs in CI/CD; improving developer ergonomics in multi-app repositories.
+- **Purpose:** Performant JavaScript/TypeScript package manager with content-addressable storage, workspace support, and strict, deterministic installs. Saves disk space and accelerates CI and local development.
+- **Use at SIMOVI:** Managing dependencies and workspaces for Vue/Nuxt/Ionic frontends and documentation sites; enabling fast, consistent installs in CI/CD; improving developer ergonomics in multi-app repositories.
 
 ## System Modeling
 
 ### ![XState logo](https://api.iconify.design/simple-icons:xstate.svg) XState
 
-**Purpose:** State management library based on finite state machines and statecharts  
-**Use at SIMOVI:** Modeling complex stateful systems inside Databús and Infobús, used as canonical behavior specification.
+- **Purpose:** State management library based on finite state machines and statecharts
+- **Use at SIMOVI:** Modeling complex stateful systems inside Databús and Infobús, used as canonical behavior specification.
 
 ## Architecture Overview
 
