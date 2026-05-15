@@ -1,0 +1,200 @@
+{
+  "id": "run-lifecycle",
+  "initial": "requested",
+  "context": {
+    "run_id": null,
+    "vehicle_id": null,
+    "trip_id": null,
+    "actor_id": null,
+    "actor_role": null,
+    "reason": null,
+    "stop_id": null,
+    "short_turn_stop_id": null,
+    "last_seen_at": null,
+    "rejection_reason": null,
+    "error": null
+  },
+  "states": {
+    "requested": {
+      "on": {
+        "backend.VALIDATE_RUN": {
+          "target": "validated",
+          "guards": [
+            "backend.is_gtfs_valid",
+            "backend.is_trip_available",
+            "backend.is_vehicle_available",
+            "backend.is_operator_available"
+          ],
+          "actions": []
+        },
+        "backend.RUN_REJECTED": {
+          "target": "cancelled",
+          "guards": [],
+          "actions": []
+        }
+      }
+    },
+    "validated": {
+      "on": {
+        "backend.INITIALIZE_RUN": {
+          "target": "initialized",
+          "guards": [
+            "backend.is_run_validated"
+          ],
+          "actions": [
+            "backend.update_system_state"
+          ]
+        },
+        "backend.RUN_REJECTED": {
+          "target": "cancelled",
+          "guards": [],
+          "actions": [
+            "backend.release_resources"
+          ]
+        }
+      }
+    },
+    "initialized": {
+      "on": {
+        "backend.RUN_CONFIRMED_BY_OPERATOR": {
+          "target": "confirmed",
+          "guards": [],
+          "actions": []
+        },
+        "backend.RUN_REJECTED": {
+          "target": "cancelled",
+          "guards": [
+            "backend.is_cancellation_authorized"
+          ],
+          "actions": [
+            "backend.remove_from_system_state",
+            "backend.release_resources"
+          ]
+        }
+      }
+    },
+    "confirmed": {
+      "on": {
+        "realtime_engine.RUN_TRACKING_STARTED": {
+          "target": "tracking",
+          "guards": [
+            "backend.is_vehicle_tracked"
+          ],
+          "actions": [
+            "backend.add_to_tracking_set"
+          ]
+        },
+        "backend.CANCEL_RUN": {
+          "target": "cancelled",
+          "guards": [
+            "backend.is_cancellation_authorized"
+          ],
+          "actions": [
+            "backend.remove_from_system_state",
+            "backend.release_resources"
+          ]
+        }
+      }
+    },
+    "tracking": {
+      "on": {
+        "realtime_engine.RUN_STARTED": {
+          "target": "in_progress",
+          "guards": [
+            "backend.is_vehicle_moving"
+          ],
+          "actions": [
+            "backend.add_to_in_progress_set"
+          ]
+        },
+        "backend.CANCEL_RUN": {
+          "target": "cancelled",
+          "guards": [
+            "backend.is_cancellation_authorized"
+          ],
+          "actions": [
+            "backend.remove_from_tracking_set",
+            "backend.remove_from_system_state",
+            "backend.release_resources"
+          ]
+        }
+      }
+    },
+    "in_progress": {
+      "on": {
+        "realtime_engine.RUN_TRACKING_LOST": {
+          "target": "no_signal",
+          "guards": [
+            "backend.is_telemetry_stale"
+          ],
+          "actions": [
+            "backend.remove_from_tracking_set"
+          ]
+        },
+        "backend.INTERRUPT_RUN": {
+          "target": "interrupted",
+          "guards": [
+            "backend.is_interruption_authorized"
+          ],
+          "actions": [
+            "backend.remove_from_tracking_set",
+            "backend.remove_from_in_progress_set",
+            "backend.release_resources"
+          ]
+        },
+        "backend.SHORT_TURN_RUN": {
+          "target": "short_turned",
+          "guards": [
+            "backend.is_short_turn_authorized",
+            "backend.is_short_turn_geometrically_valid"
+          ],
+          "actions": [
+            "backend.remove_from_tracking_set",
+            "backend.remove_from_in_progress_set",
+            "backend.release_resources"
+          ]
+        },
+        "realtime_engine.COMPLETE_RUN": {
+          "target": "completed",
+          "guards": [
+            "backend.is_at_terminal_stop"
+          ],
+          "actions": [
+            "backend.remove_from_tracking_set",
+            "backend.remove_from_in_progress_set",
+            "backend.release_resources"
+          ]
+        }
+      }
+    },
+    "no_signal": {
+      "on": {
+        "realtime_engine.RUN_TRACKING_RESTORED": {
+          "target": "in_progress",
+          "guards": [
+            "backend.is_telemetry_fresh",
+            "backend.is_vehicle_tracked"
+          ],
+          "actions": [
+            "backend.add_to_tracking_set",
+            "backend.add_to_in_progress_set"
+          ]
+        },
+        "realtime_engine.RUN_TRACKING_EXPIRED": {
+          "target": "cancelled",
+          "guards": [
+            "backend.is_telemetry_grace_period_exceeded"
+          ],
+          "actions": [
+            "backend.remove_from_in_progress_set",
+            "backend.release_resources"
+          ]
+        }
+      }
+    },
+    "completed": { "type": "final" },
+    "cancelled": { "type": "final" },
+    "interrupted": { "type": "final" },
+    "short_turned": { "type": "final" }
+  }
+}
