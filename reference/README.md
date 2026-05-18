@@ -1,4 +1,3 @@
 # Reference
 
-> **Stub.** This file will be written in PR 1.
-> Purpose: Index of canonical knowledge: systems, domain, principles.
+This directory is the canonical knowledge layer for the SIMOVI agent ecosystem. It is the primary source cited by skills and agents when they need authoritative information about SIMOVI systems, domain vocabulary, and cross-cutting conventions. [`systems/`](systems/README.md) contains per-system overviews of Databús and Infobús; [`domain/`](domain/README.md) covers shared transit domain knowledge including GTFS specifics, naming conventions, and transit vocabulary; [`principles/`](principles/README.md) holds the foundational design and architectural principles that govern SIMOVI research and development. Agents and skills should link to files here rather than duplicating content.
