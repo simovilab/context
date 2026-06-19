@@ -68,6 +68,7 @@ pytest tests/ -v
 | API Docs | http://localhost:8000/api/docs/ |
 | RabbitMQ Management | http://localhost:15672 (guest/guest) |
 | Prefect Analytics | http://localhost:4200 |
+| Flower (task monitoring) | http://localhost:5555 |
 
 ## Environment configuration
 
@@ -84,19 +85,21 @@ Files: `.env` (local secrets, not in git), `.env.dev` (tracked), `.env.prod` (tr
 
 - **Package manager:** uses `uv`, not pip directly
 - **Timezone:** `America/Costa_Rica` (es-cr locale)
-- **GTFS package:** uses `gtfs-django` PyPI package (previously was a git submodule — no longer)
-- **Service names in Docker:** use compose service names (`database`, `state`, `message-broker`, `telemetry-broker`), not `localhost` for inter-service communication
+- **GTFS package:** GTFS Schedule models come from `gtfs-django`, a `uv` workspace package (editable, alongside `gtfs-io`) providing the `gtfs` app — first in `INSTALLED_APPS`. Previously a git submodule; there is no `.gitmodules` today. Toggling the editable workspace package may require removing the `backend_venv` Docker volume.
+- **Service names in Docker:** use compose service names (`orchestrator`, `realtime-engine`, `schedule-engine`, `scheduler`, `database`, `state`, `message-broker`, `telemetry-broker`), not `localhost` for inter-service communication
 - **Tests:** minimal coverage currently; use pytest with pytest-django for new tests
-- **Celery tasks:** configured via Django admin at `/admin/django_celery_beat/`, not crontab
-- **State vs persistence:** real-time decisions use Redis state; PostgreSQL is for durability and analytics only
+- **Celery beat schedule:** configured **in code** in `backend/databus/celery.py` (the `beat_schedule`), **not** via `django_celery_beat` admin or crontab. Two queues: `realtime_engine` and `schedule_engine`.
+- **MQTT consumer:** a Celery bootstep inside `realtime-engine`, gated by `MQTT_CONSUMER_ENABLED` (single subscriber); not a standalone process. Subscribes only to `position`/`occupancy` — edge `progression` is ignored.
+- **State vs persistence:** real-time decisions use Redis state (sole writer: `realtime-engine`); PostgreSQL is for durability and analytics only. Canonical Redis keys live in `backend/runs/domain/telemetry/keys.py`.
+- **AMQP eventing is a stub:** `backend/messages/publisher.py` `publish_event` only `print()`s today — treat RabbitMQ command/observation/assertion messaging as intended design, not current behavior.
 
 ## Common patterns
 
 ### Adding a new Celery task
 
-1. Define task in appropriate app (`backend/schedule_engine/` for GTFS-RT generation, `backend/periodic_engine/` for periodic tasks)
-2. Register in Celery app configuration
-3. Schedule via Django admin if periodic, or invoke manually/on-demand
+1. Define the task in the appropriate app (`backend/schedule_engine/` for GTFS-RT generation; `backend/realtime_engine/` for telemetry processing and periodic scans like `scan_stale_runs`)
+2. Route it to the correct queue (`schedule_engine` or `realtime_engine`)
+3. If periodic, add it to the `beat_schedule` in `backend/databus/celery.py`; otherwise invoke with `.delay()` / `.apply_async()`
 
 ### Working with real-time state
 
@@ -116,18 +119,18 @@ position = r.hgetall(f'vehicle:{vehicle_id}:position')
 3. Register router in `backend/api/urls.py`
 4. Document with drf-spectacular decorators
 
-### Debugging message flow
+### Debugging the realtime pipeline
 
-1. Check RabbitMQ management UI: http://localhost:15672
-2. View queue depths, message rates, bindings
-3. Trace messages: orchestrator → message-broker → realtime-engine
+1. Trace the live path: MQTT (`telemetry-broker`) → `realtime-engine` MQTT bootstep → Redis (`state`) → `process_position_update` → `schedule-engine` feed build → `backend/feed/files/`
+2. Inspect Redis state directly (`vehicle:<id>:position`, `run:<id>:vehicle_stop_status`, `runs:tracking`)
+3. Watch Celery via Flower: http://localhost:5555
 4. Check service logs: `docker compose -f compose.dev.yml logs -f <service>`
+5. RabbitMQ management UI (http://localhost:15672) is available, but AMQP domain-event publishing is currently stubbed — most run flow is Redis + Celery, not AMQP messages
 
 ## Documentation
 
-- `ARCHITECTURE.md` — Detailed service mandates and principles (AUTHORITATIVE — respect before structural changes)
-- `MODEL.md` — Functional diagrams, vehicle FSM, run lifecycle
+- `docs/content/` — **The Zensical documentation site (current source of truth).** As-built architecture, data flow, run lifecycle, data model, interfaces, and operations. Build with `cd docs && uv run zensical build`.
+- `ARCHITECTURE.md` — Service mandates and principles (historical intent; valid as design rationale, but **source wins** on specifics)
+- `MODEL.md` — Functional diagrams, motion FSM, run lifecycle (historical intent — note the motion FSM is not implemented as drawn)
 - `AGENTS.md` — This file
-- `docs/development.md` — Functional notes (Spanish)
-- `docs/deployment.md` — Production systemd setup
-- `docs/api.md` — API specifications
+- Legacy root docs (`docs/api.md`, `docs/development.md` (Spanish), `docs/deployment.md` (systemd), `docs/old/*`) are **retired** — mine for history only; the live `docs/content/` site supersedes them.

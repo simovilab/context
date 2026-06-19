@@ -5,6 +5,8 @@
 
 **Actors**: `scheduler` (Celery Beat), `tasks` (Celery worker), `state` (Redis), `store` (PostgreSQL), `message_broker` (RabbitMQ)
 
+> **As-built note (2026-06-19):** The `tasks` actor is today's **`schedule-engine`** service (queue `schedule_engine`), triggered by the in-code beat schedule in `backend/databus/celery.py` (every 15 s), not a `django_celery_beat` admin entry. It reads the server-computed `run:{id}:vehicle_stop_status` and `run:{id}:stop_time_updates` from Redis (there is no `vehicle:{id}:progression` key) and writes `vehicle_positions.{json,pb}` / `trip_updates.{json,pb}` to `backend/feed/files/`. The ServiceAlert feed is a stub. See `reference/systems/databus.md`.
+
 **States & transitions**:
 
 ```
@@ -47,7 +49,7 @@ notifying
 | Action | Service | Description |
 |---|---|---|
 | `tasks.read_active_runs` | `tasks` | Read the `runs:in_progress` set from Redis to get all active run IDs |
-| `tasks.read_vehicle_states` | `tasks` | For each active run, read `vehicle:{id}:position`, `vehicle:{id}:progression`, `vehicle:{id}:occupancy` from Redis |
+| `tasks.read_vehicle_states` | `tasks` | For each active run, read `vehicle:{id}:position`, `vehicle:{id}:occupancy`, and the server-computed `run:{id}:vehicle_stop_status` / `run:{id}:stop_time_updates` from Redis |
 | `tasks.read_stop_time_updates` | `tasks` | Read current stop-time updates from Redis for each active run |
 | `tasks.poll_gtfs_schedule` | `tasks` | Query PostgreSQL for GTFS Schedule data needed by the TU builder. **[IF NEEDED]** |
 | `tasks.build_vehicle_positions` | `tasks` | Construct VehiclePositions FeedMessage protobuf |

@@ -68,6 +68,9 @@ docs/                         # Full reference per process
 
 
 ## Notes
+
+> **As-built mapping (2026-06-19):** These are formal *design* specs and may lead the implementation. When reconciling with the running code (see [`reference/systems/databus.md`](../../../reference/systems/databus.md)): the `tasks` actor = the **`schedule-engine`** service; `scheduler` = Celery Beat configured **in code** (`backend/databus/celery.py`), not `django_celery_beat` admin; `store` = PostgreSQL (`database`). Progression is computed server-side and stored at **`run:{id}:vehicle_stop_status`** (there is no `vehicle:{id}:progression` key). AMQP message publication (`message_broker` / observations / assertions) is currently **stubbed** in `backend/messages/publisher.py` — most run flow is Redis + Celery, not AMQP.
+
 - `realtime_engine` is the only service authorized to write to `state` (Redis).
 - `register-run` must be processed sequentially.
 - `manage-run-lifecycle` has two options (final flush vs. continuous accumulation) — decision pending.

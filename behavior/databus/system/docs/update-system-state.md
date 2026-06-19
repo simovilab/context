@@ -5,6 +5,8 @@
 
 **Actors**: `realtime_engine`, `state` (Redis), `message_broker` (RabbitMQ)
 
+> **As-built note (2026-06-19):** This spec is design-accurate for the *flow* (snap to shape → compute stop proximity → write state), but two details differ from the running code: (1) the computed progression is written to **`run:{id}:vehicle_stop_status`**, not a `vehicle:{id}:progression` key (which does not exist); and (2) the `IS_MOVING ↔ IS_STOPPED ↔ IS_PAUSED` motion FSM is design intent only — it is not implemented as drawn (the as-built `runs/domain/progress/` is a scaffold; map-matching in `runs/domain/progression/compute.py` produces the stop status directly). The AMQP `publish_observation` step is also currently stubbed (`messages/publisher.py`). See `reference/systems/databus.md`.
+
 **States & transitions**:
 
 ```
@@ -44,7 +46,7 @@ updating
 
 | Action | Service | Description |
 |---|---|---|
-| `realtime_engine.load_current_vehicle_state` | `realtime_engine` | Read `vehicle:{id}:position`, `vehicle:{id}:progression`, `vehicle:{id}:occupancy` from Redis |
+| `realtime_engine.load_current_vehicle_state` | `realtime_engine` | Read `vehicle:{id}:position`, `vehicle:{id}:occupancy`, and `run:{id}:vehicle_stop_status` from Redis |
 | `realtime_engine.load_validated_datum` | `realtime_engine` | Retrieve the validated telemetry datum from the ingest step |
 | `realtime_engine.snap_to_route_shape` | `realtime_engine` | Project new position onto the route shape geometry; calculate distance along shape for progression |
 | `realtime_engine.run_fsm_logic` | `realtime_engine` | Evaluate FSM transition rules: speed, stop proximity, and dwell time determine IS_MOVING ↔ IS_STOPPED ↔ IS_PAUSED |
@@ -54,7 +56,7 @@ updating
 | `realtime_engine.flush_data` | `realtime_engine` | Discard payload |
 | `realtime_engine.log_errors` | `realtime_engine` | Write structured error details to the application log |
 | `realtime_engine.write_vehicle_position` | `realtime_engine` | Write `vehicle:{id}:position` hash to Redis (lat, lon, bearing, speed, timestamp) |
-| `realtime_engine.write_vehicle_progression` | `realtime_engine` | Write `vehicle:{id}:progression` hash to Redis (trip_id, stop_sequence, current_status) |
+| `realtime_engine.write_vehicle_progression` | `realtime_engine` | Write the server-computed stop status to `run:{id}:vehicle_stop_status` in Redis (trip_id, stop_sequence, current_status) |
 | `realtime_engine.write_vehicle_occupancy` | `realtime_engine` | Write `vehicle:{id}:occupancy` hash to Redis (occupancy_status) — only if changed |
 | `realtime_engine.update_run_metadata` | `realtime_engine` | Update `run:{id}` hash in Redis if run-level fields changed |
 | `realtime_engine.publish_observation` | `realtime_engine` | Publish observation message to the `message_broker` with event type, vehicle state, and transition details |

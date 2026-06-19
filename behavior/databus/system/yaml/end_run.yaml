@@ -80,7 +80,7 @@
       description: Remove run_id from the runs:in_progress set in Redis
     deleteVehicleKeys:
       service: realtime_engine
-      description: Delete vehicle:{id}:position, vehicle:{id}:progression, vehicle:{id}:occupancy from Redis
+      description: Release vehicle keys (vehicle:{id}:position, vehicle:{id}:occupancy, vehicle:{id}:current_run) and run-scoped state (run:{id}:vehicle_stop_status, run:{id}:trip, run:{id}:stop_time_updates) from Redis, and remove the run from runs:tracking. Note there is no vehicle:{id}:progression key — progression is the server-computed run:{id}:vehicle_stop_status.
     deleteRunHash:
       service: realtime_engine
       description: Delete run:{id} hash from Redis

@@ -51,7 +51,7 @@ notifying
 | `backend.validate_payload` | `backend` | Validate the HTTP request |
 | `realtime_engine.validate_end_run_request` | `realtime_engine` | Confirm `run_id` exists in `runs:in_progress` in Redis and the run is currently active |
 | `realtime_engine.remove_run_from_active_set` | `realtime_engine` | Remove `run_id` from the `runs:in_progress` set in Redis |
-| `realtime_engine.delete_run_hash` | `realtime_engine` | Delete `run:{id}` hash from Redis (which includes the vehicle keys (pos, prog, occ)) |
+| `realtime_engine.delete_run_hash` | `realtime_engine` | Delete the `run:{id}` hash and run-scoped state (`run:{id}:vehicle_stop_status`, `run:{id}:trip`, `run:{id}:stop_time_updates`) from Redis, alongside the released vehicle keys (`position`, `occupancy`, `current_run`). There is no `vehicle:{id}:progression` key. |
 | `backend.end_run` | `backend` | Respond to HTTP caller if externally triggered. Broadcast run termination to consumers |
 | `backend.send_notifications` | `backend` | Dispatch failure notifications to interested parties |
 | `realtime_engine.flush_data` | `realtime_engine` | Discard payload (IF there is a payload to discard)|
