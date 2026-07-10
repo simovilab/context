@@ -1,4 +1,4 @@
-**Last verified:** 2026-06-19
+**Last verified:** 2026-07-10 (as-built body against `main` @ `2b062c0`; see §7 for in-flight feature-branch work not yet on `main`)
 
 # Databús
 
@@ -133,11 +133,34 @@ REST run-command endpoints (`backend/api/urls.py`):
 - **Redis = authoritative real-time state** (single writer: realtime-engine; read by schedule-engine). PostgreSQL = durable domain data, traces, GTFS-RT blobs. Never use PostgreSQL for real-time decisions — read Redis.
 - **AMQP (`message-broker` / RabbitMQ) is largely designed, not wired.** `backend/messages/publisher.py` `publish_event` is a **stub** that only `print()`s; the `databus.events` direct exchange and `runs.*` routing keys are sketched but not emitting. Treat command/observation/assertion message semantics as intended design, not current behavior.
 - **Occupancy** `occupancy_status` is recomputed server-side via `classify_status`; the edge-provided status is discarded.
-- **GTFS-RT alerts** (`build_alerts`) is a stub returning `"Feed ServiceAlert built"`. Only VehiclePosition and TripUpdate feeds are real today.
+- **GTFS-RT alerts** (`build_alerts`) is a stub returning `"Feed ServiceAlert built"`. On `main`, only the VehiclePosition and TripUpdate feeds are real; a GTFS **Schedule** zip producer is in-flight on a feature branch (see §7).
 - **Celery beat schedule lives in code** (`backend/databus/celery.py`), **not** in `django_celery_beat` admin.
 - GTFS-RT `timestamp` is Unix epoch **seconds**, not milliseconds.
 
-## 7. Links to FSMs (formal process specs)
+## 7. In-flight work (feature branches — not yet on `main`)
+
+> These features are implemented on feature branches and **not yet merged to `main`**, so they are not part of the as-built system described above. They are documented here so agents working the active branches have context. **Fold each into the sections above once it merges**, and delete it from here. Verified against source 2026-07-10.
+
+### GTFS Schedule zip publishing (`feat/gtfs-schedule-publish`)
+
+Makes databus a real **GTFS Schedule** producer (until now only the GTFS-RT feeds were real — §6). Mirrors the GTFS-RT publish pipeline:
+
+- `backend/feed/schedule/exporter.py` — `build_gtfs_zip(feed)` serializes one Feed's rows into GTFS `.txt` files (columns derived by model introspection) and returns the zip bytes; `publish_gtfs_zip(feed)` writes `backend/feed/files/gtfs.zip` **atomically** (`.tmp` staging file + `Path.replace`).
+- Source of truth is the **`feed` app's own GTFS ORM models** (`Feed`, `Agency`, `Stop`, `Route`, `Calendar`, `CalendarDate`, `Trip`, `StopTime`, `Shape`), typically loaded from `feed/fixtures/gtfs.json`. The exporter selects `Feed.objects.filter(is_current=True).first()`. *(This is the `feed` app's model set — distinct from the `gtfs`/`gtfs-django` schedule models referenced in §2/§4.)*
+- `schedule_engine.tasks.build_schedule` — Celery task on queue `schedule_engine`, wired to a **daily** beat entry `build-schedule-daily` (`timedelta(days=1)` in `backend/databus/celery.py`).
+- `feed export_gtfs` management command for on-demand/boot generation; `docker-entrypoint.sh` exports on boot **only if `gtfs.zip` is absent**.
+- Served at **`/feed/schedule/feed.zip`** (`feed.views.schedule`); returns **404** until the zip has been generated.
+
+### ETA-driven stop-time updates (`feat/eta-stop-times`)
+
+Replaces the placeholder `stop_time_updates` producer with real arrival-time predictions (the `run:<id>:stop_time_updates` projection in §4 becomes model-driven).
+
+- New **`gtfs-eta` uv workspace package** (`backend/gtfs-eta/`, namespace `gtfs_eta.*`): an **inference-only** ETA library — estimator, feature engineering, and model-registry loader. It is the vendored inference half; the canonical training source lives in `gtfs-django` (`feature/eta_prediction`). `xgboost` is an optional extra. Candidate for extraction into its own package if a second consumer appears.
+- `backend/runs/domain/progression/stop_times.py` now computes the projection via `gtfs_eta.eta_service.estimator.estimate_stop_times`, reached through a single **lazy-import seam** (pure `compute_stop_time_updates` + impure `produce_stop_times` doing the Redis I/O). Upcoming stops and distances come from the monotonic shape geometry and feed the estimator's precomputed-distance hook (fixes duplicate `stop_sequence`s and non-decreasing upcoming counts).
+- Model registry loaded from **`MODEL_REGISTRY_DIR`** (a `registry.json` index plus per-model `*.pkl` / `*_meta.json`), resolved **relative to the registry directory** so it is relocatable (bind-mount, checked-in placeholder, or externally retrained). Seed a deterministic baseline with `MODEL_REGISTRY_DIR=eta_models python -m gtfs_eta.seed_baseline_model`.
+- New config/env: `MODEL_REGISTRY_DIR`, `ETA_MAX_STOPS` (default `3`), `ETA_DEFAULT_UNCERTAINTY_S` (default `120`).
+
+## 8. Links to FSMs (formal process specs)
 
 Formal process state machines live in `behavior/databus/system/` — YAML DSL in `yaml/` is canonical, XState JSON in `json/` is derived, prose in `docs/`. These are **design specs** and may lead implementation; where they reference an edge `progression` key, the as-built system computes `run:<id>:vehicle_stop_status` server-side instead.
 
