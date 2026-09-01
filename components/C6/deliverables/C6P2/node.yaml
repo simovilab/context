@@ -1,0 +1,16 @@
+id: C6P2
+name: Manual de comunicación visual
+component: C6
+result:
+  type: document
+  visibility: public
+status: not-started
+owner:
+- RH4
+- RH10
+kind:
+- docs
+depends_on:
+- C6P1
+hito: D
+due_month: 11

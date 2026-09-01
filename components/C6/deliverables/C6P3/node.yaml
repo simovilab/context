@@ -1,0 +1,16 @@
+id: C6P3
+name: Manual técnico de señalización
+component: C6
+result:
+  type: document
+  visibility: public
+status: not-started
+owner:
+- RH4
+- RH10
+kind:
+- docs
+depends_on:
+- C6P2
+hito: F
+due_month: 15

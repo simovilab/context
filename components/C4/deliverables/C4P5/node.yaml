@@ -1,0 +1,18 @@
+id: C4P5
+name: Documentación y portal para desarrolladores
+component: C4
+result:
+  type: document
+  visibility: public
+status: not-started
+owner:
+- RH5
+kind:
+- docs
+depends_on:
+- C4P1
+- C4P2
+- C4P3
+- C4P4
+hito: F
+due_month: 16

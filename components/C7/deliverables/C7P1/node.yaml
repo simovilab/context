@@ -1,0 +1,15 @@
+id: C7P1
+name: Estrategia y lineamientos de comunicación
+component: C7
+result:
+  type: document
+  visibility: internal
+status: not-started
+owner:
+- RH4
+- RH8
+kind:
+- docs
+depends_on: []
+hito: D
+due_month: 11

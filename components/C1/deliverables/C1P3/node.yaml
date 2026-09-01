@@ -1,0 +1,15 @@
+id: C1P3
+name: Modelo de gobernanza de datos y sistemas tecnológicos
+component: C1
+result:
+  type: process
+  visibility: internal
+status: not-started
+owner:
+- RH1
+- RH11
+kind:
+- docs
+depends_on: []
+hito: D
+due_month: 11

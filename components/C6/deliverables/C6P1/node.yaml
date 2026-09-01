@@ -1,0 +1,15 @@
+id: C6P1
+name: Revisión de nomenclatura
+component: C6
+result:
+  type: document
+  visibility: internal
+status: not-started
+owner:
+- RH4
+- RH2
+kind:
+- docs
+depends_on: []
+hito: C
+due_month: 7

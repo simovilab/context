@@ -1,0 +1,17 @@
+id: C7P2
+name: Portafolio institucional de comunicación
+component: C7
+result:
+  type: document
+  visibility: public
+status: not-started
+owner:
+- RH8
+- RH12
+kind:
+- docs
+depends_on:
+- C7P1
+- C6P2
+hito: E
+due_month: 14

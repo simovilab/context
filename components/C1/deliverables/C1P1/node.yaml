@@ -1,0 +1,15 @@
+id: C1P1
+name: Documentación de datos GTFS Schedule y Realtime Alerts
+component: C1
+result:
+  type: document
+  visibility: internal
+status: not-started
+owner:
+- RH1
+- RH11
+kind:
+- docs
+depends_on: []
+hito: B
+due_month: 3

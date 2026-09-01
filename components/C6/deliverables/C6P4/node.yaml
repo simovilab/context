@@ -1,0 +1,18 @@
+id: C6P4
+name: Generador automático de señalización
+component: C6
+result:
+  type: software
+  visibility: internal
+status: not-started
+owner:
+- RH5
+- RH4
+kind:
+- software
+- data
+depends_on:
+- C1P2
+- C6P2
+hito: F
+due_month: 15

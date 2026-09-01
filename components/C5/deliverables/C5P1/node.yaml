@@ -1,0 +1,19 @@
+id: C5P1
+name: Sitio web oficial del transporte público
+component: C5
+result:
+  type: software
+  visibility: public
+status: not-started
+owner:
+- RH6
+- RH7
+kind:
+- software
+- api
+depends_on:
+- C1P2
+- C4P1
+- C3P2
+hito: E
+due_month: 14

@@ -1,0 +1,17 @@
+id: C4P3
+name: Interfaz de consultas semánticas y contextuales
+component: C4
+result:
+  type: api
+  visibility: internal
+status: not-started
+owner:
+- RH3
+- RH5
+kind:
+- software
+- api
+depends_on:
+- C4P1
+hito: E
+due_month: 13

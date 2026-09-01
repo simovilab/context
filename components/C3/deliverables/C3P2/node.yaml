@@ -1,0 +1,18 @@
+id: C3P2
+name: Sistema web de gestión de alertas operativas
+component: C3
+result:
+  type: software
+  visibility: internal
+status: not-started
+owner:
+- RH5
+- RH7
+kind:
+- software
+- data
+depends_on:
+- C3P1
+- C2P1
+hito: F
+due_month: 15

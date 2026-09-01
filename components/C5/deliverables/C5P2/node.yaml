@@ -1,0 +1,15 @@
+id: C5P2
+name: Interfaz administrativa para la gestión de contenidos
+component: C5
+result:
+  type: software
+  visibility: internal
+status: not-started
+owner:
+- RH6
+kind:
+- software
+depends_on:
+- C5P1
+hito: F
+due_month: 16

@@ -1,0 +1,15 @@
+id: C2P3
+name: Documentación y manual operativo del editor GTFS
+component: C2
+result:
+  type: document
+  visibility: public
+status: not-started
+owner:
+- RH5
+kind:
+- docs
+depends_on:
+- C2P2
+hito: F
+due_month: 16

@@ -1,0 +1,17 @@
+id: C4P1
+name: Interfaz de acceso a datos estructurados
+component: C4
+result:
+  type: api
+  visibility: public
+status: not-started
+owner:
+- RH5
+- RH7
+kind:
+- software
+- api
+depends_on:
+- C1P2
+hito: C
+due_month: 7

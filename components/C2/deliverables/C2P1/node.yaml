@@ -1,0 +1,16 @@
+id: C2P1
+name: Base de datos especializada para GTFS
+component: C2
+result:
+  type: data
+  visibility: internal
+status: not-started
+owner:
+- RH5
+- RH6
+kind:
+- data
+depends_on:
+- C1P1
+hito: B
+due_month: 3

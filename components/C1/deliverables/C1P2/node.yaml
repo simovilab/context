@@ -1,0 +1,16 @@
+id: C1P2
+name: Publicación de datos GTFS Schedule
+component: C1
+result:
+  type: data
+  visibility: public
+status: not-started
+owner:
+- RH1
+- RH9
+kind:
+- data
+depends_on:
+- C1P1
+hito: C
+due_month: 7

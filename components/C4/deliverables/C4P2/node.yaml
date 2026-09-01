@@ -1,0 +1,17 @@
+id: C4P2
+name: Interfaz de datos en tiempo real y eventos
+component: C4
+result:
+  type: api
+  visibility: public
+status: not-started
+owner:
+- RH5
+- RH7
+kind:
+- software
+- api
+depends_on:
+- C3P2
+hito: D
+due_month: 11

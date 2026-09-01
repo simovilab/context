@@ -1,0 +1,18 @@
+id: C2P2
+name: Editor web administrativo de GTFS Schedule
+component: C2
+result:
+  type: software
+  visibility: internal
+status: not-started
+owner:
+- RH5
+- RH6
+kind:
+- software
+- data
+depends_on:
+- C2P1
+- C1P1
+hito: D
+due_month: 11
