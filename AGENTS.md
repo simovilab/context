@@ -20,6 +20,7 @@ There are two kinds of context, and they compose differently:
 | Deliverables | `components/C#/deliverables/C#P#/` (`node.yaml`, `reference.md`, `corpus/`) |
 | Generated/composed context | `.composed/` (`<ID>.json`, `<ID>.md`) — CI-built, never hand-edited |
 | Schemas | `schemas/` (`node.schema.json`, `directives.schema.json`) |
+| Build tooling | `tools/composer/` (the Python composition engine — not context) |
 
 ## How composition works
 
@@ -46,6 +47,19 @@ For any node, composition walks from `project/` down to that node, collecting di
 - **D8** — Edit authority by blast radius: project/component edits need coordinator + PR; leaf edits need the node owner.
 - **D9** — The token meter is pinned to a target-model tokenizer and reported as an estimate on the worst-case (deepest) leaf of a branch.
 - **D10** — The RAG interface is frozen (per-node `corpus/` manifest + branch-scoped query); embedding model and vector store are swappable behind it.
+
+## Regenerating composed context
+
+The `.composed/` files are built by the composer in `tools/composer/` — never hand-edit them (D4).
+
+```
+pip install -e "tools/composer[dev]"
+python -m infotp_composer compose --all      # rebuild every node's .composed/<ID>.{json,md}
+python -m infotp_composer compose C4P3        # rebuild a single node
+python -m infotp_composer compose --check     # CI gate: fail if .composed/ is stale vs source
+```
+
+The composer walks each node's parent chain (project → component → deliverable), resolves directives by key with `set`/`extend`/`suppress`, filters them by the target node's `kind`, unions the reference corpus up the chain, and writes a JSON (for MCP/tools) and a Markdown (for humans) per node, plus a heuristic token estimate (D9). Run `compose --all` after any edit to a `node.yaml`, `directives.yaml`, or corpus, and commit the regenerated `.composed/` alongside your change.
 
 ## Two-hop reachability
 

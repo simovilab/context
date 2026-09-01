@@ -1,0 +1,13 @@
+version: 1
+directives:
+  - key: common.greeting
+    op: set
+    applies_to: [software]
+    lang: en
+    text: Say hello (component).
+
+  - key: common.extend-me
+    op: extend
+    applies_to: [software, docs]
+    lang: en
+    text: component addition

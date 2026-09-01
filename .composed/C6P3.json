@@ -1,0 +1,104 @@
+{
+  "id": "C6P3",
+  "name": "Manual t\u00e9cnico de se\u00f1alizaci\u00f3n",
+  "component": "C6",
+  "kind": [
+    "docs"
+  ],
+  "status": "not-started",
+  "owner": [
+    "RH4",
+    "RH10"
+  ],
+  "result": {
+    "type": "docs",
+    "visibility": "public"
+  },
+  "depends_on": [
+    "C6P2"
+  ],
+  "hito": "F",
+  "due_month": 15,
+  "chain": [
+    "project",
+    "C6",
+    "C6P3"
+  ],
+  "composed_at": "2026-09-01T20:10:01.075478Z",
+  "directives": [
+    {
+      "key": "code.review-and-commits",
+      "text": "Changes must land via reviewed pull requests. Use Conventional Commits (feat, fix, docs, chore, refactor, test, perf, ci) for all commit messages.\n",
+      "applies_to": [
+        "software",
+        "data",
+        "docs",
+        "api",
+        "infra"
+      ],
+      "lang": "en",
+      "sources": [
+        "project"
+      ]
+    },
+    {
+      "key": "data.no-pii",
+      "text": "Never collect, store, or publish personally identifiable information (PII). No PII is required for this system, and this is a hard commitment, not a target.\n",
+      "applies_to": [
+        "software",
+        "data",
+        "docs",
+        "api",
+        "infra",
+        "research"
+      ],
+      "lang": "en",
+      "sources": [
+        "project"
+      ]
+    },
+    {
+      "key": "data.open-license",
+      "text": "Published GTFS data must use an open, permissive license (recommended: Creative Commons Attribution 3.0 / CC BY 3.0). Published data is open and public domain, with no access or use restrictions.\n",
+      "applies_to": [
+        "data",
+        "docs"
+      ],
+      "lang": "en",
+      "sources": [
+        "project"
+      ]
+    },
+    {
+      "key": "docs.language-policy",
+      "text": "Write technical and agent-facing documentation in English; use Spanish for institution-facing content such as public materials and deliverable names. Never mix languages within a single file (D7).\n",
+      "applies_to": [
+        "docs"
+      ],
+      "lang": "en",
+      "sources": [
+        "project"
+      ]
+    },
+    {
+      "key": "security.no-sensitive-in-source",
+      "text": "Source code must never contain personal, institutional, or business-sensitive data; never commit secrets, credentials, or internal URLs (CS2).\n",
+      "applies_to": [
+        "software",
+        "data",
+        "docs",
+        "api",
+        "infra"
+      ],
+      "lang": "en",
+      "sources": [
+        "project"
+      ]
+    }
+  ],
+  "reference": [],
+  "token_estimate": {
+    "directives": 210,
+    "method": "heuristic-chars/4"
+  }
+}

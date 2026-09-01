@@ -1,0 +1,193 @@
+{
+  "id": "C2P2",
+  "name": "Editor web administrativo de GTFS Schedule",
+  "component": "C2",
+  "kind": [
+    "software",
+    "data"
+  ],
+  "status": "not-started",
+  "owner": [
+    "RH5",
+    "RH6"
+  ],
+  "result": {
+    "type": "software",
+    "visibility": "internal"
+  },
+  "depends_on": [
+    "C2P1",
+    "C1P1"
+  ],
+  "hito": "D",
+  "due_month": 11,
+  "chain": [
+    "project",
+    "C2",
+    "C2P2"
+  ],
+  "composed_at": "2026-09-01T20:10:01.064031Z",
+  "directives": [
+    {
+      "key": "code.open-source",
+      "text": "Software must be released open-source under a permissive license.\n",
+      "applies_to": [
+        "software"
+      ],
+      "lang": "en",
+      "sources": [
+        "project"
+      ]
+    },
+    {
+      "key": "code.review-and-commits",
+      "text": "Changes must land via reviewed pull requests. Use Conventional Commits (feat, fix, docs, chore, refactor, test, perf, ci) for all commit messages.\n",
+      "applies_to": [
+        "software",
+        "data",
+        "docs",
+        "api",
+        "infra"
+      ],
+      "lang": "en",
+      "sources": [
+        "project"
+      ]
+    },
+    {
+      "key": "data.fair-mdip",
+      "text": "Published data must be Findable, Accessible, Interoperable, and Reusable (FAIR), and must align with the Mobility Data Interoperability Principles (MDIP).\n",
+      "applies_to": [
+        "data",
+        "api"
+      ],
+      "lang": "en",
+      "sources": [
+        "project"
+      ]
+    },
+    {
+      "key": "data.gtfs-standard",
+      "text": "GTFS is the canonical exchange format for this system: GTFS Schedule for static data and GTFS Realtime Alerts for operational alerts.\n",
+      "applies_to": [
+        "data",
+        "api",
+        "software"
+      ],
+      "lang": "en",
+      "sources": [
+        "project"
+      ]
+    },
+    {
+      "key": "data.no-pii",
+      "text": "Never collect, store, or publish personally identifiable information (PII). No PII is required for this system, and this is a hard commitment, not a target.\n",
+      "applies_to": [
+        "software",
+        "data",
+        "docs",
+        "api",
+        "infra",
+        "research"
+      ],
+      "lang": "en",
+      "sources": [
+        "project"
+      ]
+    },
+    {
+      "key": "data.open-license",
+      "text": "Published GTFS data must use an open, permissive license (recommended: Creative Commons Attribution 3.0 / CC BY 3.0). Published data is open and public domain, with no access or use restrictions.\n",
+      "applies_to": [
+        "data",
+        "docs"
+      ],
+      "lang": "en",
+      "sources": [
+        "project"
+      ]
+    },
+    {
+      "key": "security.audit-logging",
+      "text": "Handling of public-transport data must produce activity logs sufficient for traceability, audit, and anomaly detection (CS6).\n",
+      "applies_to": [
+        "software",
+        "api",
+        "data"
+      ],
+      "lang": "en",
+      "sources": [
+        "project"
+      ]
+    },
+    {
+      "key": "security.authn-authz",
+      "text": "Authentication and authorization must use mechanisms with token expiration and controlled renewal, for both human users and system-to-system access (CS5).\n",
+      "applies_to": [
+        "software",
+        "api"
+      ],
+      "lang": "en",
+      "sources": [
+        "project"
+      ]
+    },
+    {
+      "key": "security.database-hardening",
+      "text": "Databases must sit behind authentication with strong credential and password policies, and must have periodic backup policies to prevent data loss (CS3).\n",
+      "applies_to": [
+        "data",
+        "software"
+      ],
+      "lang": "en",
+      "sources": [
+        "project"
+      ]
+    },
+    {
+      "key": "security.input-validation",
+      "text": "All inputs on web interfaces must be validated to prevent SQL injection, XSS, and CSRF attacks (CS8).\n",
+      "applies_to": [
+        "software",
+        "api"
+      ],
+      "lang": "en",
+      "sources": [
+        "project"
+      ]
+    },
+    {
+      "key": "security.no-sensitive-in-source",
+      "text": "Source code must never contain personal, institutional, or business-sensitive data; never commit secrets, credentials, or internal URLs (CS2).\n",
+      "applies_to": [
+        "software",
+        "data",
+        "docs",
+        "api",
+        "infra"
+      ],
+      "lang": "en",
+      "sources": [
+        "project"
+      ]
+    },
+    {
+      "key": "security.transport-encryption",
+      "text": "All traffic to and from the system must be encrypted in transit via HTTPS/TLS or an equivalent protocol (CS4).\n",
+      "applies_to": [
+        "software",
+        "api",
+        "infra"
+      ],
+      "lang": "en",
+      "sources": [
+        "project"
+      ]
+    }
+  ],
+  "reference": [],
+  "token_estimate": {
+    "directives": 412,
+    "method": "heuristic-chars/4"
+  }
+}

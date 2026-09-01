@@ -1,0 +1,33 @@
+version: 1
+directives:
+  - key: governance.rule
+    op: set
+    applies_to: [software, docs]
+    lang: en
+    text: >
+      Governance rule declared at the project layer, inherited unchanged
+      by any leaf that does not override it.
+
+  - key: common.greeting
+    op: set
+    applies_to: [software, docs]
+    lang: en
+    text: Say hello (project).
+
+  - key: common.extend-me
+    op: set
+    applies_to: [software, docs]
+    lang: en
+    text: base text
+
+  - key: temp.rule
+    op: set
+    applies_to: [software, docs]
+    lang: en
+    text: temp text
+
+  - key: docs.only-rule
+    op: set
+    applies_to: [docs]
+    lang: en
+    text: A rule that only applies to docs-kind nodes.

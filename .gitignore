@@ -1,0 +1,11 @@
+# Python build/tooling artifacts (composer lives in tools/composer)
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+build/
+dist/
+.venv/
+venv/

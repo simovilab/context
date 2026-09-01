@@ -1,0 +1,16 @@
+id: C1P1
+name: Software Deliverable
+component: C1
+status: not-started
+owner:
+  - RH3
+kind:
+  - software
+corpus:
+  - deliverable-notes.md
+directives:
+  - key: leaf.extra
+    op: set
+    applies_to: [software]
+    lang: en
+    text: Inline leaf-only directive.

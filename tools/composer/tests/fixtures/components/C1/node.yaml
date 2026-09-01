@@ -1,0 +1,10 @@
+id: C1
+name: Test Component
+status: in-progress
+owner:
+  - RH2
+kind:
+  - software
+  - docs
+corpus:
+  - component-spec.md

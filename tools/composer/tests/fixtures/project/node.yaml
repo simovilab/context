@@ -1,0 +1,10 @@
+id: project
+name: Test Project
+status: in-progress
+owner:
+  - RH1
+kind:
+  - software
+  - docs
+corpus:
+  - project-overview.md

@@ -1,0 +1,5 @@
+version: 1
+directives:
+  - key: temp.rule
+    op: suppress
+    applies_to: [software]
