@@ -1,0 +1,32 @@
+name: context-ci
+
+# Guards the InfoTP context store: schemas, composition, and freshness.
+on:
+  push:
+    branches: [infotp]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: validate & compose
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install composer
+        run: pip install -e "tools/composer[dev]"
+
+      - name: Unit tests
+        working-directory: tools/composer
+        run: pytest -q --cov=infotp_composer --cov-report=term-missing
+
+      - name: Validate schemas + composition + freshness (D4)
+        # `compose --check` loads and schema-validates every node.yaml /
+        # directives.yaml, runs the depends_on cycle check, and fails if any
+        # .composed/<ID>.{json,md} is stale versus the source tree.
+        run: python -m infotp_composer compose --check
