@@ -2,7 +2,7 @@ id: C6P3
 name: Manual técnico de señalización
 component: C6
 result:
-  type: document
+  type: docs
   visibility: public
 status: not-started
 owner:

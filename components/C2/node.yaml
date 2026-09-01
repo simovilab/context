@@ -1,0 +1,10 @@
+id: C2
+name: Editor administrativo de datos GTFS
+status: not-started
+owner:
+- RH1
+- RH5
+kind:
+- software
+- data
+- docs

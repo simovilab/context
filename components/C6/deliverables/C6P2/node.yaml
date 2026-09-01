@@ -2,7 +2,7 @@ id: C6P2
 name: Manual de comunicación visual
 component: C6
 result:
-  type: document
+  type: docs
   visibility: public
 status: not-started
 owner:

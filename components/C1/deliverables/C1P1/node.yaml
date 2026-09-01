@@ -2,7 +2,7 @@ id: C1P1
 name: Documentación de datos GTFS Schedule y Realtime Alerts
 component: C1
 result:
-  type: document
+  type: docs
   visibility: internal
 status: not-started
 owner:

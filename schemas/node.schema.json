@@ -24,8 +24,8 @@
       "properties": {
         "type": {
           "type": "string",
-          "description": "The kind of artifact this node results in.",
-          "enum": ["api", "data", "software", "document", "model", "study", "infrastructure", "process"]
+          "description": "The kind of artifact this node results in. Overlapping tokens (data, software, api, docs, infra) share spelling with the kind[] tag vocabulary.",
+          "enum": ["api", "data", "software", "docs", "model", "study", "infra", "process"]
         },
         "visibility": {
           "type": "string",

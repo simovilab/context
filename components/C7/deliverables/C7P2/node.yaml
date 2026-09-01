@@ -2,7 +2,7 @@ id: C7P2
 name: Portafolio institucional de comunicación
 component: C7
 result:
-  type: document
+  type: docs
   visibility: public
 status: not-started
 owner:

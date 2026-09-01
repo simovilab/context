@@ -2,7 +2,7 @@ id: C4P5
 name: Documentación y portal para desarrolladores
 component: C4
 result:
-  type: document
+  type: docs
   visibility: public
 status: not-started
 owner:

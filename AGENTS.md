@@ -15,8 +15,9 @@ There are two kinds of context, and they compose differently:
 
 | Layer | Location |
 |---|---|
-| Project (cross-cutting) | `project/` (`brief.md`, `directives.yaml`) |
-| Components & deliverables | `components/C#/…` (each a node folder) |
+| Project (cross-cutting) | `project/` (`node.yaml`, `directives.yaml`, `brief.md`) |
+| Components | `components/C#/` (`node.yaml`, `directives.yaml`, `charter.md`) |
+| Deliverables | `components/C#/deliverables/C#P#/` (`node.yaml`, `reference.md`, `corpus/`) |
 | Generated/composed context | `.composed/` (`<ID>.json`, `<ID>.md`) — CI-built, never hand-edited |
 | Schemas | `schemas/` (`node.schema.json`, `directives.schema.json`) |
 
@@ -27,7 +28,7 @@ For any node, composition walks from `project/` down to that node, collecting di
 ## Conventions
 
 - Filenames: kebab-case.
-- A node is a folder containing `node.yaml` + `directives.yaml` + `reference.md` (D2).
+- Every layer is a node folder with a `node.yaml` (structured identity) + `directives.yaml` (rules) + a prose file — `reference.md` at deliverables, `charter.md` at components, `brief.md` at the project root (D2). A node's `kind` selects which directives apply; a component's `kind` is the union of its deliverables'.
 - Node IDs are the proposal's own codes (C#P#, INF#); dependency edges are stored as ID references, never file paths (D1).
 - Authoring language: English for directives and reference content; Spanish where content is institution-facing; never mix languages within one file (D7).
 - Edit authority follows blast radius: project- and component-layer edits require a coordinator + PR; leaf edits require the node owner (D8).

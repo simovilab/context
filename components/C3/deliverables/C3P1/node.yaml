@@ -2,7 +2,7 @@ id: C3P1
 name: Documentación y lineamientos de alertas operativas
 component: C3
 result:
-  type: document
+  type: docs
   visibility: internal
 status: not-started
 owner:

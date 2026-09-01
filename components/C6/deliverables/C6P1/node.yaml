@@ -2,7 +2,7 @@ id: C6P1
 name: Revisión de nomenclatura
 component: C6
 result:
-  type: document
+  type: docs
   visibility: internal
 status: not-started
 owner:
