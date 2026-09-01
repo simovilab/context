@@ -19,6 +19,9 @@ dev = [
     "pytest>=7.4",
     "pytest-cov>=4.1",
 ]
+tokenizers = [
+    "tiktoken",
+]
 
 [project.scripts]
 infotp-composer = "infotp_composer.cli:main"

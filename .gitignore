@@ -6,6 +6,11 @@ __pycache__/
 .coverage
 htmlcov/
 build/
-dist/
 .venv/
 venv/
+
+# Node / Studio (tools/studio) — commit lockfiles, not installed deps or builds
+node_modules/
+dist/
+*.tsbuildinfo
+.vite/

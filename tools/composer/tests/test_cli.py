@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from infotp_composer.cli import discover_repo_root, main
+from infotp_composer.cli import _strip_composed_at, discover_repo_root, main
 from infotp_composer.model import CompositionError
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -89,6 +89,74 @@ def test_compose_unknown_node_returns_error(repo, tmp_path, capsys):
     assert rc == 1
     captured = capsys.readouterr()
     assert "error" in captured.err
+
+
+def test_compose_stdout_prints_json_and_writes_no_file(repo, tmp_path, capsys):
+    out = tmp_path / "out"
+    rc = main(["compose", "C1P1", "--repo", str(repo), "--out", str(out), "--stdout", "--json"])
+    assert rc == 0
+    data = json.loads(capsys.readouterr().out)
+    assert data["id"] == "C1P1"
+    assert "directives" in data
+    assert "token_estimate" in data
+    assert not out.exists()
+
+
+def test_compose_stdout_matches_to_json_shape(repo, tmp_path):
+    from infotp_composer.compose import compose
+    from infotp_composer.model import Store
+    from infotp_composer.render import to_json
+
+    out = tmp_path / "out"
+    rc = main(["compose", "C1P1", "--repo", str(repo), "--out", str(out), "--stdout"])
+    assert rc == 0
+
+    store = Store.load(repo)
+    expected = _strip_composed_at(to_json(compose(store, "C1P1")))
+
+    import io
+    import contextlib
+
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        rc2 = main(["compose", "C1P1", "--repo", str(repo), "--out", str(out), "--stdout"])
+    assert rc2 == 0
+    actual = _strip_composed_at(json.loads(buf.getvalue()))
+    assert actual == expected
+
+
+def test_compose_stdout_requires_single_node_id(repo, tmp_path, capsys):
+    out = tmp_path / "out"
+    rc = main(["compose", "--all", "--repo", str(repo), "--out", str(out), "--stdout"])
+    assert rc == 2
+    assert "error" in capsys.readouterr().err
+
+    rc2 = main(["compose", "--check", "--repo", str(repo), "--out", str(out), "--stdout"])
+    assert rc2 == 2
+
+
+def test_compose_stdout_without_node_id_errors(repo, tmp_path, capsys):
+    out = tmp_path / "out"
+    rc = main(["compose", "--repo", str(repo), "--out", str(out), "--stdout"])
+    assert rc == 2
+    assert "error" in capsys.readouterr().err
+
+
+def test_compose_with_tokenizer_heuristic_explicit(repo, tmp_path):
+    out = tmp_path / "out"
+    rc = main(["compose", "C1P1", "--repo", str(repo), "--out", str(out), "--tokenizer", "heuristic"])
+    assert rc == 0
+    data = json.loads((out / "C1P1.json").read_text())
+    assert data["token_estimate"]["method"] == "heuristic-chars/4"
+
+
+def test_compose_with_tiktoken_tokenizer(repo, tmp_path):
+    pytest.importorskip("tiktoken")
+    out = tmp_path / "out"
+    rc = main(["compose", "C1P1", "--repo", str(repo), "--out", str(out), "--tokenizer", "tiktoken"])
+    assert rc == 0
+    data = json.loads((out / "C1P1.json").read_text())
+    assert data["token_estimate"]["method"] == "tiktoken-cl100k"
 
 
 def test_discover_repo_root_walks_up(repo):

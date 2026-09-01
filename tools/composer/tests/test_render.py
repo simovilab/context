@@ -8,7 +8,7 @@ from infotp_composer.render import to_json, to_markdown
 FIXTURES = Path(__file__).parent / "fixtures"
 
 
-def test_to_json_has_expected_keys_and_is_deterministic_besides_timestamp():
+def test_to_json_has_expected_keys_and_is_fully_deterministic():
     store = Store.load(FIXTURES)
     composed = compose(store, "C1P1")
     a = to_json(composed)
@@ -26,14 +26,12 @@ def test_to_json_has_expected_keys_and_is_deterministic_besides_timestamp():
         "hito",
         "due_month",
         "chain",
-        "composed_at",
         "directives",
         "reference",
         "token_estimate",
     }
-    a_no_ts = {k: v for k, v in a.items() if k != "composed_at"}
-    b_no_ts = {k: v for k, v in b.items() if k != "composed_at"}
-    assert a_no_ts == b_no_ts
+    # No volatile fields: regenerating yields byte-identical output.
+    assert a == b
 
 
 def test_to_markdown_contains_expected_sections():

@@ -20,7 +20,7 @@ There are two kinds of context, and they compose differently:
 | Deliverables | `components/C#/deliverables/C#P#/` (`node.yaml`, `reference.md`, `corpus/`) |
 | Generated/composed context | `.composed/` (`<ID>.json`, `<ID>.md`) — CI-built, never hand-edited |
 | Schemas | `schemas/` (`node.schema.json`, `directives.schema.json`) |
-| Build tooling | `tools/composer/` (the Python composition engine — not context) |
+| Build tooling | `tools/composer/` (Python composition engine) and `tools/studio/` (local authoring UI) — not context |
 
 ## How composition works
 

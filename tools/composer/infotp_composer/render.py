@@ -2,17 +2,15 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from typing import Any, Dict
 
 from .compose import ComposedNode
 
 
 def to_json(composed: ComposedNode) -> Dict[str, Any]:
-    """Deterministic JSON representation. ``composed_at`` is the only
-    non-deterministic field."""
-    composed_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
-
+    """Fully deterministic JSON representation: a pure function of the source
+    tree, so regenerating without source changes yields byte-identical output
+    (no volatile timestamp) — keeps the git-first .composed/ store diff-clean."""
     return {
         "id": composed.id,
         "name": composed.name,
@@ -25,7 +23,6 @@ def to_json(composed: ComposedNode) -> Dict[str, Any]:
         "hito": composed.hito,
         "due_month": composed.due_month,
         "chain": list(composed.chain),
-        "composed_at": composed_at,
         "directives": [
             {
                 "key": d.key,
