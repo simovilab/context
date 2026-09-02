@@ -9,8 +9,8 @@ interface TreeBrowserProps {
   onSelect: (id: string) => void;
 }
 
-function StatusPill({ status }: { status: string }) {
-  return <span className={`pill status-${status}`}>{status}</span>;
+function StatusDot({ status }: { status: string }) {
+  return <span className={`status-dot status-${status}`} title={status} />;
 }
 
 function Row({
@@ -46,13 +46,10 @@ function Row({
         {hasChildren ? (expanded ? "▾" : "▸") : ""}
       </span>
       <span className="id">{node.id}</span>
-      <span>{node.name}</span>
-      <StatusPill status={node.status} />
-      {node.kind.map((k) => (
-        <span className="tag" key={k}>
-          {k}
-        </span>
-      ))}
+      <span className="name" title={node.name}>
+        {node.name}
+      </span>
+      <StatusDot status={node.status} />
     </div>
   );
 }

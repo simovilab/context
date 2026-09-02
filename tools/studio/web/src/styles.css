@@ -140,7 +140,7 @@ code,
 
 .panes {
   display: grid;
-  grid-template-columns: 280px 1fr 340px;
+  grid-template-columns: 300px 1fr 340px;
   overflow: hidden;
 }
 
@@ -155,13 +155,15 @@ code,
 }
 
 .tree-node {
+  width: 100%;
+  box-sizing: border-box;
   padding: 3px 4px;
   border-radius: 4px;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 6px;
-  white-space: nowrap;
+  min-width: 0;
 }
 
 .tree-node:hover {
@@ -174,16 +176,55 @@ code,
 }
 
 .tree-node .id {
+  flex: 0 0 auto;
   font-family: var(--mono);
   color: var(--text-muted);
   font-size: 11px;
+  white-space: nowrap;
+}
+
+.tree-node .name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tree-toggle {
+  flex: 0 0 auto;
   width: 14px;
   display: inline-block;
   text-align: center;
   color: var(--text-muted);
+}
+
+.status-dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--text-muted);
+}
+
+.status-dot.status-not-started {
+  background: transparent;
+}
+
+.status-dot.status-in-progress {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.status-dot.status-blocked {
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
+.status-dot.status-done {
+  background: var(--ok);
+  border-color: var(--ok);
 }
 
 .pill {
