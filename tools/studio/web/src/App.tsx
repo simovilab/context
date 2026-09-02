@@ -2,12 +2,13 @@ import { useCallback, useEffect, useState } from "react";
 import { getBudget, getConfig, getNode, getTree } from "./api";
 import BudgetView from "./BudgetView";
 import ComposedPanel from "./ComposedPanel";
+import InfoPanel from "./InfoPanel";
 import NodeEditor from "./NodeEditor";
 import TokenMeter from "./TokenMeter";
 import TreeBrowser from "./TreeBrowser";
 import type { BudgetResponse, ConfigResponse, NodeDetail, TreeResponse } from "./types";
 
-type Tab = "authoring" | "budget";
+type Tab = "authoring" | "budget" | "info";
 
 export default function App() {
   const [config, setConfig] = useState<ConfigResponse | null>(null);
@@ -82,9 +83,16 @@ export default function App() {
         <button className={tab === "budget" ? "active" : ""} onClick={() => setTab("budget")}>
           Budget
         </button>
+        <button className={tab === "info" ? "active" : ""} onClick={() => setTab("info")}>
+          Info
+        </button>
       </div>
 
-      {tab === "authoring" ? (
+      {tab === "info" ? (
+        <div className="pane" style={{ borderRight: "none", padding: 0 }}>
+          <InfoPanel />
+        </div>
+      ) : tab === "authoring" ? (
         <div className="panes">
           <div className="pane">
             {treeError && <div className="error-banner">{treeError}</div>}
