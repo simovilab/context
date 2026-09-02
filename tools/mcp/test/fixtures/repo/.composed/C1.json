@@ -1,0 +1,16 @@
+{
+  "id": "C1",
+  "name": "Component 1",
+  "component": "C1",
+  "kind": ["docs"],
+  "status": "in-progress",
+  "owner": ["RH1"],
+  "result": { "type": "docs", "visibility": "internal" },
+  "depends_on": [],
+  "hito": "A",
+  "due_month": 2,
+  "chain": ["project", "C1"],
+  "directives": [],
+  "reference": [],
+  "token_estimate": { "directives": 5, "method": "heuristic" }
+}

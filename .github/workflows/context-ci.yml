@@ -45,3 +45,39 @@ jobs:
         run: |
           python -m infotp_rag index --all
           python -m infotp_rag query C1P1 "public transport information" -k 3 --json
+
+  mcp:
+    name: mcp server (P4)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+          cache-dependency-path: tools/mcp/pnpm-lock.yaml
+
+      - name: Install
+        working-directory: tools/mcp
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        working-directory: tools/mcp
+        run: pnpm run typecheck
+
+      - name: Build
+        working-directory: tools/mcp
+        run: pnpm run build
+
+      - name: Unit tests (mocked spawn)
+        # The real-Python branch-isolation integration test self-skips here
+        # (no repo .venv on the runner); the mocked-spawn tool/catalog/validate
+        # suites cover the MCP seam. The engine's own scoping is asserted in the
+        # `validate` job's RAG smoke.
+        working-directory: tools/mcp
+        run: pnpm test

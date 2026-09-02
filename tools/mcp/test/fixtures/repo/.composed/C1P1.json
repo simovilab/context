@@ -1,0 +1,18 @@
+{
+  "id": "C1P1",
+  "name": "Deliverable 1 of C1",
+  "component": "C1",
+  "kind": ["docs"],
+  "status": "not-started",
+  "owner": ["RH1"],
+  "result": { "type": "docs", "visibility": "internal" },
+  "depends_on": [],
+  "hito": "B",
+  "due_month": 3,
+  "chain": ["project", "C1", "C1P1"],
+  "directives": [
+    { "key": "code.review", "text": "Use PRs.", "applies_to": ["software"], "lang": "en", "sources": ["project"] }
+  ],
+  "reference": [{ "file": "spec.md", "source": "gtfs.org", "path": "C1P1/corpus/spec.md" }],
+  "token_estimate": { "directives": 12, "method": "heuristic" }
+}

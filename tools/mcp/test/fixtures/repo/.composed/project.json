@@ -1,0 +1,18 @@
+{
+  "id": "project",
+  "name": "InfoTP",
+  "component": null,
+  "kind": ["docs"],
+  "status": "in-progress",
+  "owner": ["RH1"],
+  "result": { "type": "docs", "visibility": "internal" },
+  "depends_on": [],
+  "hito": null,
+  "due_month": null,
+  "chain": ["project"],
+  "directives": [
+    { "key": "code.review", "text": "Use PRs.", "applies_to": ["software"], "lang": "en", "sources": ["project"] }
+  ],
+  "reference": [],
+  "token_estimate": { "directives": 10, "method": "heuristic" }
+}
