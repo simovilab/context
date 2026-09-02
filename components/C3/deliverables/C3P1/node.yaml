@@ -12,5 +12,6 @@ kind:
 - docs
 depends_on:
 - C1P1
+- C1P3
 hito: D
 due_month: 11

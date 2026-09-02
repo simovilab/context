@@ -15,7 +15,8 @@
     "visibility": "internal"
   },
   "depends_on": [
-    "C1P1"
+    "C1P1",
+    "C1P3"
   ],
   "hito": "D",
   "due_month": 11,
@@ -98,6 +99,8 @@
   "reference": [],
   "token_estimate": {
     "directives": 210,
+    "reference": 0,
+    "total": 210,
     "method": "heuristic-chars/4"
   }
 }

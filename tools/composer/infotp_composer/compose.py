@@ -173,6 +173,7 @@ def compose(store: Store, target_id: str, tokenizer: Optional[Tokenizer] = None)
 
     directive_text = "".join(ed.text for ed in effective)
     token_count = tokenizer.count(directive_text)
+    reference_tokens = _reference_token_count(reference, store.repo_root, tokenizer)
 
     return ComposedNode(
         id=target.id,
@@ -188,5 +189,28 @@ def compose(store: Store, target_id: str, tokenizer: Optional[Tokenizer] = None)
         chain=[n.id for n in chain],
         directives=effective,
         reference=reference,
-        token_estimate={"directives": token_count, "method": tokenizer.name},
+        token_estimate={
+            "directives": token_count,
+            "reference": reference_tokens,
+            "total": token_count + reference_tokens,
+            "method": tokenizer.name,
+        },
     )
+
+
+def _reference_token_count(
+    reference: List[ReferenceEntry], repo_root, tokenizer: Tokenizer
+) -> int:
+    """Token count of the accumulated corpus documents' contents.
+
+    Reference context is fetched via RAG rather than inlined, so these tokens
+    are informational — reported next to the directive count, not instead of it.
+    """
+    total = 0
+    for entry in reference:
+        try:
+            text = (repo_root / entry.path).read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        total += tokenizer.count(text)
+    return total

@@ -142,6 +142,8 @@
   "reference": [],
   "token_estimate": {
     "directives": 353,
+    "reference": 0,
+    "total": 353,
     "method": "heuristic-chars/4"
   }
 }

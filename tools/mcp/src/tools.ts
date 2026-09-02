@@ -60,7 +60,7 @@ export function makeGetDirectivesHandler(
         : (JSON.parse(readFileSync(composedJsonPath(config.repoRoot, id), "utf-8")) as ComposedView);
       const text =
         `${view.id} — ${view.directives.length} directives, ` +
-        `~${view.token_estimate.directives} tok (${view.token_estimate.method}); ` +
+        `~${view.token_estimate.total} tok (directives + reference, ${view.token_estimate.method}); ` +
         `chain: ${view.chain.join(" → ")}`;
       return { content: [{ type: "text", text }], structuredContent: view as unknown as Record<string, unknown> };
     } catch (err) {

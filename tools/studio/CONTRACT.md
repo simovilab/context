@@ -78,7 +78,7 @@ interface ComposedView {
   // timestamp), so regenerating without source changes is a no-op in git.
   directives: EffectiveDirective[];
   reference: { file: string; source: string; path: string }[];
-  token_estimate: { directives: number; method: string };
+  token_estimate: { directives: number; reference: number; total: number; method: string };
 }
 
 interface NodeDetail {
@@ -139,7 +139,8 @@ All responses use the envelope `{ ok: true, data: <T> } | { ok: false, error: st
 3. **Composed panel** (right): the read-only `composed` result — effective
    directives grouped by key with their `sources` provenance, and the reference
    corpus list. A rendered view of `.composed/<id>.md` is acceptable.
-4. **Token meter**: a bar showing `composed.token_estimate.directives` vs
+4. **Token meter**: a bar showing `composed.token_estimate.total` (directives
+   + reference corpus, RAG-fetched) vs
    `tokenBudget`, green/amber/red, with the number and method label. Updates on
    load and after save.
 5. **Budget view**: a small table from `GET /api/budget` — worst-case leaf per

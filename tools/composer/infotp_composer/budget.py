@@ -1,10 +1,12 @@
 """Per-branch worst-case-leaf budget report (D9).
 
 For each component, we compose every deliverable leaf beneath it and report
-the leaf with the highest directive token count — the worst case a reader of
-that branch could encounter. Separately, we scan every node in the store
-(project, components, deliverables) and flag any whose own composed
-directive token count exceeds the budget.
+the leaf with the highest token count — the worst case a reader of
+that branch could encounter. Token counts include both the composed
+directives and the accumulated reference corpus (informationally —
+reference is fetched via RAG, not inlined). Separately, we scan every node
+in the store (project, components, deliverables) and flag any whose own
+composed token count exceeds the budget.
 """
 
 from __future__ import annotations
@@ -66,7 +68,7 @@ def compute_budget(store: Store, tokenizer: Tokenizer, token_budget: int) -> Bud
         worst: Optional[WorstLeaf] = None
         for leaf_id in leaf_ids:
             composed = compose(store, leaf_id, tokenizer=tokenizer)
-            tokens = int(composed.token_estimate["directives"])
+            tokens = int(composed.token_estimate["total"])
             if worst is None or tokens > worst.tokens:
                 worst = WorstLeaf(id=leaf_id, tokens=tokens)
         components.append(ComponentBudget(component=component_id, worst_leaf=worst))
@@ -74,7 +76,7 @@ def compute_budget(store: Store, tokenizer: Tokenizer, token_budget: int) -> Bud
     overflows: List[str] = []
     for node_id in sorted(store.nodes.keys()):
         composed = compose(store, node_id, tokenizer=tokenizer)
-        tokens = int(composed.token_estimate["directives"])
+        tokens = int(composed.token_estimate["total"])
         if tokens > token_budget:
             overflows.append(node_id)
 
