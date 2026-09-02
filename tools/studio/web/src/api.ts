@@ -108,6 +108,19 @@ export async function deleteCorpusEntry(id: string, file: string): Promise<Corpu
   return data;
 }
 
+export interface CorpusFileResponse {
+  file: string;
+  content: string;
+  ext: string;
+}
+
+export async function getCorpusFile(id: string, file: string): Promise<CorpusFileResponse> {
+  const { data } = await request<CorpusFileResponse>(
+    `/node/${encodeURIComponent(id)}/corpus/${encodeURIComponent(file)}`,
+  );
+  return data;
+}
+
 export async function searchNode(id: string, text: string, k?: number): Promise<SearchResponse> {
   const { data } = await request<SearchResponse>(`/node/${encodeURIComponent(id)}/search`, {
     method: "POST",

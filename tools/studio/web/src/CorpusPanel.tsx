@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { deleteCorpusEntry, getCorpus, uploadCorpusEntry } from "./api";
+import CorpusViewer from "./CorpusViewer";
 import { LANGS } from "./types";
 import type { CorpusEntry, Lang, Layer } from "./types";
+
+function extOf(file: string): string {
+  return file.slice(file.lastIndexOf(".") + 1).toLowerCase();
+}
 
 interface CorpusPanelProps {
   nodeId: string;
@@ -27,11 +32,13 @@ export default function CorpusPanel({ nodeId, layer }: CorpusPanelProps) {
   const [error, setError] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft>(emptyDraft());
   const [uploading, setUploading] = useState(false);
+  const [openFile, setOpenFile] = useState<string | null>(null);
 
   useEffect(() => {
     setError(null);
     setLoading(true);
     setDraft(emptyDraft());
+    setOpenFile(null);
     getCorpus(nodeId)
       .then((r) => setEntries(r.entries))
       .catch((e) => setError(e instanceof Error ? e.message : "Failed to load corpus"))
@@ -64,9 +71,14 @@ export default function CorpusPanel({ nodeId, layer }: CorpusPanelProps) {
     try {
       const { entries: next } = await deleteCorpusEntry(nodeId, file);
       setEntries(next);
+      setOpenFile((current) => (current === file ? null : current));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Delete failed");
     }
+  }
+
+  function toggleView(file: string) {
+    setOpenFile((current) => (current === file ? null : file));
   }
 
   return (
@@ -79,11 +91,16 @@ export default function CorpusPanel({ nodeId, layer }: CorpusPanelProps) {
         <div className="corpus-entry" key={e.file}>
           <div className="corpus-entry-head">
             <span className="mono">{e.file}</span>
-            {layer === "deliverable" && (
-              <button onClick={() => handleDelete(e.file)} title={`Delete ${e.file}`}>
-                Delete
+            <div className="corpus-entry-actions">
+              <button onClick={() => toggleView(e.file)} title={`View ${e.file}`}>
+                {openFile === e.file ? "Hide" : "View"}
               </button>
-            )}
+              {layer === "deliverable" && (
+                <button onClick={() => handleDelete(e.file)} title={`Delete ${e.file}`}>
+                  Delete
+                </button>
+              )}
+            </div>
           </div>
           <div className="notice">
             {e.title ?? "(no title)"}
@@ -91,6 +108,7 @@ export default function CorpusPanel({ nodeId, layer }: CorpusPanelProps) {
             {e.license ? ` · ${e.license}` : ""}
             {e.lang ? ` · ${e.lang}` : ""}
           </div>
+          {openFile === e.file && <CorpusViewer nodeId={nodeId} file={e.file} ext={extOf(e.file)} />}
         </div>
       ))}
 

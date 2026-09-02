@@ -123,3 +123,25 @@ export async function deleteCorpusEntry(
   await writeManifestEntries(loc.dir, updated);
   return updated;
 }
+
+export interface CorpusFile {
+  file: string;
+  content: string;
+  ext: string;
+}
+
+/** GET /api/node/:id/corpus/:file — read-only; reuses validateCorpusFilename as the traversal guard. */
+export async function readCorpusFile(repoRoot: string, id: string, file: string): Promise<CorpusFile> {
+  const loc = await findNodeDir(repoRoot, id);
+  if (!loc) throw new CorpusError(`Unknown node id: ${id}`, 404);
+  validateCorpusFilename(file);
+
+  const filePath = `${corpusDir(loc.dir)}/${file}`;
+  if (!existsSync(filePath)) {
+    throw new CorpusError(`Corpus file not found: ${file}`, 404);
+  }
+
+  const content = await readFile(filePath, "utf-8");
+  const ext = file.slice(file.lastIndexOf(".") + 1).toLowerCase();
+  return { file, content, ext };
+}

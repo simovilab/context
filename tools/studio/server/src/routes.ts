@@ -3,7 +3,7 @@
 
 import { Router, type Request, type Response } from "express";
 import { budget, composeAll, composeStdout, composeWrite, ComposerError } from "./composer.js";
-import { addCorpusEntry, CorpusError, deleteCorpusEntry, readCorpus } from "./corpus.js";
+import { addCorpusEntry, CorpusError, deleteCorpusEntry, readCorpus, readCorpusFile } from "./corpus.js";
 import { RagError, search } from "./rag.js";
 import { readNodeFiles, readTree, writeLocalDirectives, writeNodeFields, writeProseFile } from "./store.js";
 import type {
@@ -236,6 +236,20 @@ export function createRouter(config: StudioConfig): Router {
       }
       if (err instanceof ComposerError) {
         fail(res, err.stderr.trim() || err.message, 400);
+        return;
+      }
+      fail(res, (err as Error).message);
+    }
+  });
+
+  router.get("/node/:id/corpus/:file", async (req: Request, res: Response) => {
+    const { id, file } = req.params;
+    try {
+      const corpusFile = await readCorpusFile(repoRoot, id, file);
+      ok(res, corpusFile);
+    } catch (err) {
+      if (err instanceof CorpusError) {
+        fail(res, err.message, err.status);
         return;
       }
       fail(res, (err as Error).message);
