@@ -11,9 +11,9 @@ export default function ComposedPanel({ composed, tokenBudget }: ComposedPanelPr
     <div>
       <div className="section-title">Token estimate</div>
       <TokenMeter
-        tokens={composed.token_estimate.directives}
+        tokens={composed.token_estimate.total}
         budget={tokenBudget}
-        method={composed.token_estimate.method}
+        method={`${composed.token_estimate.method} — directives + reference`}
       />
 
       <div className="section-title">Effective directives</div>

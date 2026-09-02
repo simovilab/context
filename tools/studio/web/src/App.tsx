@@ -114,7 +114,7 @@ export default function App() {
             {node && config && <ComposedPanel composed={node.composed} tokenBudget={config.tokenBudget} />}
             {node && !config && (
               <TokenMeter
-                tokens={node.composed.token_estimate.directives}
+                tokens={node.composed.token_estimate.total}
                 budget={4000}
                 method={node.composed.token_estimate.method}
               />

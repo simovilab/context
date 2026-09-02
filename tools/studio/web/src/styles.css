@@ -196,6 +196,10 @@ code,
 }
 
 .tree-node .name-component {
+  font-style: normal;
+}
+
+.tree-node .name-deliverable {
   font-style: italic;
 }
 
@@ -792,26 +796,43 @@ table.budget-table tr.overflow {
   color: var(--text-muted);
 }
 
+.info-code {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin: 6px 0 2px;
+  overflow-x: auto;
+}
+
+.info-code code {
+  font-family: var(--mono);
+  font-size: 11px;
+  white-space: pre;
+}
+
 .text-muted {
   color: var(--text-muted);
 }
 
 .node-summary {
   border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
   border-radius: 6px;
   background: var(--bg-alt);
-  padding: 10px 12px;
-  margin-bottom: 14px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 8%);
 }
 
 .node-summary-name {
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 600;
   overflow-wrap: break-word;
 }
 
 .node-summary-idline {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-muted);
   margin-top: 2px;
 }
@@ -825,7 +846,7 @@ table.budget-table tr.overflow {
 }
 
 .node-summary-chain {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-muted);
   margin-top: 6px;
 }
@@ -845,14 +866,14 @@ table.budget-table tr.overflow {
 }
 
 .node-summary-label {
-  font-size: 10px;
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: var(--text-muted);
 }
 
 .node-summary-value {
-  font-size: 12px;
+  font-size: 13px;
   font-family: var(--mono);
   overflow-wrap: break-word;
 }
@@ -864,7 +885,7 @@ table.budget-table tr.overflow {
   margin-top: 10px;
   padding-top: 8px;
   border-top: 1px solid var(--border);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-muted);
 }
 

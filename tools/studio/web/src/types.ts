@@ -64,7 +64,7 @@ export interface ComposedView {
   chain: string[];
   directives: EffectiveDirective[];
   reference: { file: string; source: string; path: string }[];
-  token_estimate: { directives: number; method: string };
+  token_estimate: { directives: number; reference: number; total: number; method: string };
 }
 
 export interface NodeDetail {

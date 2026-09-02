@@ -56,7 +56,10 @@ export default function NodeSummary({ node }: NodeSummaryProps) {
         <span>
           effective directives <strong>{composed.directives.length}</strong>{" "}
           <span className="text-muted">
-            (~{composed.token_estimate.directives} tok, {composed.token_estimate.method})
+            (~{composed.token_estimate.directives} tok) + reference{" "}
+            <strong>{composed.token_estimate.reference}</strong> tok ={" "}
+            <strong>{composed.token_estimate.total}</strong> tok (
+            {composed.token_estimate.method})
           </span>
         </span>
         <span>
