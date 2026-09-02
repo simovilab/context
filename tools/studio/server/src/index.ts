@@ -6,6 +6,7 @@ import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { discoverRepoRoot } from "./repo.js";
+import { resolvePythonBin } from "./python.js";
 import { createRouter } from "./routes.js";
 import type { SearchEmbedder, Tokenizer } from "./types.js";
 
@@ -63,6 +64,7 @@ function main(): void {
   app.listen(port, () => {
     console.log(`InfoTP Context Studio server listening on http://localhost:${port}`);
     console.log(`Repo root: ${repoRoot}`);
+    console.log(`Python: ${resolvePythonBin(repoRoot)}`);
     console.log(
       `Tokenizer: ${displayTokenizer} (display) / ${writeTokenizer} (committed), token budget: ${tokenBudget}`,
     );

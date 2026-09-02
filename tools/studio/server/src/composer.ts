@@ -4,6 +4,7 @@
 // out and parses stdout/stderr per tools/studio/CONTRACT.md.
 
 import { spawn } from "node:child_process";
+import { resolvePythonBin } from "./python.js";
 import type { BudgetReport, ComposedView, Tokenizer } from "./types.js";
 
 export class ComposerError extends Error {
@@ -17,13 +18,9 @@ export class ComposerError extends Error {
   }
 }
 
-function pythonBin(): string {
-  return process.env.STUDIO_PYTHON || "python3";
-}
-
 function runComposer(repoRoot: string, args: string[]): Promise<{ stdout: string; stderr: string }> {
   return new Promise((resolvePromise, reject) => {
-    const child = spawn(pythonBin(), ["-m", "infotp_composer", ...args, "--repo", repoRoot], {
+    const child = spawn(resolvePythonBin(repoRoot), ["-m", "infotp_composer", ...args, "--repo", repoRoot], {
       cwd: repoRoot,
       env: process.env,
     });

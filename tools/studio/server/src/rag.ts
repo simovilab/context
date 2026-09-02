@@ -4,6 +4,7 @@
 // stdout/stderr; it never reimplements chunking, embedding, or retrieval.
 
 import { spawn } from "node:child_process";
+import { resolvePythonBin } from "./python.js";
 import type { RetrievedChunk, SearchEmbedder } from "./types.js";
 
 export class RagError extends Error {
@@ -17,15 +18,12 @@ export class RagError extends Error {
   }
 }
 
-function pythonBin(): string {
-  // Same STUDIO_PYTHON interpreter resolution as composer.ts, so both CLIs
-  // run under the one venv that has infotp_composer + infotp_rag installed.
-  return process.env.STUDIO_PYTHON || "python3";
-}
-
 function runRag(repoRoot: string, args: string[]): Promise<{ stdout: string; stderr: string }> {
   return new Promise((resolvePromise, reject) => {
-    const child = spawn(pythonBin(), ["-m", "infotp_rag", ...args, "--repo", repoRoot], {
+    // Same interpreter resolution as composer.ts (STUDIO_PYTHON, else a repo
+    // .venv, else python3), so both CLIs run under the one venv that has
+    // infotp_composer + infotp_rag installed.
+    const child = spawn(resolvePythonBin(repoRoot), ["-m", "infotp_rag", ...args, "--repo", repoRoot], {
       cwd: repoRoot,
       env: process.env,
     });
