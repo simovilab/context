@@ -508,3 +508,144 @@ table.budget-table tr.overflow {
   white-space: pre-wrap;
   font-size: 12px;
 }
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.node-summary {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-alt);
+  padding: 10px 12px;
+  margin-bottom: 14px;
+}
+
+.node-summary-name {
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: break-word;
+}
+
+.node-summary-idline {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.node-summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.node-summary-chain {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+.node-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 6px 12px;
+  margin-top: 8px;
+}
+
+.node-summary-field {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.node-summary-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+
+.node-summary-value {
+  font-size: 12px;
+  font-family: var(--mono);
+  overflow-wrap: break-word;
+}
+
+.node-summary-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.node-summary-counts strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.accordion-section {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  background: var(--bg-alt);
+}
+
+.accordion-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 0;
+  background: var(--bg-alt);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.accordion-header:hover {
+  background: var(--bg);
+  border-color: transparent;
+}
+
+.accordion-chevron {
+  flex: 0 0 auto;
+  color: var(--text-muted);
+  width: 10px;
+  display: inline-block;
+}
+
+.accordion-title {
+  flex: 1 1 auto;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.accordion-badge {
+  flex: 0 0 auto;
+  font-size: 10px;
+  font-family: var(--mono);
+  color: var(--text-muted);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1px 7px;
+}
+
+.accordion-body {
+  padding: 10px;
+  border-top: 1px solid var(--border);
+}
