@@ -429,3 +429,41 @@ table.budget-table tr.overflow {
   color: var(--text-muted);
   font-size: 12px;
 }
+
+.corpus-entry {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin-bottom: 6px;
+}
+
+.corpus-entry-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.corpus-entry-head .mono {
+  font-size: 12px;
+}
+
+.search-result {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 8px;
+}
+
+.search-result-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.search-result-text {
+  white-space: pre-wrap;
+  font-size: 12px;
+}

@@ -1,0 +1,6 @@
+entries:
+  - file: component-shared.md
+    title: Component-Level Shared Reference
+    source: "Synthetic fixture"
+    license: internal
+    lang: en

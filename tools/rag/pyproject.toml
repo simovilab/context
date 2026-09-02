@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "infotp_rag"
+version = "0.1.0"
+description = "Branch-scoped RAG engine for InfoTP Context Studio (D10) — per-node corpus indexing and retrieval."
+requires-python = ">=3.9"
+dependencies = [
+    "infotp_composer",
+    "numpy>=1.24",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+]
+semantic = [
+    "sentence-transformers",
+]
+
+[project.scripts]
+infotp-rag = "infotp_rag.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["infotp_rag*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

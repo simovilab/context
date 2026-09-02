@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { putNode } from "./api";
+import CorpusPanel from "./CorpusPanel";
 import DirectiveEditor from "./DirectiveEditor";
+import SearchPanel from "./SearchPanel";
 import TagListInput from "./TagListInput";
 import { HITOS, KINDS, STATUSES, VISIBILITIES } from "./types";
 import type { Directive, Hito, Kind, NodeDetail, NodeFields, Status, Visibility } from "./types";
@@ -177,18 +179,9 @@ export default function NodeEditor({ node, onSaved }: NodeEditorProps) {
         />
       </div>
 
-      {node.corpus.length > 0 && (
-        <>
-          <div className="section-title">Corpus (read-only)</div>
-          <div className="taglist">
-            {node.corpus.map((f) => (
-              <span className="tag" key={f}>
-                {f}
-              </span>
-            ))}
-          </div>
-        </>
-      )}
+      <CorpusPanel nodeId={node.id} layer={node.layer} />
+
+      <SearchPanel nodeId={node.id} />
 
       <div className="save-bar">
         <button className="primary" onClick={handleSave} disabled={saving}>

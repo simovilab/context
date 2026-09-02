@@ -1,0 +1,6 @@
+entries:
+  - file: sibling-only.md
+    title: Sibling-Only Reference
+    source: "Synthetic fixture"
+    license: internal
+    lang: en

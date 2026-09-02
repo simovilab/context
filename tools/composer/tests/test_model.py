@@ -89,5 +89,49 @@ def test_get_unknown_id_raises():
         store.get("NOPE")
 
 
+def test_corpus_manifest_takes_precedence_over_node_yaml_list(tmp_path):
+    _copy_fixtures(tmp_path)
+
+    # Give C1P2 both a node.yaml `corpus:` list and a corpus/manifest.yaml
+    # with a different file list; the manifest (D10 source of truth) must win.
+    node_path = tmp_path / "components" / "C1" / "deliverables" / "C1P2" / "node.yaml"
+    data = yaml.safe_load(node_path.read_text())
+    data["corpus"] = ["legacy-notes.md"]
+    node_path.write_text(yaml.safe_dump(data))
+
+    corpus_dir = tmp_path / "components" / "C1" / "deliverables" / "C1P2" / "corpus"
+    corpus_dir.mkdir(parents=True, exist_ok=True)
+    manifest_path = corpus_dir / "manifest.yaml"
+    manifest_path.write_text(
+        yaml.safe_dump(
+            {
+                "entries": [
+                    {"file": "manifest-driven.md", "title": "Manifest Driven Doc", "lang": "en"},
+                ]
+            }
+        )
+    )
+
+    # Make the corpus schema available for this fixture copy so validation
+    # actually runs (the shared fixtures/schemas dir predates D10 manifests).
+    schemas_src = Path(__file__).parents[3] / "schemas" / "corpus.schema.json"
+    shutil.copy(schemas_src, tmp_path / "schemas" / "corpus.schema.json")
+
+    store = Store.load(tmp_path)
+    node = store.get("C1P2")
+
+    assert node.corpus == ["manifest-driven.md"]
+
+
+def test_node_without_manifest_still_falls_back_to_node_yaml_corpus(tmp_path):
+    _copy_fixtures(tmp_path)
+    store = Store.load(tmp_path)
+    node = store.get("C1P1")
+
+    # Fixture C1P1/node.yaml declares `corpus: [deliverable-notes.md]` and has
+    # no corpus/manifest.yaml, so the legacy list must still be honored.
+    assert node.corpus == ["deliverable-notes.md"]
+
+
 def _copy_fixtures(dest: Path) -> None:
     shutil.copytree(FIXTURES, dest, dirs_exist_ok=True)

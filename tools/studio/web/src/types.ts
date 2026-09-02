@@ -83,10 +83,42 @@ export interface TreeResponse {
   roots: string[];
 }
 
+export type SearchEmbedder = "hashing" | "semantic";
+
 export interface ConfigResponse {
   tokenBudget: number;
   tokenizer: "heuristic" | "tiktoken";
   repoRoot: string;
+  searchEmbedder: SearchEmbedder;
+}
+
+// --- P3 (D10): per-node corpus + branch-scoped retrieval, tools/rag/CONTRACT.md ---
+
+export interface CorpusEntry {
+  file: string;
+  title?: string;
+  source?: string;
+  license?: string;
+  lang?: Lang;
+}
+
+export interface CorpusResponse {
+  entries: CorpusEntry[];
+}
+
+export interface RetrievedChunk {
+  score: number;
+  text: string;
+  node_id: string;
+  file: string;
+  title: string | null;
+  ordinal: number;
+}
+
+export interface SearchResponse {
+  embedder: string;
+  results: RetrievedChunk[];
+  fallback: boolean;
 }
 
 export interface BudgetComponentRow {

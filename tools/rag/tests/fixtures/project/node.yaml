@@ -1,0 +1,4 @@
+id: project
+name: Test Project
+kind:
+  - docs

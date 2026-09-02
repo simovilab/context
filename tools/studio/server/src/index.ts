@@ -7,7 +7,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { discoverRepoRoot } from "./repo.js";
 import { createRouter } from "./routes.js";
-import type { Tokenizer } from "./types.js";
+import type { SearchEmbedder, Tokenizer } from "./types.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -34,11 +34,21 @@ function main(): void {
   // heuristic, matching the CI `compose --check` gate.
   const displayTokenizer: Tokenizer = (process.env.STUDIO_TOKENIZER as Tokenizer) || "tiktoken";
   const writeTokenizer: Tokenizer = "heuristic";
+  // Live retrieval search box embedder (D10 config split, tools/rag/CONTRACT.md).
+  // rag.ts retries once with "hashing" per-request if "semantic" errors (e.g.
+  // the [semantic] extra / model is absent), so this only picks the *first*
+  // embedder tried, not a hard requirement.
+  const rawSearchEmbedder = process.env.STUDIO_RAG_EMBEDDER;
+  const searchEmbedder: SearchEmbedder =
+    rawSearchEmbedder === "hashing" || rawSearchEmbedder === "semantic" ? rawSearchEmbedder : "semantic";
 
   const app = express();
   app.use(express.json({ limit: "5mb" }));
 
-  app.use("/api", createRouter({ repoRoot, tokenBudget, displayTokenizer, writeTokenizer }));
+  app.use(
+    "/api",
+    createRouter({ repoRoot, tokenBudget, displayTokenizer, writeTokenizer, searchEmbedder }),
+  );
 
   // Serve the built web app in production, if present. In dev, Vite runs the
   // web app on its own port and proxies /api to this server (see web/README).
@@ -56,6 +66,7 @@ function main(): void {
     console.log(
       `Tokenizer: ${displayTokenizer} (display) / ${writeTokenizer} (committed), token budget: ${tokenBudget}`,
     );
+    console.log(`Search embedder: ${searchEmbedder} (falls back to hashing per-request on error)`);
     if (!existsSync(webDist)) {
       console.log("(web/dist not found — serving API only; run the web app separately in dev)");
     }

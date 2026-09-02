@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "corpus.schema.json",
+  "title": "Corpus manifest",
+  "description": "Per-node corpus manifest (D10). Lives at <node>/corpus/manifest.yaml and is the source of truth for the reference documents a node contributes to branch-scoped RAG. Filtering never applies to reference context: it accumulates up the tree (union of every ancestor's corpus).",
+  "type": "object",
+  "required": ["entries"],
+  "additionalProperties": false,
+  "properties": {
+    "entries": {
+      "type": "array",
+      "description": "The reference documents in this node's corpus/ directory.",
+      "items": { "$ref": "#/$defs/entry" }
+    }
+  },
+  "$defs": {
+    "entry": {
+      "type": "object",
+      "required": ["file"],
+      "additionalProperties": false,
+      "properties": {
+        "file": {
+          "type": "string",
+          "description": "Filename relative to this node's corpus/ directory. Kebab-case, must include an extension.",
+          "pattern": "^[a-z0-9][a-z0-9._-]*\\.[a-z0-9]+$"
+        },
+        "title": {
+          "type": "string",
+          "description": "Human-readable title of the document."
+        },
+        "source": {
+          "type": "string",
+          "description": "Provenance: citation, origin, or description. Never an internal URL or secret."
+        },
+        "license": {
+          "type": "string",
+          "description": "License or usage terms of the source material (e.g. CC-BY-4.0, public-domain, internal)."
+        },
+        "lang": {
+          "type": "string",
+          "enum": ["en", "es"],
+          "description": "Primary language of the document."
+        }
+      }
+    }
+  }
+}

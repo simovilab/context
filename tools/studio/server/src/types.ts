@@ -7,6 +7,8 @@ export type Op = "set" | "extend" | "suppress";
 export type Status = "not-started" | "in-progress" | "blocked" | "done";
 export type Hito = "A" | "B" | "C" | "D" | "E" | "F";
 export type Tokenizer = "heuristic" | "tiktoken";
+export type Lang = "en" | "es";
+export type SearchEmbedder = "hashing" | "semantic";
 
 export interface Directive {
   key: string;
@@ -88,3 +90,24 @@ export interface BudgetReport {
 }
 
 export type ApiEnvelope<T> = { ok: true; data: T } | { ok: false; error: string };
+
+// --- P3 (D10): per-node corpus + branch-scoped retrieval, per tools/rag/CONTRACT.md ---
+
+/** One entry in <node>/corpus/manifest.yaml (schemas/corpus.schema.json). */
+export interface CorpusEntry {
+  file: string;
+  title?: string;
+  source?: string;
+  license?: string;
+  lang?: Lang;
+}
+
+/** A single ranked chunk from `infotp_rag query --json`. */
+export interface RetrievedChunk {
+  score: number;
+  text: string;
+  node_id: string;
+  file: string;
+  title: string | null;
+  ordinal: number;
+}

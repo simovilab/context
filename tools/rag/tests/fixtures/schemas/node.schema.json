@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://simovilab.org/context/schemas/node.schema.json",
+  "title": "Node",
+  "description": "Schema for node.yaml — the structured description of a single context node (project, component, or deliverable) in InfoTP Context Studio. A node is a folder (D2) identified by the proposal's own code (D1); dependency edges are ID references, never file paths.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Node identifier. Uses the proposal's own codes (D1): C1-C7 optionally with a sub-letter/number (e.g. C4A2), INF# for infrastructure nodes, or the literal 'project' for the project-layer node.",
+      "pattern": "^(C[1-7]([A-Z]?[0-9]+)?|INF[0-9]+|project)$"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name of the node."
+    },
+    "component": {
+      "type": "string",
+      "description": "The parent component code (e.g. \"C4\"). Omitted for the project node."
+    },
+    "result": {
+      "type": "object",
+      "description": "What this node produces.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "The kind of artifact this node results in. Overlapping tokens (data, software, api, docs, infra) share spelling with the kind[] tag vocabulary.",
+          "enum": ["api", "data", "software", "docs", "model", "study", "infra", "process"]
+        },
+        "visibility": {
+          "type": "string",
+          "description": "Who may see this result.",
+          "enum": ["public", "internal", "restricted"]
+        }
+      },
+      "required": ["type", "visibility"],
+      "additionalProperties": false
+    },
+    "status": {
+      "type": "string",
+      "description": "Current lifecycle status of the node.",
+      "enum": ["not-started", "in-progress", "blocked", "done"],
+      "default": "not-started"
+    },
+    "owner": {
+      "type": "array",
+      "description": "Role IDs (e.g. RH5) responsible for this node.",
+      "items": { "type": "string" }
+    },
+    "kind": {
+      "type": "array",
+      "description": "Tags selecting which directives apply to this node (D3): a node only inherits directives whose applies_to intersects this list.",
+      "items": {
+        "type": "string",
+        "enum": ["software", "data", "docs", "api", "infra", "research"]
+      },
+      "minItems": 1
+    },
+    "depends_on": {
+      "type": "array",
+      "description": "IDs of nodes this node depends on. Always ID references, never file paths (D1).",
+      "items": {
+        "type": "string",
+        "pattern": "^(C[1-7]([A-Z]?[0-9]+)?|INF[0-9]+|project)$"
+      }
+    },
+    "directives": {
+      "type": "array",
+      "description": "Inline node-level directives, in addition to those in this node's directives.yaml.",
+      "items": { "$ref": "directives.schema.json#/$defs/directive" }
+    },
+    "corpus": {
+      "type": "array",
+      "description": "Filenames present in this node's corpus/ directory, used by the RAG interface (D10).",
+      "items": { "type": "string" }
+    },
+    "hito": {
+      "type": "string",
+      "description": "Project milestone this node is due at (Hitos A-F from the proposal cronograma). Omitted for the project node.",
+      "enum": ["A", "B", "C", "D", "E", "F"]
+    },
+    "due_month": {
+      "type": "integer",
+      "description": "Month (1-16) by which this node's result is due, per the proposal's delivery table.",
+      "minimum": 1,
+      "maximum": 16
+    }
+  },
+  "required": ["id", "name", "kind"],
+  "additionalProperties": false
+}

@@ -1,11 +1,14 @@
 import type {
   BudgetResponse,
   ConfigResponse,
+  CorpusResponse,
   Directive,
   Envelope,
+  Lang,
   NodeDetail,
   NodeFields,
   RecomposeResponse,
+  SearchResponse,
   TreeResponse,
 } from "./types";
 
@@ -70,5 +73,45 @@ export async function getBudget(): Promise<BudgetResponse> {
 
 export async function recompose(): Promise<RecomposeResponse> {
   const { data } = await request<RecomposeResponse>("/recompose", { method: "POST" });
+  return data;
+}
+
+// --- P3 (D10): per-node corpus + branch-scoped retrieval ---
+
+export async function getCorpus(id: string): Promise<CorpusResponse> {
+  const { data } = await request<CorpusResponse>(`/node/${encodeURIComponent(id)}/corpus`);
+  return data;
+}
+
+export interface CorpusUploadBody {
+  file: string;
+  content: string;
+  title?: string;
+  source?: string;
+  license?: string;
+  lang?: Lang;
+}
+
+export async function uploadCorpusEntry(id: string, body: CorpusUploadBody): Promise<CorpusResponse> {
+  const { data } = await request<CorpusResponse>(`/node/${encodeURIComponent(id)}/corpus`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+  return data;
+}
+
+export async function deleteCorpusEntry(id: string, file: string): Promise<CorpusResponse> {
+  const { data } = await request<CorpusResponse>(
+    `/node/${encodeURIComponent(id)}/corpus/${encodeURIComponent(file)}`,
+    { method: "DELETE" },
+  );
+  return data;
+}
+
+export async function searchNode(id: string, text: string, k?: number): Promise<SearchResponse> {
+  const { data } = await request<SearchResponse>(`/node/${encodeURIComponent(id)}/search`, {
+    method: "POST",
+    body: JSON.stringify({ text, k }),
+  });
   return data;
 }

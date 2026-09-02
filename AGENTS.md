@@ -18,9 +18,11 @@ There are two kinds of context, and they compose differently:
 | Project (cross-cutting) | `project/` (`node.yaml`, `directives.yaml`, `brief.md`) |
 | Components | `components/C#/` (`node.yaml`, `directives.yaml`, `charter.md`) |
 | Deliverables | `components/C#/deliverables/C#P#/` (`node.yaml`, `reference.md`, `corpus/`) |
+| Reference corpus | `<node>/corpus/` — source documents + `manifest.yaml` (the manifest is the source of truth for what a node contributes to RAG) |
 | Generated/composed context | `.composed/` (`<ID>.json`, `<ID>.md`) — CI-built, never hand-edited |
-| Schemas | `schemas/` (`node.schema.json`, `directives.schema.json`) |
-| Build tooling | `tools/composer/` (Python composition engine) and `tools/studio/` (local authoring UI) — not context |
+| RAG index | `.rag/` — derived, **gitignored** build artifact; rebuilt on demand, never committed |
+| Schemas | `schemas/` (`node.schema.json`, `directives.schema.json`, `corpus.schema.json`) |
+| Build tooling | `tools/composer/` (Python composition engine), `tools/rag/` (Python branch-scoped RAG engine), and `tools/studio/` (local authoring UI) — not context |
 
 ## How composition works
 
@@ -60,6 +62,31 @@ python -m infotp_composer compose --check     # CI gate: fail if .composed/ is s
 ```
 
 The composer walks each node's parent chain (project → component → deliverable), resolves directives by key with `set`/`extend`/`suppress`, filters them by the target node's `kind`, unions the reference corpus up the chain, and writes a JSON (for MCP/tools) and a Markdown (for humans) per node, plus a heuristic token estimate (D9). Run `compose --all` after any edit to a `node.yaml`, `directives.yaml`, or corpus, and commit the regenerated `.composed/` alongside your change.
+
+## Retrieving reference context (RAG, D10)
+
+Reference context is not inlined and not token-budgeted — it **accumulates** up
+the tree and is **fetched on demand**, so it costs ~0 always-on tokens. Each
+node lists its source documents in `<node>/corpus/manifest.yaml` (validated
+against `schemas/corpus.schema.json`); the `infotp_rag` engine in `tools/rag/`
+indexes them and answers **branch-scoped** queries — a query for a node returns
+only chunks whose owning node is on that node's project→component→deliverable
+chain, so sibling branches never leak into each other.
+
+```
+uv pip install -e tools/composer -e "tools/rag[dev]"   # rag depends on composer
+python -m infotp_rag index --all                        # (re)build the .rag/ index
+python -m infotp_rag query C1P1 "service alerts" -k 5 --json
+```
+
+The index (`.rag/`) is a derived build artifact and is gitignored — embeddings
+are not byte-stable across backends, so the committed truth is the corpus files
+plus their `manifest.yaml`. The embedding model and vector store are swappable
+behind a frozen interface (D10): the default `hashing` embedder is deterministic
+and offline (used by CI); the optional `[semantic]` extra adds a local
+multilingual model for accurate search. Adding or removing a corpus file changes
+a node's composed reference list, so run `compose --all` and commit the
+regenerated `.composed/` alongside the corpus change.
 
 ## Two-hop reachability
 

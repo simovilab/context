@@ -1,0 +1,11 @@
+entries:
+  - file: data-governance-frameworks-for-public-transport.md
+    title: Data Governance Frameworks for Public-Sector Transport Data
+    source: "DAMA International, DAMA-DMBOK 2nd edition (governance/stewardship concepts summary)"
+    license: CC-BY-4.0
+    lang: en
+  - file: principios-gobernanza-datos-abiertos.md
+    title: Principios de Gobernanza de Datos para el Sector Público
+    source: "DAMA International, DAMA-DMBOK 2ª edición (síntesis de principios de gobernanza)"
+    license: CC-BY-4.0
+    lang: es

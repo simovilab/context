@@ -14,3 +14,7 @@ node_modules/
 dist/
 *.tsbuildinfo
 .vite/
+
+# RAG index (tools/rag, P3/D10) — derived build artifact, rebuilt on demand;
+# corpus files + manifest.yaml are the committed truth, not the index
+.rag/

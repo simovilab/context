@@ -1,0 +1,3 @@
+Deliverable-local notes: this file belongs only to C1P1, not to its sibling
+C1P2 or to any other branch. A branch-scoped query issued from C1P2 must
+never surface this text, since C1P1 is not an ancestor of C1P2.

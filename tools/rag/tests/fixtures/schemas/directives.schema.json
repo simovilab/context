@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://simovilab.org/context/schemas/directives.schema.json",
+  "title": "Directives",
+  "description": "Schema for directives.yaml — a node's directive (rules/instructions) context. Directives are keyed and composed by specificity: the most-specific node wins per key, and composition filters directives by the node's kind (D3) so a docs-only leaf never inherits coding rules or their tokens.",
+  "type": "object",
+  "properties": {
+    "version": {
+      "const": 1,
+      "description": "Schema version of this directives file."
+    },
+    "directives": {
+      "type": "array",
+      "description": "The directives declared at this node.",
+      "items": { "$ref": "#/$defs/directive" }
+    }
+  },
+  "required": ["version", "directives"],
+  "additionalProperties": false,
+  "$defs": {
+    "directive": {
+      "type": "object",
+      "description": "A single directive: a keyed rule or instruction with a composition operation and a set of tags it applies to.",
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "Dotted key identifying what this directive governs (e.g. api.versioning or security.transport-encryption). Segments are kebab-case; the most-specific node's directive for a given key wins during composition.",
+          "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*(\\.[a-z0-9]+(-[a-z0-9]+)*)+$"
+        },
+        "op": {
+          "type": "string",
+          "description": "Composition operation: 'set' replaces any inherited value for this key, 'extend' appends to it, 'suppress' removes it for this node and its descendants.",
+          "enum": ["set", "extend", "suppress"]
+        },
+        "applies_to": {
+          "type": "array",
+          "description": "Tags this directive applies to. During composition, kept only if it intersects the node's kind (D3).",
+          "items": {
+            "type": "string",
+            "enum": ["software", "data", "docs", "api", "infra", "research"]
+          },
+          "minItems": 1
+        },
+        "text": {
+          "type": "string",
+          "description": "The directive's content. Required unless op is 'suppress'."
+        },
+        "lang": {
+          "type": "string",
+          "description": "Language of the text field (D7).",
+          "enum": ["en", "es"],
+          "default": "en"
+        }
+      },
+      "required": ["key", "op", "applies_to"],
+      "additionalProperties": false,
+      "if": {
+        "properties": { "op": { "const": "suppress" } },
+        "required": ["op"]
+      },
+      "then": {},
+      "else": {
+        "required": ["key", "op", "applies_to", "text"]
+      }
+    }
+  }
+}

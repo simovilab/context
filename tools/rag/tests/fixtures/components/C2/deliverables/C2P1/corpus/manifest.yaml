@@ -1,0 +1,6 @@
+entries:
+  - file: other-branch.md
+    title: Other Branch Reference
+    source: "Synthetic fixture"
+    license: internal
+    lang: en

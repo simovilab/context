@@ -21,15 +21,27 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v5
 
-      - name: Install composer
-        run: uv pip install --system -e "tools/composer[dev]"
+      - name: Install composer + RAG engine
+        run: uv pip install --system -e "tools/composer[dev]" -e "tools/rag[dev]"
 
-      - name: Unit tests
+      - name: Unit tests (composer)
         working-directory: tools/composer
         run: pytest -q --cov=infotp_composer --cov-report=term-missing
+
+      - name: Unit tests (RAG)
+        working-directory: tools/rag
+        run: pytest -q --cov=infotp_rag --cov-report=term-missing
 
       - name: Validate schemas + composition + freshness (D4)
         # `compose --check` loads and schema-validates every node.yaml /
         # directives.yaml, runs the depends_on cycle check, and fails if any
         # .composed/<ID>.{json,md} is stale versus the source tree.
         run: python -m infotp_composer compose --check
+
+      - name: RAG index + retrieval smoke (D10, hashing, no network)
+        # Builds the branch-scoped index with the deterministic offline
+        # embedder and confirms a query returns and exits 0. The .rag/ index is
+        # a gitignored build artifact and is never asserted into the tree.
+        run: |
+          python -m infotp_rag index --all
+          python -m infotp_rag query C1P1 "public transport information" -k 3 --json

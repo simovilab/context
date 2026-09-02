@@ -1,0 +1,16 @@
+entries:
+  - file: gtfs-realtime-spec.md
+    title: GTFS Realtime Reference
+    source: "Synthetic fixture, mirrors Google Transit APIs"
+    license: CC-BY-4.0
+    lang: en
+  - file: notes.txt
+    title: Deliverable Notes
+    source: "Synthetic fixture"
+    license: internal
+    lang: en
+  - file: unsupported-manual.pdf
+    title: Unsupported PDF (should be skipped)
+    source: "Synthetic fixture"
+    license: internal
+    lang: en

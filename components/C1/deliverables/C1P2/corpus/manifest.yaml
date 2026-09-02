@@ -1,0 +1,13 @@
+entries:
+- file: gtfs-feed-validation-and-versioning.md
+  title: GTFS Feed Validation and Versioning Before Publication
+  source: MobilityData gtfs-validator docs and GTFS Schedule best practices,
+    gtfs.org / mobilitydata.org
+  license: CC-BY-4.0
+  lang: en
+- file: open-data-licensing-and-fair-principles.md
+  title: Open Data Licensing and the FAIR Principles for Public Transit Data
+  source: FAIR Guiding Principles (Wilkinson et al., 2016); International Open
+    Data Charter
+  license: CC-BY-4.0
+  lang: en

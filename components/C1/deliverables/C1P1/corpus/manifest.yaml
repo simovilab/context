@@ -1,0 +1,12 @@
+entries:
+- file: gtfs-schedule-core-files.md
+  title: "GTFS Schedule: Core Files and Required Fields"
+  source: GTFS Schedule Reference, gtfs.org (public spec, maintained by MobilityData)
+  license: CC-BY-4.0
+  lang: en
+- file: gtfs-realtime-alerts-spec.md
+  title: "GTFS-Realtime: Service Alerts Feed"
+  source: GTFS-Realtime Reference (Service Alerts), gtfs.org / Google Transit APIs
+    public spec
+  license: CC-BY-4.0
+  lang: en
