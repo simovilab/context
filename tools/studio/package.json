@@ -3,14 +3,10 @@
   "private": true,
   "version": "0.1.0",
   "description": "InfoTP Context Studio — local authoring app over the git context store (P2).",
-  "workspaces": [
-    "server",
-    "web"
-  ],
   "scripts": {
-    "dev": "concurrently -n server,web -c blue,green \"npm run dev --workspace server\" \"npm run dev --workspace web\"",
-    "build": "npm run build --workspace web --if-present && npm run build --workspace server",
-    "start": "npm run start --workspace server"
+    "dev": "concurrently -n server,web -c blue,green \"pnpm --filter ./server run dev\" \"pnpm --filter ./web run dev\"",
+    "build": "pnpm --filter ./web run build && pnpm --filter ./server run build",
+    "start": "pnpm --filter ./server run start"
   },
   "devDependencies": {
     "concurrently": "^9.1.0"

@@ -8,17 +8,19 @@ chain, and emits `.composed/<ID>.json` + `.composed/<ID>.md`.
 
 ## Install
 
+Uses [uv](https://docs.astral.sh/uv/) as the package manager.
+
 ```bash
-pip install -e tools/composer
+uv pip install -e tools/composer
 # with dev/test dependencies:
-pip install -e "tools/composer[dev]"
+uv pip install -e "tools/composer[dev]"
 ```
 
 ## Run tests
 
 ```bash
 cd tools/composer
-pytest --cov=infotp_composer --cov-report=term-missing
+uv run pytest --cov=infotp_composer --cov-report=term-missing
 ```
 
 ## CLI usage

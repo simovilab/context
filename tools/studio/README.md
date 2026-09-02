@@ -14,7 +14,7 @@ estimates. It never talks to any external service.
 
 1. The composer, installed in the Python you point the server at:
    ```
-   pip install -e "tools/composer[tokenizers]"   # [tokenizers] enables the tiktoken meter
+   uv pip install -e "tools/composer[tokenizers]"   # [tokenizers] enables the tiktoken meter
    ```
 2. Node 18+ and npm.
 
@@ -22,13 +22,13 @@ estimates. It never talks to any external service.
 
 ```
 cd tools/studio
-npm install
+pnpm install
 STUDIO_PYTHON=/path/to/python-with-composer \
 STUDIO_REPO=/path/to/this/repo \
-npm run dev          # server on :4317, web on Vite's port proxying /api
+pnpm dev             # server on :4317, web on Vite's port proxying /api
 ```
 
-For a production-style single process: `npm run build && STUDIO_PYTHON=... npm start`
+For a production-style single process: `pnpm build && STUDIO_PYTHON=... pnpm start`
 (the server then serves `web/dist` at `/`).
 
 ## Environment

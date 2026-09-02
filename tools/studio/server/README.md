@@ -11,7 +11,7 @@ Python composer.
 - Node 20+ (workspaces: this package lives at `tools/studio/server`, the root
   workspace is `tools/studio/`).
 - A Python environment with `infotp_composer` installed
-  (`pip install -e tools/composer` from the repo root).
+  (`uv pip install -e tools/composer` from the repo root).
 
 ## Environment variables
 
@@ -26,9 +26,9 @@ Python composer.
 ## Run (dev)
 
 ```bash
-cd tools/studio/server
-npm install
-STUDIO_PYTHON=/path/to/venv/bin/python STUDIO_REPO=/path/to/context npm run dev
+cd tools/studio
+pnpm install
+STUDIO_PYTHON=/path/to/venv/bin/python STUDIO_REPO=/path/to/context pnpm --filter ./server run dev
 ```
 
 You can also pass `--repo <path>` as a CLI arg instead of `STUDIO_REPO`.
@@ -36,8 +36,8 @@ You can also pass `--repo <path>` as a CLI arg instead of `STUDIO_REPO`.
 ## Run (built)
 
 ```bash
-npm run build
-npm start
+pnpm --filter ./server run build
+pnpm --filter ./server run start
 ```
 
 If `../web/dist` exists, the server also serves the built web app statically

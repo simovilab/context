@@ -53,7 +53,7 @@ For any node, composition walks from `project/` down to that node, collecting di
 The `.composed/` files are built by the composer in `tools/composer/` — never hand-edit them (D4).
 
 ```
-pip install -e "tools/composer[dev]"
+uv pip install -e "tools/composer[dev]"
 python -m infotp_composer compose --all      # rebuild every node's .composed/<ID>.{json,md}
 python -m infotp_composer compose C4P3        # rebuild a single node
 python -m infotp_composer compose --check     # CI gate: fail if .composed/ is stale vs source

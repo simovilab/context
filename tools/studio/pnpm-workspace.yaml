@@ -1,0 +1,7 @@
+packages:
+  - server
+  - web
+
+# esbuild fetches its platform binary in a postinstall; vite and tsx need it.
+onlyBuiltDependencies:
+  - esbuild
