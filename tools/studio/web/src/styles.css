@@ -191,6 +191,15 @@ code,
   white-space: nowrap;
 }
 
+.tree-node .name-project {
+  font-weight: 600;
+}
+
+.tree-node .name-component {
+  font-style: italic;
+}
+
+
 .tree-toggle {
   flex: 0 0 auto;
   width: 14px;

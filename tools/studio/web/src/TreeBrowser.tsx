@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import type { TreeNode } from "./types";
+import { shortName } from "./shortNames";
 
 interface TreeBrowserProps {
   nodes: TreeNode[];
@@ -11,6 +12,15 @@ interface TreeBrowserProps {
 
 function StatusDot({ status }: { status: string }) {
   return <span className={`status-dot status-${status}`} title={status} />;
+}
+
+function displayName(node: TreeNode): string {
+  const name = shortName(node.id, node.name);
+  // Deliverables read as lowercase labels; capitalize just the first letter.
+  if (node.layer === "deliverable" && name.length > 0) {
+    return name.charAt(0).toUpperCase() + name.slice(1);
+  }
+  return name;
 }
 
 function Row({
@@ -46,8 +56,8 @@ function Row({
         {hasChildren ? (expanded ? "▾" : "▸") : ""}
       </span>
       <span className="id">{node.id}</span>
-      <span className="name" title={node.name}>
-        {node.name}
+      <span className={`name name-${node.layer}`} title={node.name}>
+        {displayName(node)}
       </span>
       <StatusDot status={node.status} />
     </div>
