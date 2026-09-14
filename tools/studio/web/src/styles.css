@@ -811,8 +811,163 @@ table.budget-table tr.overflow {
   white-space: pre;
 }
 
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+  font-size: 12px;
+}
+
+.info-table th,
+.info-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 6px 10px 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.info-table th {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.info-table td:first-child {
+  white-space: nowrap;
+}
+
+.info-table td:nth-child(2) {
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
 .text-muted {
   color: var(--text-muted);
+}
+
+/* --- Graph tab (@xyflow/react + dagre) --- */
+
+.graph-wrap {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.graph-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.graph-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.graph-legend-hint {
+  margin-left: auto;
+  font-style: italic;
+}
+
+.graph-canvas {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.graph-node {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  width: 176px;
+  height: 60px;
+  padding: 0 8px 0 10px;
+  border: 1.5px solid var(--border);
+  border-left-width: 4px;
+  border-radius: 6px;
+  background: var(--bg-alt);
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
+}
+
+.graph-handle {
+  width: 5px;
+  height: 5px;
+  min-width: 5px;
+  min-height: 5px;
+  border: none;
+  background: var(--border);
+}
+
+.graph-node-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.graph-node-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding-left: 2px;
+}
+
+.graph-chip {
+  font-size: 9px;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 3px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: var(--mono);
+  white-space: nowrap;
+}
+
+.graph-chip-dep {
+  color: var(--accent);
+}
+
+.graph-node.selected {
+  outline: 2px solid var(--accent);
+}
+
+.graph-node-project .graph-node-name {
+  font-weight: 600;
+}
+
+.graph-node-deliverable .graph-node-name {
+  font-style: italic;
+}
+
+.graph-node-id {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.graph-node-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.graph-node-dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
 }
 
 .node-summary {
@@ -952,4 +1107,36 @@ table.budget-table tr.overflow {
 .accordion-body {
   padding: 10px;
   border-top: 1px solid var(--border);
+}
+
+/* --- Multi-format corpus viewer + shared markdown previews --- */
+
+.corpus-image {
+  display: block;
+  max-width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-alt);
+}
+
+.corpus-pdf {
+  display: block;
+  width: 100%;
+  height: 640px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-alt);
+}
+
+.corpus-viewer a {
+  color: var(--accent);
+}
+
+/* Markdown preview without the card chrome, for inline contexts (search chunks). */
+.md-view.bare {
+  border: none;
+  padding: 0;
+  background: transparent;
+  max-height: none;
+  overflow: visible;
 }

@@ -85,7 +85,10 @@ export async function getCorpus(id: string): Promise<CorpusResponse> {
 
 export interface CorpusUploadBody {
   file: string;
-  content: string;
+  /** UTF-8 text of the document — mutually exclusive with contentB64. */
+  content?: string;
+  /** Standard base64 of the raw file bytes (no data-URL prefix) — mutually exclusive with content. */
+  contentB64?: string;
   title?: string;
   source?: string;
   license?: string;

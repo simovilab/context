@@ -2,13 +2,14 @@ import { useCallback, useEffect, useState } from "react";
 import { getBudget, getConfig, getNode, getTree } from "./api";
 import BudgetView from "./BudgetView";
 import ComposedPanel from "./ComposedPanel";
+import GraphPanel from "./GraphPanel";
 import InfoPanel from "./InfoPanel";
 import NodeEditor from "./NodeEditor";
 import TokenMeter from "./TokenMeter";
 import TreeBrowser from "./TreeBrowser";
 import type { BudgetResponse, ConfigResponse, NodeDetail, TreeResponse } from "./types";
 
-type Tab = "authoring" | "budget" | "info";
+type Tab = "authoring" | "graph" | "budget" | "info";
 
 export default function App() {
   const [config, setConfig] = useState<ConfigResponse | null>(null);
@@ -80,6 +81,9 @@ export default function App() {
         <button className={tab === "authoring" ? "active" : ""} onClick={() => setTab("authoring")}>
           Authoring
         </button>
+        <button className={tab === "graph" ? "active" : ""} onClick={() => setTab("graph")}>
+          Graph
+        </button>
         <button className={tab === "budget" ? "active" : ""} onClick={() => setTab("budget")}>
           Budget
         </button>
@@ -88,7 +92,23 @@ export default function App() {
         </button>
       </div>
 
-      {tab === "info" ? (
+      {tab === "graph" ? (
+        <div className="pane" style={{ borderRight: "none", padding: 0 }}>
+          {treeError && <div className="error-banner">{treeError}</div>}
+          {tree ? (
+            <GraphPanel
+              nodes={tree.nodes}
+              selectedId={selectedId}
+              onSelect={(id) => {
+                setTab("authoring");
+                loadNode(id);
+              }}
+            />
+          ) : (
+            <div className="empty-state">Tree not loaded.</div>
+          )}
+        </div>
+      ) : tab === "info" ? (
         <div className="pane" style={{ borderRight: "none", padding: 0 }}>
           <InfoPanel />
         </div>

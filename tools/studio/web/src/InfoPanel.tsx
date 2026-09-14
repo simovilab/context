@@ -1,233 +1,265 @@
 import type { ReactNode } from "react";
 
-function P({ children }: { children: ReactNode }) {
-  return <p className="info-p">{children}</p>;
-}
-
 function Term({ children }: { children: ReactNode }) {
   return <span className="info-term">{children}</span>;
 }
 
+function M({ children }: { children: ReactNode }) {
+  return <span className="mono">{children}</span>;
+}
+
 /**
  * Always-on "Info" tab: what the Context Studio is, the model it implements,
- * and how to use it in practice. Pure prose/reference — no data fetching.
+ * a field/key reference, and how to use it (UI + agents). Pure prose/reference
+ * — no data fetching.
  */
 export default function InfoPanel() {
   return (
     <div className="info">
       <section className="info-block">
         <h2>What this is</h2>
-        <P>
-          <Term>InfoTP Context Studio</Term> is a git-first, self-hosted tool for authoring and
-          serving the project&rsquo;s context as <Term>cascading configuration</Term>. The context
-          tree has three layers — <span className="mono">Project → Component → Deliverable</span> —
-          and each node is a folder in the git store. You edit context here; git is the source of
-          truth; agents read it over MCP.
-        </P>
+        <p className="info-p">
+          <Term>InfoTP Context Studio</Term> authors and serves the project&rsquo;s context as{" "}
+          <Term>cascading configuration</Term>, three layers deep —{" "}
+          <M>Project → Component → Deliverable</M> — each node a folder in the git store. Git is
+          the source of truth; this UI edits it; agents read it over MCP.
+        </p>
       </section>
 
       <section className="info-block">
         <h2>Two kinds of context</h2>
-        <P>
-          Everything in the store is one of two kinds, and they behave differently on purpose:
-        </P>
         <div className="info-cards">
           <div className="info-card">
-            <h3>Directive context</h3>
-            <P>
-              The <em>rules and constraints</em> an agent must follow. Directives{" "}
-              <Term>override by specificity</Term>, like CSS: a more specific (deeper) node wins for
-              a given key. They are <Term>inlined</Term> into every agent&rsquo;s prompt and so are{" "}
-              <Term>token-budgeted</Term>. Each directive has an operation —{" "}
-              <span className="mono">set</span> / <span className="mono">extend</span> /{" "}
-              <span className="mono">suppress</span> — a dotted <span className="mono">key</span>,
-              and an <span className="mono">applies_to</span> list of kinds.
-            </P>
+            <h3>Directives</h3>
+            <p className="info-p">
+              Rules an agent must follow. <Term>Override by specificity</Term> (deeper node wins,
+              like CSS), <Term>inlined</Term> into every prompt, so <Term>token-budgeted</Term>.
+            </p>
           </div>
           <div className="info-card">
-            <h3>Reference context</h3>
-            <P>
-              The <em>source material</em> an agent may consult — specs, standards, examples. It{" "}
-              <Term>accumulates</Term> up the tree (a node sees its own plus every ancestor&rsquo;s),
-              and is <Term>fetched on demand</Term> by retrieval (RAG), so it costs ~0 always-on
-              tokens. Retrieval is <Term>branch-scoped</Term>: a node only ever sees its own
-              branch&rsquo;s corpus, never a sibling&rsquo;s.
-            </P>
+            <h3>Reference</h3>
+            <p className="info-p">
+              Source material an agent may consult. <Term>Accumulates</Term> down the tree,{" "}
+              <Term>fetched on demand</Term> via RAG (~0 always-on cost), <Term>branch-scoped</Term>{" "}
+              — a node never sees a sibling&rsquo;s corpus.
+            </p>
           </div>
         </div>
       </section>
 
       <section className="info-block">
-        <h2>The three faces</h2>
-        <ul className="info-list">
-          <li>
-            <Term>Authoring UI</Term> (this tool) — browse the tree, edit a node, and watch its
-            composed context resolve live.
-          </li>
-          <li>
-            <Term>Git store</Term> — the canonical source of truth. Save writes files; <strong>you</strong>{" "}
-            review the diff and commit. Nothing is pushed for you.
-          </li>
-          <li>
-            <Term>MCP serving</Term> — agents connect and receive their node&rsquo;s composed
-            directives plus branch-scoped reference retrieval.
-          </li>
-        </ul>
+        <h2>Node field reference</h2>
+        <p className="info-p">
+          Every node is a <M>node.yaml</M>. These fields are also what the tree/summary tags show.
+        </p>
+        <table className="info-table">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Values</th>
+              <th>Meaning</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <M>status</M>
+              </td>
+              <td>not-started · in-progress · blocked · done</td>
+              <td>Lifecycle dot in the tree. Informational only — doesn&rsquo;t affect composition.</td>
+            </tr>
+            <tr>
+              <td>
+                <M>kind</M>
+              </td>
+              <td>software · data · docs · api · infra · research</td>
+              <td>
+                What the node <em>is</em>. Filters which directives reach it (
+                <M>applies_to</M> match) — a component&rsquo;s kinds are the union of its
+                deliverables&rsquo;.
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <M>owner</M>
+              </td>
+              <td>role IDs, e.g. RH1</td>
+              <td>Who&rsquo;s responsible. At leaf layer, the only one allowed to edit (D8).</td>
+            </tr>
+            <tr>
+              <td>
+                <M>hito</M> / <M>due_month</M>
+              </td>
+              <td>A–F / 1–16</td>
+              <td>Milestone and due month, from the proposal&rsquo;s cronograma.</td>
+            </tr>
+            <tr>
+              <td>
+                <M>result</M>
+              </td>
+              <td>
+                <M>type</M> + <M>visibility</M> (public/internal/restricted)
+              </td>
+              <td>What the node produces and who may see it — visibility gates what enters a public corpus.</td>
+            </tr>
+            <tr>
+              <td>
+                <M>depends_on</M>
+              </td>
+              <td>node IDs</td>
+              <td>Other nodes this needs. Node IDs only, never file paths (D1); used for cycle detection.</td>
+            </tr>
+          </tbody>
+        </table>
       </section>
 
       <section className="info-block">
-        <h2>Using it in practice</h2>
+        <h2>Directive key reference</h2>
+        <p className="info-p">
+          Each entry in a node&rsquo;s <M>directives.yaml</M> has:
+        </p>
+        <table className="info-table">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Values</th>
+              <th>Meaning</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <M>key</M>
+              </td>
+              <td>dotted kebab, e.g. security.transport-encryption</td>
+              <td>Identity a directive composes on — same key on a deeper node overrides an ancestor&rsquo;s.</td>
+            </tr>
+            <tr>
+              <td>
+                <M>op</M>
+              </td>
+              <td>set · extend · suppress</td>
+              <td>
+                <M>set</M> replaces the ancestor&rsquo;s text; <M>extend</M> appends to it;{" "}
+                <M>suppress</M> removes the key from this node down (no <M>text</M> needed).
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <M>applies_to</M>
+              </td>
+              <td>list of kinds</td>
+              <td>Which node kinds this directive reaches — a software-only rule skips a docs deliverable.</td>
+            </tr>
+            <tr>
+              <td>
+                <M>text</M>
+              </td>
+              <td>string</td>
+              <td>The rule itself. Required unless <M>op: suppress</M>.</td>
+            </tr>
+            <tr>
+              <td>
+                <M>lang</M>
+              </td>
+              <td>en · es</td>
+              <td>English for technical/agent-facing content; Spanish for institution-facing. Never mixed in one file (D7).</td>
+            </tr>
+          </tbody>
+        </table>
+        <p className="info-p">
+          Example: project sets <em>security.transport-encryption</em>; a component{" "}
+          <M>extend</M>s it; a public-website deliverable <M>suppress</M>es an internal-only rule.
+        </p>
+      </section>
+
+      <section className="info-block">
+        <h2>Using the UI</h2>
         <ol className="info-steps">
           <li>
-            <strong>Pick a node</strong> in the tree on the left. Its <strong>Summary</strong> gives
-            you the context at a glance — status, kind, the ancestor chain, dependencies, and counts.
+            <strong>Pick a node</strong> in the Authoring tree (left). Its summary shows status,
+            kind, ancestor chain, dependencies, and counts at a glance.
           </li>
           <li>
-            <strong>Edit in the dropdowns.</strong> Open <em>Fields</em>, <em>Directives</em>, or{" "}
-            <em>Prose</em> as needed. Directives are keyed; setting the same key on a deeper node
-            overrides the ancestor&rsquo;s, and <span className="mono">applies_to</span> decides which
-            node kinds a directive reaches (e.g. coding rules skip a docs-only deliverable).
+            <strong>Edit</strong> in <em>Fields</em>, <em>Directives</em>, or <em>Prose</em>. A
+            directive key set on a deeper node overrides the ancestor&rsquo;s automatically.
           </li>
           <li>
-            <strong>Watch the composed panel</strong> on the right. It shows the <em>effective</em>{" "}
-            directive set after specificity resolution, with provenance (which ancestor each came
-            from) and a live token estimate against the budget.
+            <strong>Watch Composed</strong> (right) — the effective directive set post-resolution,
+            with provenance and a live token estimate vs. budget.
           </li>
           <li>
-            <strong>Manage reference material.</strong> Add documents to the node&rsquo;s{" "}
-            <em>Corpus</em>, then use <em>Reference search</em> to test what branch-scoped retrieval
-            returns for a query.
+            <strong>Manage reference material</strong> in <em>Corpus</em>; test retrieval with{" "}
+            <em>Reference search</em>.
           </li>
           <li>
-            <strong>Save, then commit.</strong> Save writes only the working tree. Review the diff in
-            git and commit yourself — the tool never commits or pushes.
+            <strong>Save, then commit yourself.</strong> Save only writes the working tree — review
+            the diff and commit in git; nothing is pushed automatically.
           </li>
           <li>
-            <strong>Check the Budget tab</strong> for each branch&rsquo;s worst-case leaf token total,
-            so directive context stays within budget.
+            <strong>Budget tab</strong> — each branch&rsquo;s worst-case leaf token total against
+            the budget (D9).
           </li>
         </ol>
-      </section>
-
-      <section className="info-block">
-        <h2>Reading the tags</h2>
-        <P>
-          The colored dots and small labels in the tree and summary are not decoration — each one
-          is a field of the node&rsquo;s <span className="mono">node.yaml</span>, and several of
-          them change how context composes:
-        </P>
-        <dl className="info-defs">
-          <dt>status</dt>
-          <dd>
-            Lifecycle of the node&rsquo;s work, shown as a colored dot in the tree:{" "}
-            <span className="mono">not-started</span> (grey), <span className="mono">in-progress</span>{" "}
-            (blue), <span className="mono">blocked</span> (amber), <span className="mono">done</span>{" "}
-            (green). Purely informational for composition.
-          </dd>
-          <dt>kind</dt>
-          <dd>
-            What the node <em>is</em>: <span className="mono">software</span>,{" "}
-            <span className="mono">data</span>, <span className="mono">docs</span>,{" "}
-            <span className="mono">api</span>, <span className="mono">infra</span>, or{" "}
-            <span className="mono">research</span>. This is the filter that decides which directives
-            reach the node: a directive tagged <span className="mono">applies_to: [software]</span>{" "}
-            never loads on a <span className="mono">docs</span>-only deliverable — that&rsquo;s how
-            the token budget stays lean. A component&rsquo;s kinds are the union of its
-            deliverables&rsquo;.
-          </dd>
-          <dt>owner</dt>
-          <dd>
-            Role IDs (<span className="mono">RH1</span>, <span className="mono">RH9</span>…) from
-            the proposal&rsquo;s hiring plan — who is responsible for this node. At the leaf layer,
-            the owner is also the only person allowed to edit it (D8).
-          </dd>
-          <dt>hito &amp; due month</dt>
-          <dd>
-            Delivery scheduling straight from the proposal&rsquo;s cronograma: <em>hito</em> is the
-            milestone (<span className="mono">A</span>–<span className="mono">F</span>) and{" "}
-            <em>due month</em> is the month number (1–16) the result is due at.
-          </dd>
-          <dt>result</dt>
-          <dd>
-            What the node produces and who may see it: a <span className="mono">type</span> (data,
-            software, api, docs, infra) plus a <span className="mono">visibility</span> of{" "}
-            <span className="mono">public</span>, <span className="mono">internal</span>, or{" "}
-            <span className="mono">restricted</span>. Visibility matters for what may go into a
-            public corpus.
-          </dd>
-          <dt>depends_on</dt>
-          <dd>
-            Other nodes this one needs, always as node IDs (never file paths — D1). The composer
-            uses these to detect cycles; humans use them to understand build order.
-          </dd>
-          <dt>directive op (set / extend / suppress)</dt>
-          <dd>
-            How a directive composes against ancestors for the same{" "}
-            <span className="mono">key</span>: <span className="mono">set</span> replaces whatever
-            came from above; <span className="mono">extend</span> appends to it;{" "}
-            <span className="mono">suppress</span> removes the key entirely from this node down.
-            Example: the project sets <em>security.transport-encryption</em>; a stricter component
-            could <em>extend</em> it, and a public-website deliverable could{" "}
-            <em>suppress</em> an internal-only rule.
-          </dd>
-          <dt>lang</dt>
-          <dd>
-            Each directive and corpus file is <span className="mono">en</span> or{" "}
-            <span className="mono">es</span>. Directives and reference content are English;
-            Spanish where content is institution-facing; never mixed within one file (D7).
-          </dd>
-        </dl>
       </section>
 
       <section className="info-block">
         <h2>Using it with an agent</h2>
-        <P>
-          Agents don&rsquo;t read this UI — they connect to the store&rsquo;s{" "}
-          <Term>MCP server</Term> (<span className="mono">tools/mcp</span>), which is read-only and
-          serves committed context. The typical setup:
-        </P>
-        <ol className="info-steps">
-          <li>
-            <strong>Build and register the server</strong> once per machine:
-            <pre className="info-code">
-              <code>{`cd tools/mcp && pnpm install && pnpm run build
+        <p className="info-p">
+          Agents don&rsquo;t use this UI — they connect over MCP (<M>tools/mcp</M>), read-only,
+          serving committed context.
+        </p>
+        <pre className="info-code">
+          <code>{`cd tools/mcp && pnpm install && pnpm run build
 claude mcp add infotp-context -- node /ABS/PATH/to/context/tools/mcp/dist/index.js`}</code>
-            </pre>
-            or add it to a project&rsquo;s <span className="mono">.mcp.json</span> under{" "}
-            <span className="mono">mcpServers.infotp-context</span>. Any MCP-capable client works,
-            not just Claude Code.
-          </li>
-          <li>
-            <strong>Point the agent at a node ID</strong> (e.g. <span className="mono">C2P2</span>{" "}
-            — the deliverable it is working on). The agent then has four tools:{" "}
-            <span className="mono">list_nodes</span> to browse the catalog,{" "}
-            <span className="mono">get_directives</span> for the composed rule block,{" "}
-            <span className="mono">search_reference</span> for branch-scoped retrieval over the
-            corpus, and <span className="mono">get_budget</span> to check token costs.
-          </li>
-          <li>
-            <strong>Directives go in the prompt; reference is pulled on demand.</strong> The agent
-            inlines the directive block (always-on tokens), then queries{" "}
-            <span className="mono">search_reference</span> only when it needs specs or background —
-            so a large corpus costs nothing until asked for. Retrieval is masked to the
-            node&rsquo;s ancestor chain: an agent scoped to <span className="mono">C1P1</span> can
-            never see C3&rsquo;s corpus.
-          </li>
-          <li>
-            <strong>Committed vs. live.</strong> By default the server reads the committed{" "}
-            <span className="mono">.composed/</span> artifacts, so agents see exactly what was
-            reviewed. <span className="mono">get_directives</span> with{" "}
-            <span className="mono">live: true</span> recomputes from the working tree — useful for
-            checking uncommitted edits, but remember to run{" "}
-            <span className="mono">compose --all</span> and commit so the served context stays in
-            sync (D4).
-          </li>
-          <li>
-            <strong>Downstream repos.</strong> A product repo&rsquo;s{" "}
-            <span className="mono">AGENTS.md</span> is generated from its node&rsquo;s composed
-            context — truth flows context → repo, never the other way (D6).
-          </li>
-        </ol>
+        </pre>
+        <p className="info-p">
+          (or add to a project&rsquo;s <M>.mcp.json</M> under <M>mcpServers.infotp-context</M> —
+          any MCP client works.) Point the agent at a node ID (e.g. <M>C2P2</M>); it gets four tools:
+        </p>
+        <table className="info-table">
+          <thead>
+            <tr>
+              <th>Tool</th>
+              <th>Use</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <M>list_nodes</M>
+              </td>
+              <td>Browse the catalog, optionally filtered by layer/component.</td>
+            </tr>
+            <tr>
+              <td>
+                <M>get_directives</M>
+              </td>
+              <td>
+                The composed rule block for a node id. Add <M>live: true</M> to recompute from the
+                working tree instead of the committed <M>.composed/</M> snapshot.
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <M>search_reference</M>
+              </td>
+              <td>Branch-scoped RAG over the corpus — a node never sees a sibling branch&rsquo;s material.</td>
+            </tr>
+            <tr>
+              <td>
+                <M>get_budget</M>
+              </td>
+              <td>Per-branch worst-case-leaf token report and any overflowing nodes.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p className="info-p">
+          Directives are inlined into the prompt up front (always-on cost); reference is pulled
+          only when queried. After editing context, run <M>compose --all</M> and commit so served
+          context stays in sync (D4) — a downstream repo&rsquo;s <M>AGENTS.md</M> is generated from
+          its node&rsquo;s composed context, never the reverse (D6).
+        </p>
       </section>
 
       <section className="info-block">
@@ -235,23 +267,20 @@ claude mcp add infotp-context -- node /ABS/PATH/to/context/tools/mcp/dist/index.
         <dl className="info-defs">
           <dt>Specificity</dt>
           <dd>Deeper nodes override shallower ones for the same directive key.</dd>
-          <dt>applies_to</dt>
-          <dd>A directive only reaches nodes whose <span className="mono">kind</span> it lists.</dd>
-          <dt>Token budget</dt>
-          <dd>
-            The always-on prompt cost is the <em>directives</em> portion. The meter and Budget tab
-            also show <em>reference</em> tokens (the accumulated corpus, fetched via RAG) and the
-            total, so you can see both — but only directives are actually inlined. The meter is
-            accurate (target-model tokenizer); committed artifacts use a deterministic heuristic.
-          </dd>
           <dt>Branch scoping</dt>
-          <dd>
-            Retrieval for a node is masked to its ancestor chain — sibling branches never leak in.
-          </dd>
+          <dd>Retrieval for a node is masked to its ancestor chain only.</dd>
           <dt>Blast radius</dt>
+          <dd>Editing a shallow node affects every descendant; Save reports how far a change reaches.</dd>
+          <dt>Committed vs. live</dt>
           <dd>
-            Editing a shallow node affects all of its descendants; Save reports the blast radius so
-            you know how far a change reaches.
+            Agents see committed <M>.composed/</M> by default — exactly what was reviewed, not
+            unsaved edits.
+          </dd>
+          <dt>Token estimate</dt>
+          <dd>
+            Directives are the always-on prompt cost; reference tokens (shown alongside) are RAG-fetched,
+            not inlined. The meter uses the target-model tokenizer; committed artifacts use a
+            deterministic heuristic.
           </dd>
         </dl>
       </section>

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { putNode } from "./api";
 import CorpusPanel from "./CorpusPanel";
 import DirectiveEditor from "./DirectiveEditor";
+import MarkdownPreview, { ViewToggle } from "./MarkdownPreview";
 import NodeSummary from "./NodeSummary";
 import SearchPanel from "./SearchPanel";
 import Section from "./Section";
@@ -18,6 +19,7 @@ export default function NodeEditor({ node, onSaved }: NodeEditorProps) {
   const [fields, setFields] = useState<NodeFields>(node.fields);
   const [localDirectives, setLocalDirectives] = useState<Directive[]>(node.localDirectives);
   const [referenceMd, setReferenceMd] = useState<string>(node.referenceMd);
+  const [proseMode, setProseMode] = useState<"edit" | "preview">("edit");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedNotice, setSavedNotice] = useState<string | null>(null);
@@ -27,6 +29,7 @@ export default function NodeEditor({ node, onSaved }: NodeEditorProps) {
     setFields(node.fields);
     setLocalDirectives(node.localDirectives);
     setReferenceMd(node.referenceMd);
+    setProseMode("edit");
     setError(null);
     setSavedNotice(null);
     setBlastRadius(null);
@@ -167,13 +170,23 @@ export default function NodeEditor({ node, onSaved }: NodeEditorProps) {
       </Section>
 
       <Section title={`Prose (${node.proseFile})`}>
-        <div className="field-row">
-          <textarea rows={14} value={referenceMd} onChange={(e) => setReferenceMd(e.target.value)} />
-        </div>
+        <ViewToggle
+          mode={proseMode === "preview" ? "rendered" : "raw"}
+          onChange={(m) => setProseMode(m === "rendered" ? "preview" : "edit")}
+          labels={["Edit", "Preview"]}
+          values={["raw", "rendered"]}
+        />
+        {proseMode === "edit" ? (
+          <div className="field-row">
+            <textarea rows={14} value={referenceMd} onChange={(e) => setReferenceMd(e.target.value)} />
+          </div>
+        ) : (
+          <MarkdownPreview>{referenceMd}</MarkdownPreview>
+        )}
       </Section>
 
       <Section title="Corpus" badge={node.corpus.length}>
-        <CorpusPanel nodeId={node.id} layer={node.layer} />
+        <CorpusPanel nodeId={node.id} />
       </Section>
 
       <div className="section-title">Reference search</div>
