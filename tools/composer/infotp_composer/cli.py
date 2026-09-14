@@ -11,11 +11,13 @@ from typing import List, Optional
 
 from .budget import budget_to_json, compute_budget
 from .compose import compose
+from .graph import to_mermaid
 from .model import CompositionError, Store
 from .render import to_json, to_markdown
 from .tokens import Tokenizer, get_tokenizer
 
 DEFAULT_TOKEN_BUDGET = 4000
+GRAPH_FILENAME = "graph.mmd"
 
 
 def discover_repo_root(start: Optional[Path] = None) -> Path:
@@ -70,6 +72,13 @@ def _check(store: Store, out_dir: Path, tokenizer: Optional[Tokenizer] = None) -
             actual_md = md_path.read_text(encoding="utf-8")
             if actual_md != expected_md:
                 problems.append(f"stale: {md_path}")
+
+    graph_path = out_dir / GRAPH_FILENAME
+    expected_graph = to_mermaid(store)
+    if not graph_path.exists():
+        problems.append(f"missing: {graph_path}")
+    elif graph_path.read_text(encoding="utf-8") != expected_graph:
+        problems.append(f"stale: {graph_path}")
 
     return problems
 
@@ -203,6 +212,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         if args.all:
             for node_id in sorted(store.nodes.keys()):
                 _write_outputs(store, node_id, out_dir, tokenizer=tokenizer)
+            (out_dir / GRAPH_FILENAME).write_text(to_mermaid(store), encoding="utf-8")
             print(f"Composed {len(store.nodes)} node(s) into {out_dir}")
             return 0
 
@@ -211,6 +221,9 @@ def main(argv: Optional[List[str]] = None) -> int:
             return 2
 
         _write_outputs(store, args.node_id, out_dir, tokenizer=tokenizer)
+        # The store-wide graph can change even on a single-node edit
+        # (status, depends_on), so refresh it alongside the node's artifacts.
+        (out_dir / GRAPH_FILENAME).write_text(to_mermaid(store), encoding="utf-8")
         print(f"Composed {args.node_id} into {out_dir}")
         return 0
 

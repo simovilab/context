@@ -1,0 +1,84 @@
+graph TD
+  project["project<br/>InfoTP — Sistema Nacional de Información para las Personas Usuarias del Transporte Público (Fase 1)"]
+  subgraph C1["Gestión de datos del transporte público"]
+    C1P1["C1P1<br/>Documentación de datos GTFS Schedule y Realtime Alerts"]
+    C1P2["C1P2<br/>Publicación de datos GTFS Schedule"]
+    C1P3["C1P3<br/>Modelo de gobernanza de datos y sistemas tecnológicos"]
+  end
+  subgraph C2["Editor administrativo de datos GTFS"]
+    C2P1["C2P1<br/>Base de datos especializada para GTFS"]
+    C2P2["C2P2<br/>Editor web administrativo de GTFS Schedule"]
+    C2P3["C2P3<br/>Documentación y manual operativo del editor GTFS"]
+  end
+  subgraph C3["Sistema de alertas en tiempo real de GTFS"]
+    C3P1["C3P1<br/>Documentación y lineamientos de alertas operativas"]
+    C3P2["C3P2<br/>Sistema web de gestión de alertas operativas"]
+  end
+  subgraph C4["Soluciones de integración para servicios digitales"]
+    C4P1["C4P1<br/>Interfaz de acceso a datos estructurados"]
+    C4P2["C4P2<br/>Interfaz de datos en tiempo real y eventos"]
+    C4P3["C4P3<br/>Interfaz de consultas semánticas y contextuales"]
+    C4P4["C4P4<br/>Interfaz de servicios computacionales"]
+    C4P5["C4P5<br/>Documentación y portal para desarrolladores"]
+  end
+  subgraph C5["Sitio web oficial del servicio de transporte público"]
+    C5P1["C5P1<br/>Sitio web oficial del transporte público"]
+    C5P2["C5P2<br/>Interfaz administrativa para la gestión de contenidos"]
+  end
+  subgraph C6["Identidad visual y señalización del servicio"]
+    C6P1["C6P1<br/>Revisión de nomenclatura"]
+    C6P2["C6P2<br/>Manual de comunicación visual"]
+    C6P3["C6P3<br/>Manual técnico de señalización"]
+    C6P4["C6P4<br/>Generador automático de señalización"]
+  end
+  subgraph C7["Estrategia de educación y promoción"]
+    C7P1["C7P1<br/>Estrategia y lineamientos de comunicación"]
+    C7P2["C7P2<br/>Portafolio institucional de comunicación"]
+  end
+  project --- C1
+  project --- C2
+  project --- C3
+  project --- C4
+  project --- C5
+  project --- C6
+  project --- C7
+  C1P2 -.-> C1P1
+  C2P1 -.-> C1P1
+  C2P2 -.-> C2P1
+  C2P2 -.-> C1P1
+  C2P3 -.-> C2P2
+  C3P1 -.-> C1P1
+  C3P1 -.-> C1P3
+  C3P2 -.-> C3P1
+  C3P2 -.-> C2P1
+  C4P1 -.-> C1P2
+  C4P2 -.-> C3P2
+  C4P3 -.-> C4P1
+  C4P4 -.-> C4P1
+  C4P5 -.-> C4P1
+  C4P5 -.-> C4P2
+  C4P5 -.-> C4P3
+  C4P5 -.-> C4P4
+  C5P1 -.-> C1P2
+  C5P1 -.-> C4P1
+  C5P1 -.-> C3P2
+  C5P2 -.-> C5P1
+  C6P2 -.-> C6P1
+  C6P3 -.-> C6P2
+  C6P4 -.-> C1P2
+  C6P4 -.-> C6P2
+  C7P2 -.-> C7P1
+  C7P2 -.-> C6P2
+  classDef not-started fill:#e5e7eb,stroke:#9ca3af
+  classDef in-progress fill:#dbeafe,stroke:#2563eb
+  classDef blocked fill:#fef3c7,stroke:#d97706
+  classDef done fill:#dcfce7,stroke:#16a34a
+  class C1,C1P1,C1P2,C1P3,C2,C2P1,C2P2,C2P3,C3,C3P1,C3P2,C4,C4P1,C4P2,C4P3,C4P4,C4P5,C5,C5P1,C5P2,C6,C6P1,C6P2,C6P3,C6P4,C7,C7P1,C7P2 not-started
+  class project in-progress
+  subgraph legend["status legend"]
+    L1["not-started"]:::not-started
+    L2["in-progress"]:::in-progress
+    L3["blocked"]:::blocked
+    L4["done"]:::done
+  end
+  style legend fill:transparent,stroke:none

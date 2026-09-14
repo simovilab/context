@@ -212,7 +212,13 @@
       ]
     }
   ],
-  "reference": [],
+  "reference": [
+    {
+      "file": "propuesta-tecnica-giz.pdf",
+      "source": "project",
+      "path": "project/corpus/propuesta-tecnica-giz.pdf"
+    }
+  ],
   "token_estimate": {
     "directives": 538,
     "reference": 0,

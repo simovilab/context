@@ -136,6 +136,11 @@
   ],
   "reference": [
     {
+      "file": "propuesta-tecnica-giz.pdf",
+      "source": "project",
+      "path": "project/corpus/propuesta-tecnica-giz.pdf"
+    },
+    {
       "file": "open-data-licensing-and-fair-principles.md",
       "source": "C1P2",
       "path": "components/C1/deliverables/C1P2/corpus/open-data-licensing-and-fair-principles.md"

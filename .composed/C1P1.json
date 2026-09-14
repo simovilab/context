@@ -95,6 +95,11 @@
   ],
   "reference": [
     {
+      "file": "propuesta-tecnica-giz.pdf",
+      "source": "project",
+      "path": "project/corpus/propuesta-tecnica-giz.pdf"
+    },
+    {
       "file": "gtfs-schedule-core-files.md",
       "source": "C1P1",
       "path": "components/C1/deliverables/C1P1/corpus/gtfs-schedule-core-files.md"

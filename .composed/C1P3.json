@@ -95,6 +95,11 @@
   ],
   "reference": [
     {
+      "file": "propuesta-tecnica-giz.pdf",
+      "source": "project",
+      "path": "project/corpus/propuesta-tecnica-giz.pdf"
+    },
+    {
       "file": "data-governance-frameworks-for-public-transport.md",
       "source": "C1P3",
       "path": "components/C1/deliverables/C1P3/corpus/data-governance-frameworks-for-public-transport.md"
