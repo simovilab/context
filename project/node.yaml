@@ -1,5 +1,6 @@
 id: project
-name: InfoTP — Sistema Nacional de Información para las Personas Usuarias del Transporte Público (Fase 1)
+name: InfoTP — Sistema Nacional de Información para las Personas Usuarias del
+  Transporte Público (Fase 1)
 status: in-progress
 owner:
 - RH1
@@ -10,3 +11,4 @@ kind:
 - api
 - infra
 - research
+depends_on: []
