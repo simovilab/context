@@ -9,10 +9,19 @@ reference corpora up the chain (unfiltered, D10/AGENTS.md).
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Dict, List, Optional
 
 from .model import Directive, Node, Store
 from .tokens import Tokenizer, default_tokenizer
+
+# Text suffixes whose contents are counted in the reference token estimate —
+# the text half of the Studio upload allowlist (tools/studio/CONTRACT.md).
+# Binary corpus files (pdf/png/docx/...) are listed in manifests but never
+# decoded as text: they contribute 0 to the estimate instead of mojibake
+# tokens. Keep in sync with tools/studio/server/src/corpus.ts and the RAG
+# indexer's INDEXABLE_SUFFIXES.
+TEXT_SUFFIXES = frozenset({".md", ".txt", ".csv", ".json", ".yaml", ".yml", ".xml", ".html"})
 
 
 @dataclass
@@ -208,6 +217,9 @@ def _reference_token_count(
     """
     total = 0
     for entry in reference:
+        suffix = Path(entry.file).suffix.lower()
+        if suffix not in TEXT_SUFFIXES:
+            continue  # binary corpus file: listed, never decoded as text
         try:
             text = (repo_root / entry.path).read_text(encoding="utf-8", errors="replace")
         except OSError:

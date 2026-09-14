@@ -134,3 +134,39 @@ def test_chain_for_deliverable(store):
 def test_unknown_node_raises(store):
     with pytest.raises(CompositionError):
         compose(store, "DOES-NOT-EXIST")
+
+
+def test_reference_token_estimate_skips_binary_corpus_files(tmp_path):
+    import shutil
+
+    import yaml
+
+    from infotp_composer.tokens import default_tokenizer
+
+    shutil.copytree(FIXTURES, tmp_path, dirs_exist_ok=True)
+
+    # Put real bytes behind the project corpus: one text file plus one binary
+    # (PNG) file. The fixture's other reference entries have no files on disk
+    # (OSError → 0 tokens); this pins that binary files are skipped *before*
+    # any text decoding instead of being counted as mojibake tokens.
+    corpus_dir = tmp_path / "project" / "corpus"
+    corpus_dir.mkdir(parents=True, exist_ok=True)
+    text = "reference corpus text used for the token estimate. "
+    (corpus_dir / "project-overview.md").write_text(text * 20, encoding="utf-8")
+    (corpus_dir / "site-photo.png").write_bytes(b"\x89PNG\r\n\x1a\n" + bytes(range(256)) * 16)
+
+    project_yaml = tmp_path / "project" / "node.yaml"
+    data = yaml.safe_load(project_yaml.read_text(encoding="utf-8"))
+    data["corpus"].append("site-photo.png")
+    project_yaml.write_text(yaml.safe_dump(data), encoding="utf-8")
+
+    store = Store.load(tmp_path)
+    composed = compose(store, "C1P1")
+
+    # The binary file is still listed in the accumulated reference union...
+    files = {r.file for r in composed.reference}
+    assert "site-photo.png" in files
+
+    # ...but contributes exactly 0 to the token estimate (text only).
+    tokenizer = default_tokenizer()
+    assert composed.token_estimate["reference"] == tokenizer.count(text * 20)
