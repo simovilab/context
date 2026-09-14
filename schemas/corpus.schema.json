@@ -21,7 +21,7 @@
       "properties": {
         "file": {
           "type": "string",
-          "description": "Filename relative to this node's corpus/ directory. Kebab-case, must include an extension.",
+          "description": "Filename relative to this node's corpus/ directory. Kebab-case, must include an extension. Studio uploads additionally restrict the extension to: text (md, txt, csv, json, yaml, yml, xml, html), pdf, images (png, jpg, jpeg, gif, svg, webp), and office docs (docx, xlsx, pptx); this pattern itself allows any lowercase extension so pre-existing manifests keep validating.",
           "pattern": "^[a-z0-9][a-z0-9._-]*\\.[a-z0-9]+$"
         },
         "title": {

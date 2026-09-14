@@ -44,7 +44,22 @@ function main(): void {
     rawSearchEmbedder === "hashing" || rawSearchEmbedder === "semantic" ? rawSearchEmbedder : "semantic";
 
   const app = express();
-  app.use(express.json({ limit: "5mb" }));
+  // Global JSON parsing stays at 5 MB. The corpus upload POST
+  // (/api/node/:id/corpus) opts out here via the type() filter and gets its
+  // own 16 MB parser in routes.ts — base64-encoded uploads (contentB64)
+  // inflate the 10 MB byte cap by 4/3 plus JSON overhead, so only that one
+  // route accepts large bodies.
+  const corpusUploadPath = /^\/api\/node\/[^/]+\/corpus\/?$/;
+  app.use(
+    express.json({
+      limit: "5mb",
+      type: (req) => {
+        const path = (req.url ?? "").split("?")[0];
+        if (req.method === "POST" && corpusUploadPath.test(path)) return false;
+        return /json/i.test(String(req.headers["content-type"] ?? ""));
+      },
+    }),
+  );
 
   app.use(
     "/api",

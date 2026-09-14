@@ -1,11 +1,11 @@
 // All HTTP endpoints from tools/studio/CONTRACT.md, using the
 // { ok: true, data } | { ok: false, error } envelope throughout.
 
-import { Router, type Request, type Response } from "express";
+import { json as expressJson, Router, type Request, type Response } from "express";
 import { budget, composeAll, composeStdout, composeWrite, ComposerError } from "./composer.js";
-import { addCorpusEntry, CorpusError, deleteCorpusEntry, readCorpus, readCorpusFile } from "./corpus.js";
+import { addCorpusEntry, CorpusError, deleteCorpusEntry, readCorpus, readCorpusFile, readCorpusFileRaw } from "./corpus.js";
 import { RagError, search } from "./rag.js";
-import { readNodeFiles, readTree, writeLocalDirectives, writeNodeFields, writeProseFile } from "./store.js";
+import { findNodeDir, readNodeFiles, readTree, writeLocalDirectives, writeNodeFields, writeProseFile } from "./store.js";
 import type {
   ApiEnvelope,
   Directive,
@@ -198,49 +198,70 @@ export function createRouter(config: StudioConfig): Router {
     }
   });
 
-  router.post("/node/:id/corpus", async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const body = req.body as {
-      file?: string;
-      content?: string;
-      title?: string;
-      source?: string;
-      license?: string;
-      lang?: Lang;
-    };
-    try {
-      if (typeof body.file !== "string" || body.file.length === 0) {
-        fail(res, "Missing required field: file", 400);
-        return;
-      }
-      if (typeof body.content !== "string") {
-        fail(res, "Missing required field: content", 400);
-        return;
-      }
-      const entries = await addCorpusEntry(repoRoot, id, {
-        file: body.file,
-        content: body.content,
-        title: body.title,
-        source: body.source,
-        license: body.license,
-        lang: body.lang,
-      });
-      // Deliverables are always leaves, so the edited node itself is the
-      // full blast radius here (no composeAll needed, unlike the P2 PUT).
-      await composeWrite(repoRoot, id, writeTokenizer);
-      ok(res, { entries });
-    } catch (err) {
-      if (err instanceof CorpusError) {
-        fail(res, err.message, err.status);
-        return;
-      }
-      if (err instanceof ComposerError) {
-        fail(res, err.stderr.trim() || err.message, 400);
-        return;
-      }
-      fail(res, (err as Error).message);
+  // Per-route body limit: corpus uploads carry `contentB64` (base64 inflates
+  // the 10 MB byte cap by 4/3, plus JSON overhead), so this route alone
+  // accepts bodies up to 16 MB. index.ts's global 5 MB parser skips this
+  // exact path (see its type() filter) and this middleware parses it instead.
+  const corpusUploadJson = expressJson({ limit: "16mb" });
+
+  // Corpus edits change the edited node's reference list; on project/component
+  // they also change every descendant's (reference context accumulates down
+  // the chain), so non-leaf edits recompose all — same blast-radius rule as
+  // the P2 PUT.
+  async function composeAfterCorpusEdit(id: string): Promise<void> {
+    const loc = await findNodeDir(repoRoot, id);
+    if (loc && loc.layer !== "deliverable") {
+      await composeAll(repoRoot, writeTokenizer);
+      return;
     }
-  });
+    await composeWrite(repoRoot, id, writeTokenizer);
+  }
+
+  router.post(
+    "/node/:id/corpus",
+    corpusUploadJson,
+    async (req: Request, res: Response) => {
+      const { id } = req.params;
+      const body = req.body as {
+        file?: string;
+        content?: string;
+        contentB64?: string;
+        title?: string;
+        source?: string;
+        license?: string;
+        lang?: Lang;
+      };
+      try {
+        if (typeof body.file !== "string" || body.file.length === 0) {
+          fail(res, "Missing required field: file", 400);
+          return;
+        }
+        // content-vs-contentB64 ("exactly one of") validation lives in
+        // addCorpusEntry, next to the base64 decode and the 10 MB cap.
+        const entries = await addCorpusEntry(repoRoot, id, {
+          file: body.file,
+          ...(body.content !== undefined ? { content: body.content } : {}),
+          ...(body.contentB64 !== undefined ? { contentB64: body.contentB64 } : {}),
+          title: body.title,
+          source: body.source,
+          license: body.license,
+          lang: body.lang,
+        });
+        await composeAfterCorpusEdit(id);
+        ok(res, { entries });
+      } catch (err) {
+        if (err instanceof CorpusError) {
+          fail(res, err.message, err.status);
+          return;
+        }
+        if (err instanceof ComposerError) {
+          fail(res, err.stderr.trim() || err.message, 400);
+          return;
+        }
+        fail(res, (err as Error).message);
+      }
+    },
+  );
 
   router.get("/node/:id/corpus/:file", async (req: Request, res: Response) => {
     const { id, file } = req.params;
@@ -256,12 +277,33 @@ export function createRouter(config: StudioConfig): Router {
     }
   });
 
+  // Raw-bytes read for multi-format corpus preview (img/iframe/download links
+  // point straight at this URL). The SUCCESS response intentionally bypasses
+  // the ok/error envelope — it streams the file bytes with an extension-mapped
+  // Content-Type instead of JSON (documented in CONTRACT.md). Errors still use
+  // the envelope. Same traversal guard as the text read; any extension allowed.
+  router.get("/node/:id/corpus/:file/raw", async (req: Request, res: Response) => {
+    const { id, file } = req.params;
+    try {
+      const raw = await readCorpusFileRaw(repoRoot, id, file);
+      res.setHeader("Content-Type", raw.contentType);
+      res.setHeader("Content-Disposition", `inline; filename="${raw.file}"`);
+      res.send(raw.bytes);
+    } catch (err) {
+      if (err instanceof CorpusError) {
+        fail(res, err.message, err.status);
+        return;
+      }
+      fail(res, (err as Error).message);
+    }
+  });
+
   router.delete("/node/:id/corpus/:file", async (req: Request, res: Response) => {
     const { id, file } = req.params;
     try {
       const entries = await deleteCorpusEntry(repoRoot, id, file);
-      await composeWrite(repoRoot, id, writeTokenizer);
-      ok(res, { entries });
+        await composeAfterCorpusEdit(id);
+        ok(res, { entries });
     } catch (err) {
       if (err instanceof CorpusError) {
         fail(res, err.message, err.status);

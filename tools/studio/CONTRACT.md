@@ -88,7 +88,7 @@ interface NodeDetail {
   composed: ComposedView;         // full inherited/filtered result (read-only)
   referenceMd: string;            // reference.md / charter.md / brief.md prose (editable)
   proseFile: string;              // which prose file backs referenceMd
-  corpus: string[];               // filenames in corpus/ (deliverables only)
+  corpus: string[];               // filenames in corpus/ (any layer)
 }
 ```
 
@@ -123,6 +123,40 @@ All responses use the envelope `{ ok: true, data: <T> } | { ok: false, error: st
   Sourced from `budget --json`. `overflows` = ids whose composed directive tokens exceed `tokenBudget`.
 
 - `POST /api/recompose` → runs `compose --all`; returns `{ recomposed: number }`.
+
+- `POST /api/node/:id/corpus` (any layer — project and component corpus is
+  first-class; reference context accumulates down the chain) → body
+  `{ file: string, content?: string, contentB64?: string, title?, source?, license?, lang? }`.
+  **Exactly one of `content`** (UTF-8 text, the original paste-a-document path,
+  unchanged) **or `contentB64`** (standard base64 of the raw file bytes, no
+  data-URL prefix — written binary-safely for PDFs/images/office docs). The
+  incoming `file` name is sanitized server-side to kebab-case: lowercase,
+  spaces/underscores → dashes, anything outside `[a-z0-9.-]` stripped, extension
+  preserved (identity for names that already validate). Extension allowlist:
+  text `md txt csv json yaml yml xml html`; `pdf`; images
+  `png jpg jpeg gif svg webp`; office `docx xlsx pptx` — anything else → 400.
+  Hard cap **10 MB decoded** (either form) → 400. This is the one route that
+  accepts request bodies up to **16 MB** (per-route `express.json`; every other
+  route keeps the 5 MB default) so a 10 MB base64 payload + JSON wrapper fits.
+  On success: file written to `<node>/corpus/<file>`, manifest entry upserted,
+  → `{ entries: CorpusEntry[] }`. Recompose blast radius: the edited node is
+  recomposed; if it is `project` or a component, **all** nodes are (every
+  descendant inherits the corpus — same rule as `PUT`). `DELETE
+  /api/node/:id/corpus/:file` follows the same recompose rule.
+
+- `GET /api/node/:id/corpus/:file/raw`
+  → raw file **bytes** with `Content-Type` mapped from the extension
+  (pdf → application/pdf; png/jpg/jpeg/gif/webp → image/*; svg → image/svg+xml;
+  txt/csv/md/json/yaml/yml/xml/html → matching text/application type with
+  charset=utf-8; any other extension → application/octet-stream) and
+  `Content-Disposition: inline; filename="<file>"`. **This is the one
+  documented exception to the response envelope**: a 200 streams the file body
+  directly instead of `{ ok, data }` — binaries cannot survive the JSON
+  `content: string` read (UTF-8 corruption), and `<img>`/`<iframe>`/download
+  links need a real Content-Type. Error responses still use the envelope.
+  Same path-traversal/filename guard as the corpus text read; unlike it, any
+  extension matching the manifest filename pattern is served (the schema
+  allows more than .md/.txt even though text authoring does not).
 
 - Static: the server serves the built web app (`web/dist`) at `/` in production;
   in dev, Vite runs the web on its own port and proxies `/api` to the server.
