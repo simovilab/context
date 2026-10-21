@@ -7,7 +7,7 @@ description: Skill for working inside the infobus repo — SIMOVI's passenger-fa
 
 Load when working inside the `infobus` repo or on anything that displays or distributes transit information to passengers: the REST API, WebSocket `updates`, run lifecycle, Celery ingestion, compose/deploy, or the `context/` and `knowledge/` services.
 
-Longer narrative lives in `reference/systems/infobus.md` (this repo) and `infobus/docs/content/`. Where they disagree with this file, this file was checked against the code more recently. `AGENTS.md`, `README.md`, `ARCHITECTURE.md` and `scripts/README.md` in the infobus repo are partly stale (see "Known stale docs").
+Longer narrative lives in `reference/systems/infobus.md` of the SIMOVI `context` repo (locally `/Users/dotj/Desktop/SIMOVI/git.no_sync/context/reference/systems/infobus.md`) — read it when you need flows, models or the compose table in more depth. Where any doc disagrees with the source code, the code wins. The infobus repo's `AGENTS.md`, `README.md`, `ARCHITECTURE.md` and `scripts/README.md` were refreshed in October 2026 to match; older clones may still carry the stale versions (see "Known stale docs").
 
 ## What it is
 
