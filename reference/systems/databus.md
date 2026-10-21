@@ -1,4 +1,4 @@
-**Last verified:** 2026-07-10 (as-built body against `main` @ `2b062c0`; see §7 for in-flight feature-branch work not yet on `main`)
+**Last verified:** 2026-10-20 (against databus `main` @ `1be2da1`; the three feature branches formerly in §7 are merged and folded into the sections below)
 
 # Databús
 
@@ -21,17 +21,21 @@ backend/
   realtime_engine/  # MQTT consumer (Celery bootstep) + Celery tasks (process_position_update,
                     #   run_lifecycle_event, scan_stale_runs)
   schedule_engine/  # GTFS Schedule query layer + GTFS-RT builders/tasks (the feed producer)
-  feed/             # GTFS data models (Agency, Route, Trip, Stop, StopTime, Shape, Calendar)
-    files/          # Published GTFS-RT output: vehicle_positions.{json,pb}, trip_updates.{json,pb}
-  operations/       # Vehicle / operator / equipment models
+  feed/             # feed-side GTFS models (Feed, FeedPublisher, TransitSystem, Agency, Route, Trip, Stop,
+                    #   StopTime, Shape, Calendar); schedule/exporter.py builds the GTFS Schedule zip
+    files/          # Published output: vehicle_positions.{json,pb}, trip_updates.{json,pb}, gtfs.zip
+  operations/       # Company / Operator / Vehicle / Equipment / Sensor models (Sensor carries HTTP source config)
   website/          # UI-facing views
-  messages/         # AMQP event publisher (CURRENTLY A STUB — see §6)
+  messages/         # kombu publisher for run lifecycle events (wired, no consumer — see §6)
+  gtfs-eta/         # ETA inference lib (uv path source; orphan gitlink, see below)
   databus/celery.py # Celery app + beat schedule (in code, not django_celery_beat admin)
 compose.dev.yml     # Docker Compose for local development
 compose.prod.yml    # Production compose (Traefik, docs, static_files)
 ```
 
-GTFS Schedule models come from **`gtfs-django`**, a `uv` workspace package (editable, alongside `gtfs-io`) that provides the `gtfs` Django app. It is listed first in `INSTALLED_APPS`. This was formerly a git submodule; there is no `.gitmodules` today.
+GTFS Schedule models come from **`gtfs-django`**, a `uv` workspace package (editable, alongside `gtfs-io`) that provides the `gtfs` Django app. It is listed first in `INSTALLED_APPS`. `gtfs-django` and `gtfs-io` are untracked, gitignored nested clones that `docker-entrypoint.sh` clones if missing. `backend/gtfs-eta` is a real directory with its own `.git`, wired as a `uv` **path source** (not a workspace member), and is tracked in git as an **orphan gitlink** (mode 160000, no `.gitmodules` entry — `git submodule status` errors). There is no `.gitmodules`.
+
+**Toolchain:** Python ≥3.14 (`python:3.14-slim`), Django 6.0.4, Celery ≥5.6.3, paho-mqtt, kombu. Tests: ~34 test files on `main` (pytest-django; `gtfs-eta` ignored). `make lint|typecheck|test`. The only GitHub workflow deploys docs — no lint/test CI.
 
 ## 3. Compose Services
 
@@ -46,13 +50,15 @@ Real service names from `compose.dev.yml` / `compose.prod.yml`. Use these Docker
 | `database` | `postgres` (PostGIS) | — | GTFS Schedule data, run records, durable traces |
 | `state` | `redis` | — | Authoritative in-memory real-time state |
 | `telemetry-broker` | `nanomq` | — | **NanoMQ** MQTT broker — high-frequency OBE telemetry |
-| `message-broker` | `rabbitmq` | — | AMQP bus for commands/observations/assertions (largely designed, not wired — see §6) |
+| `message-broker` | `rabbitmq` | — | Celery broker + `databus.events` exchange (publisher wired, no consumer — see §6) |
 | `analytics-engine` | `prefect` | — | Data workflows / analytics |
 | `task-monitoring` | `flower` | — | Celery task monitoring (Flower) |
-| `user-interface` | `nuxt` | — | Passenger/operator frontend |
+| `user-interface` | `nuxt` | — | Frontend (dev port `USER_INTERFACE_PORT`, default 3000) |
 | `docs` | `nginx` (prod only) | — | Built documentation site |
 
-The MQTT consumer is **not** its own service — it is a Celery bootstep inside `realtime-engine`, gated by `MQTT_CONSUMER_ENABLED` so exactly one worker subscribes (see §5).
+Prod (`compose.prod.yml`) publishes **no host ports**; an external Traefik (`traefik_proxy` network, created by `scripts/prod.sh`) routes by `*_DOMAIN` env vars, and MQTT is exposed via a TLS TCP router on 8883. `database` and `state` require `DB_PASSWORD` / `REDIS_PASSWORD`.
+
+The MQTT consumer is **not** its own service — it is a Celery bootstep inside `realtime-engine`, gated by `MQTT_CONSUMER_ENABLED` (default **false**) so exactly one worker subscribes (see §5). **`compose.dev.yml` sets it inline; `compose.prod.yml` does not**, so a prod deploy has no consumer until it is set.
 
 ## 4. Key Models & State
 
@@ -76,10 +82,13 @@ Two namespaces: `vehicle:<id>:*` is **edge-sensed**, `run:<id>:*` / `runs:*` is 
 | `run:<id>:trip` | Hash | realtime-engine | Trip context for the run |
 | `run:<id>:vehicle_stop_status` | Hash | realtime-engine | **Server-computed** stop status (map-matching output) — replaces the old edge `progression` |
 | `run:<id>:congestion_level` | Hash | realtime-engine | Congestion (deferred/partial) |
-| `run:<id>:stop_time_updates` | **String (JSON)** | realtime-engine | TripUpdate projection — a JSON string with a staleness TTL, **not** a hash |
+| `run:<id>:stop_time_updates` | **String (JSON)** | realtime-engine | TripUpdate projection — JSON array, **60 s TTL** (`STOP_TIME_UPDATES_TTL_S`), ETA-model driven; **not** a hash |
+| `operator:<id>:current_run` / `trip:<trip_id>:current_run` | String | lifecycle actions | Resource claims (set on initialize, deleted by `release_resources`); hardcoded in `actions.py`, not in `keys.py` |
 | `runs:last_seen:<id>` | String | realtime-engine | Last telemetry timestamp (drives `scan_stale_runs`) |
 | `runs:tracking` | Set | realtime-engine | Runs currently emitting telemetry |
 | `runs:in_progress` | Set | realtime-engine | Currently active run IDs |
+
+> **Writers:** telemetry keys are written only by realtime-engine, but lifecycle actions (`runs/domain/lifecycle/actions.py`) also write `run:*`, `*:current_run` and the sets from **whichever process handles the transition** — including `orchestrator`, since API commands call `RunLifecycleService.process_event`. `schedule-engine` only reads run/telemetry state. The `Writer` column above is the primary writer, not an exclusive one.
 
 > There is **no** `vehicle:<id>:progression` key. Progression is decommissioned at the edge; the server computes `run:<id>:vehicle_stop_status` via GPS→polyline map-matching.
 
@@ -95,7 +104,10 @@ OBE device
        [synchronous runs:last_seen write, then process_position_update.delay()]
   → process_position_update  (Celery task, off the paho network thread)
        [re-read Redis (last-write-wins) → map-matching → write vehicle_stop_status
-        → completion detection → stop_time_updates projection → position-leaf detection]
+        → completion detection → ETA stop_time_updates projection → position-leaf detection]
+
+Second ingress (same sink): `fetch_positions` (beat, 10 s) polls ACTIVE `Sensor`s with `source_type` http/both through
+`realtime_engine/sources/` and PUBLISHES to `transit/vehicle/<id>/position` — it never writes Redis directly.
   → build_vehicle_positions / build_trip_updates  (schedule-engine, every 15 s)
        [snapshot Redis → JSON → protobuf via json_format.ParseDict → feed/files/*.{json,pb}]
 ```
@@ -113,7 +125,7 @@ OBE device
 The lifecycle FSM (`backend/runs/domain/lifecycle/`) has states: **Requested, Validated, Initialized, Confirmed, Tracking, In Progress, No Signal, Completed, Interrupted, Short Turned, Cancelled** (note: `Cancelled`, not `CANCELED`).
 
 - **Commands** (synchronous, operator/API-driven): create run, confirm, complete, interrupt, short-turn, cancel — via REST.
-- **Detected facts** (async, telemetry-driven): `run_tracking_started`, `run_started`, `run_completed`, `run_tracking_lost`, `run_tracking_restored`, `run_tracking_expired`. `run_completed` is a **detected fact** (the `complete_run`→`run_completed` rename marks this) — `RunCompletedDetector` fires when the server-computed `vehicle_stop_status` is `STOPPED_AT` the final stop.
+- **Detected facts** (async, telemetry-driven): `run_tracking_started`, `run_started`, `run_completed`, `run_tracking_lost`, `run_tracking_restored`, `run_tracking_expired`. `run_completed` is a **detected fact** (the `complete_run`→`run_completed` rename marks this) — `RunCompletedDetector` fires for an In Progress run whenever the server-computed `vehicle_stop_status` is `STOPPED_AT` with a `stop_id`; the FSM guard `is_at_terminal_stop` then checks it is the trip's final stop (a non-terminal stop makes the guard raise and the event is logged, not applied). Interrupt and short-turn are commands only — their detectors are unregistered placeholders.
 
 REST run-command endpoints (`backend/api/urls.py`):
 
@@ -126,55 +138,32 @@ REST run-command endpoints (`backend/api/urls.py`):
 
 ### Stale-run scanning
 
-`scan_stale_runs` (every 30 s) iterates `runs:tracking`, comparing `runs:last_seen:<id>` against thresholds in `runs/domain/detection/thresholds.py`: grace **60 s** (IN_PROGRESS → `run_tracking_lost`, run enters No Signal) and expiry **600 s** (No Signal → `run_tracking_expired`). *(`realtime_engine/README.md` says 300 s; the source — 600 s — wins.)*
+`scan_stale_runs` (every 30 s) iterates `runs:tracking`, comparing `runs:last_seen:<id>` against thresholds in `runs/domain/detection/thresholds.py`: grace **60 s** (IN_PROGRESS, 60 < staleness ≤ 600 → `run_tracking_lost`, run enters No Signal) and expiry **600 s** (No Signal, staleness > 600 → `run_tracking_expired`, run → Cancelled). *(`realtime_engine/README.md` says 300 s; the source — 600 s — wins.)*
 
 ## 6. Messaging, persistence & honest status
 
-- **Redis = authoritative real-time state** (single writer: realtime-engine; read by schedule-engine). PostgreSQL = durable domain data, traces, GTFS-RT blobs. Never use PostgreSQL for real-time decisions — read Redis.
-- **AMQP (`message-broker` / RabbitMQ) is largely designed, not wired.** `backend/messages/publisher.py` `publish_event` is a **stub** that only `print()`s; the `databus.events` direct exchange and `runs.*` routing keys are sketched but not emitting. Treat command/observation/assertion message semantics as intended design, not current behavior.
+- **Redis = authoritative real-time state** (telemetry written by realtime-engine, lifecycle keys by whichever process runs a transition; read by schedule-engine). PostgreSQL = durable domain data, traces, lifecycle audit. Never use PostgreSQL for real-time decisions — read Redis.
+- **AMQP (`message-broker` / RabbitMQ) is partly wired.** `backend/messages/publisher.py` `publish_event` is a real kombu publisher (topic exchange `databus.events`, routing key `runs.lifecycle.<event>`), called from `runs/services/lifecycle.py` on every transition; broker errors are logged and swallowed. **Nothing consumes these events.** The command/observation/assertion `runs.*` semantics remain design only. RabbitMQ is also the Celery broker.
 - **Occupancy** `occupancy_status` is recomputed server-side via `classify_status`; the edge-provided status is discarded.
-- **GTFS-RT alerts** (`build_alerts`) is a stub returning `"Feed ServiceAlert built"`. On `main`, only the VehiclePosition and TripUpdate feeds are real; a GTFS **Schedule** zip producer is in-flight on a feature branch (see §7).
-- **Celery beat schedule lives in code** (`backend/databus/celery.py`), **not** in `django_celery_beat` admin.
+- **Feeds.** Real: VehiclePositions and TripUpdates (every 15 s) and the GTFS Schedule zip. `build_alerts` is a stub returning `"Feed ServiceAlert built"` and is deliberately not scheduled.
+- **GTFS Schedule zip.** `feed/schedule/exporter.py` (`build_gtfs_zip`, `publish_gtfs_zip`, atomic `.tmp` + replace) writes `feed/files/gtfs.zip` from the current `Feed`; served at `/feed/schedule/feed.zip` (404 until generated). `build_schedule` (beat, daily) rebuilds it; `fetch_schedule` (beat, hourly at :30) HEAD-checks each active `FeedPublisher.schedule_url` ETag and imports changes; `export_gtfs` / `bootstrap_schedule` management commands exist.
+- **ETA stop times.** `run:<id>:stop_time_updates` comes from `gtfs_eta` (`backend/gtfs-eta`, inference only) through a lazy-import seam in `runs/domain/progression/stop_times.py`. Model registry from `MODEL_REGISTRY_DIR`; `ETA_MAX_STOPS` (default 3), `ETA_DEFAULT_UNCERTAINTY_S` (default 120). Checked-in baseline in `backend/eta_models/`.
+- **Celery beat schedule lives in code** (`backend/databus/celery.py`), **not** in `django_celery_beat` admin (the app is installed but no `DatabaseScheduler`). Entries: `build-vehicle-positions-every-15s`, `build-trip-updates-every-15s`, `scan-stale-runs-every-30s`, `fetch-positions` (10 s, `expires=10`), `build-schedule-daily`, `fetch-schedule-hourly-at-30`. Queues come from `@shared_task(queue=…)` and worker `-Q` flags; there is no `CELERY_TASK_ROUTES`.
 - GTFS-RT `timestamp` is Unix epoch **seconds**, not milliseconds.
 
-## 7. In-flight work (feature branches — not yet on `main`)
+## 7. HTTP telemetry ingestion (pluggable sources)
 
-> These features are implemented on feature branches and **not yet merged to `main`**, so they are not part of the as-built system described above. They are documented here so agents working the active branches have context. **Fold each into the sections above once it merges**, and delete it from here. Verified against source 2026-07-10.
+Databús can **pull** telemetry from third-party HTTP APIs (driving case: the NavSat fleet API) in addition to OBE→MQTT push. The fetcher publishes onto the existing `transit/vehicle/<id>/position` contract so the MQTT consumer's run-routing (`vehicle:<id>:current_run`), `runs:last_seen`, validation and `process_position_update` hand-off are reused unchanged — MQTT is the ingestion front door, and an HTTP source is a *source*, never a new sink.
 
-### GTFS Schedule zip publishing (`feat/gtfs-schedule-publish`)
+- `backend/realtime_engine/sources/`: `base.py` (`SourceAdapter` protocol + `register`/`get_adapter`), `http_json.py` (generic adapter, kind `"http"`, driven by `Sensor.source_http_url` + `source_json_mapping`), `transforms.py` (km/h→m/s, km→m, `America/Costa_Rica` datetime→epoch seconds, dotted-path getter), `publisher.py` (paho-v2 `MqttPublisher`, QoS 0, retain false). Adding an HTTP feed = a new `Sensor` row, no code.
+- `realtime_engine.tasks.fetch_positions` (queue `realtime_engine`, `soft_time_limit=25`, beat every 10 s): builds the in-service set from `vehicle:*:current_run`, queries ACTIVE `Sensor`s with `provides_position` and `source_type` in http/both, and publishes readings for in-service vehicles.
+- **Gate rationale:** scoping on `current_run` (set from Confirmed onward), not `runs:in_progress`, avoids deadlocking an HTTP-only run — it reaches In Progress only once telemetry shows movement, and that telemetry is what this task supplies. Consequence: a run in **Tracking** (e.g. a parked bus) has position in Redis but is absent from the feeds until In Progress, since the builders iterate `runs:in_progress`.
+- Data model: `Sensor` → `Equipment` → `Vehicle`; `Sensor` carries `source_type` (`mqtt`/`http`/`both`), `source_http_url`, `source_json_mapping`.
+- Config: `MQTT_HOST` (default `telemetry-broker`), `MQTT_PORT` (default 1883).
 
-Makes databus a real **GTFS Schedule** producer (until now only the GTFS-RT feeds were real — §6). Mirrors the GTFS-RT publish pipeline:
+## 7b. Startup & migrations
 
-- `backend/feed/schedule/exporter.py` — `build_gtfs_zip(feed)` serializes one Feed's rows into GTFS `.txt` files (columns derived by model introspection) and returns the zip bytes; `publish_gtfs_zip(feed)` writes `backend/feed/files/gtfs.zip` **atomically** (`.tmp` staging file + `Path.replace`).
-- Source of truth is the **`feed` app's own GTFS ORM models** (`Feed`, `Agency`, `Stop`, `Route`, `Calendar`, `CalendarDate`, `Trip`, `StopTime`, `Shape`), typically loaded from `feed/fixtures/gtfs.json`. The exporter selects `Feed.objects.filter(is_current=True).first()`. *(This is the `feed` app's model set — distinct from the `gtfs`/`gtfs-django` schedule models referenced in §2/§4.)*
-- `schedule_engine.tasks.build_schedule` — Celery task on queue `schedule_engine`, wired to a **daily** beat entry `build-schedule-daily` (`timedelta(days=1)` in `backend/databus/celery.py`).
-- `feed export_gtfs` management command for on-demand/boot generation; `docker-entrypoint.sh` exports on boot **only if `gtfs.zip` is absent**.
-- Served at **`/feed/schedule/feed.zip`** (`feed.views.schedule`); returns **404** until the zip has been generated.
-
-### ETA-driven stop-time updates (`feat/eta-stop-times`)
-
-Replaces the placeholder `stop_time_updates` producer with real arrival-time predictions (the `run:<id>:stop_time_updates` projection in §4 becomes model-driven).
-
-- New **`gtfs-eta` uv workspace package** (`backend/gtfs-eta/`, namespace `gtfs_eta.*`): an **inference-only** ETA library — estimator, feature engineering, and model-registry loader. It is the vendored inference half; the canonical training source lives in `gtfs-django` (`feature/eta_prediction`). `xgboost` is an optional extra. Candidate for extraction into its own package if a second consumer appears.
-- `backend/runs/domain/progression/stop_times.py` now computes the projection via `gtfs_eta.eta_service.estimator.estimate_stop_times`, reached through a single **lazy-import seam** (pure `compute_stop_time_updates` + impure `produce_stop_times` doing the Redis I/O). Upcoming stops and distances come from the monotonic shape geometry and feed the estimator's precomputed-distance hook (fixes duplicate `stop_sequence`s and non-decreasing upcoming counts).
-- Model registry loaded from **`MODEL_REGISTRY_DIR`** (a `registry.json` index plus per-model `*.pkl` / `*_meta.json`), resolved **relative to the registry directory** so it is relocatable (bind-mount, checked-in placeholder, or externally retrained). Seed a deterministic baseline with `MODEL_REGISTRY_DIR=eta_models python -m gtfs_eta.seed_baseline_model`.
-- New config/env: `MODEL_REGISTRY_DIR`, `ETA_MAX_STOPS` (default `3`), `ETA_DEFAULT_UNCERTAINTY_S` (default `120`).
-
-### HTTP telemetry ingestion — pluggable sources (`feat/fetch-telemetry`) *(verified 2026-07-21)*
-
-Lets databús **pull** vehicle telemetry from third-party HTTP APIs and relay it into the existing pipeline, for fleets whose GPS is only reachable over REST (the driving case: the **NavSat** API) rather than pushed by on-board equipment over MQTT. As-built §5 describes OBE→MQTT as the *only* ingress; this adds a second **source** while keeping the same sink.
-
-- **Key architectural point:** the fetcher publishes onto the existing `transit/vehicle/<id>/position` MQTT contract — it does **not** write Redis directly. MQTT is the ingestion *front door*, not mere transport: the consumer (§5) does run-routing via `vehicle:<id>:current_run`, `runs:last_seen`, validation, and the `process_position_update.delay()` hand-off. So an HTTP source reuses all of that unchanged and is a *source*, never a new sink.
-- **New pluggable source package** `backend/realtime_engine/sources/`:
-  - `base.py` — `SourceAdapter` Protocol (`fetch(sensor) -> list[(vehicle_id, payload)]`) + a string-keyed registry (`register(kind)` / `get_adapter(kind)`). Adding a *protocol* = a new adapter class; adding an *HTTP feed* = a new `Sensor` row, no code.
-  - `http_json.py` — generic adapter registered under kind `"http"`, driven entirely by a `Sensor`'s `source_http_url` + `source_json_mapping` (JSON path map + `units`/`timestamp` config). Handles array or single-object bodies; skips malformed records rather than failing the batch.
-  - `transforms.py` — pure normalizers ported from the `navsat-bridge` prototype: km/h→m/s, km→m, `America/Costa_Rica`-local datetime→epoch **seconds**, plus a dotted-path getter.
-  - `publisher.py` — paho-**v2** MQTT publisher to `transit/vehicle/<id>/position`, reusing the `MQTT_HOST`/`MQTT_PORT` env convention from the consumer.
-- **New Celery task** `realtime_engine.tasks.fetch_positions` (queue `realtime_engine`), beat entry **`fetch-positions` every 10 s** in `backend/databus/celery.py`. Each cycle: (1) build the in-service vehicle set from vehicles that have a `vehicle:<id>:current_run` key — **the same gate the MQTT consumer uses**; (2) query `Sensor.objects.filter(status="ACTIVE", provides_position=True, source_type__in=["http","both"])`; (3) dispatch each through `get_adapter("http")`, keep readings for in-service vehicles, publish the survivors.
-  - **Gate rationale (subtle):** scoping on `current_run` — not `runs:in_progress` — is deliberate. A run only reaches **In Progress** once telemetry proves the vehicle is moving (`is_vehicle_moving` guard), but for an HTTP-only vehicle that telemetry *is* what `fetch_positions` delivers. Gating on `runs:in_progress` deadlocks a **Confirmed** run; gating on `current_run` (set from Confirmed onward) lets it bootstrap Confirmed → Tracking → In Progress. Note the downstream consequence: a run sitting in **Tracking** (e.g. a parked bus) has its position in Redis but does **not** appear in the feeds until it reaches In Progress, since the builders still iterate `runs:in_progress`.
-- **Data model** (`operations/models.py`): the old fat `Equipment.provides_*` flags moved to a new **`Sensor`** model (`Sensor` → `Equipment` → `Vehicle`), which also carries the source config: `source_type` (`mqtt`/`http`/`both`), `source_http_url`, `source_json_mapping`. Also: `Company.linked_agency` O2O→M2M, `Operator` role flags, `Vehicle.status` drops `SOLD`. `Sensor` registered in the Django admin.
-- **NavSat specifics:** one endpoint (`…/rcu/<token>/114700/0/todos`) returns the whole fleet as a JSON array keyed by `plateNumber`; the adapter fans out to every vehicle by plate. `plateNumber` equals `Vehicle.id` for the current operator, so no plate→id lookup. (Swapping `todos` for a plate returns a 1-element array — same shape.) The `navsat-bridge` repo was only a prototype; ingestion now lives here.
-- **Migrations convention:** `operations` added to `APPS_TO_MIGRATE` in `docker-entrypoint.sh` (migrations are gitignored and regenerated at container start under `DEBUG`, like the other apps). **Env:** `MQTT_HOST` / `MQTT_PORT` added to the env files (the consumer already read them).
+`docker-entrypoint.sh` clones `gtfs-io`/`gtfs-django`/`gtfs-eta` if missing, runs `uv sync --frozen` under a lock, waits for the DB, then (when `DJANGO_SETUP` is truthy) runs `migrate`, superuser (DEBUG only, default admin credentials), `collectstatic`, `load_publishers` (always), `load_initial_data` (DEBUG only — loads `operations/fixtures/demo_fleet.json`) and `bootstrap_schedule` (always; then `export_gtfs` only if `gtfs.zip` is absent). Migrations are **tracked in git** for `feed`, `operations`, `runs`; `schedule_engine/migrations/` is an intentionally empty package. There is no `APPS_TO_MIGRATE`.
 
 ## 8. Links to FSMs (formal process specs)
 
